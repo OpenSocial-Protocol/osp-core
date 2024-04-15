@@ -1,13 +1,12 @@
 import '@nomiclabs/hardhat-ethers';
-import { Wallet } from 'ethers';
 import fs from 'fs';
 import { task } from 'hardhat/config';
-import { COMPILE_TASK_NAME } from '../config/tasks';
-import { OspClient__factory, OspRouterImmutable__factory } from '../target/typechain-types';
+import { OspRouterImmutable__factory } from '../target/typechain-types';
 import { waitForTx } from './helpers/utils';
+import { getDeployer } from './helpers/kms';
 
-function getAddresses(hre) {
-  return JSON.parse(fs.readFileSync(`addresses-${hre.network.name}.json`).toString());
+function getAddresses(hre, env) {
+  return JSON.parse(fs.readFileSync(`addresses-${env}-${hre.network.name}.json`).toString());
 }
 
 function getFunSig(logicName: string) {
@@ -21,16 +20,15 @@ function getFunSig(logicName: string) {
 
 task('update-router', 'update-router')
   .addParam('logic')
-  .setAction(async ({ logic }, hre) => {
+  .addParam('env')
+  .setAction(async ({ logic, env }, hre) => {
     const logicName = logic as string;
     console.log(`start update router ,logic is ${logicName}.`);
 
-    const ethers = hre.ethers;
-    const deployer = new Wallet(<string>process.env.DEPLOYER_PRIVATE_KEY, ethers.provider);
-    const ospAddressConfig = getAddresses(hre);
+    const deployer = await getDeployer(hre);
+    const ospAddressConfig = getAddresses(hre, env);
     const ospAddress = ospAddressConfig.routerProxy;
 
-    const osp = OspClient__factory.connect(ospAddress, deployer);
     const router = OspRouterImmutable__factory.connect(ospAddress, deployer);
 
     const allRouters = await router.getAllRouters();
@@ -47,7 +45,7 @@ task('update-router', 'update-router')
     const updateFun: Set<any> = new Set();
     const addFun: Set<any> = new Set();
 
-    for (let key in funSig) {
+    for (const key in funSig) {
       const selector = funSig[key];
       if (logicRouters.find((item) => item == selector)) {
         removeFun.delete(selector);
@@ -70,8 +68,8 @@ task('update-router', 'update-router')
     console.log(addFun);
 
     const logicContract = await hre.ethers.deployContract(
-      // @ts-ignore
-      logicName.at(0).toUpperCase() + logicName.slice(1) + 'Logic'
+      logicName.at(0).toUpperCase() + logicName.slice(1) + 'Logic',
+      deployer
     );
     console.log(`deploy logic contract: ${logicContract.address}`);
 
@@ -83,7 +81,6 @@ task('update-router', 'update-router')
       calldata.push(
         router.interface.encodeFunctionData('removeRouter', [
           selector,
-          // @ts-ignore
           allRouters.find((item) => item.functionSelector == selector).functionSignature as string,
         ])
       );
@@ -118,7 +115,7 @@ task('update-router', 'update-router')
 
     ospAddressConfig[`${logicName}Logic`] = contractAddress;
     fs.writeFileSync(
-      `addresses-${hre.network.name}.json`,
+      `addresses-${env}-${hre.network.name}.json`,
       JSON.stringify(ospAddressConfig, null, 2)
     );
   });

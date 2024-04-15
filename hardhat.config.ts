@@ -11,7 +11,8 @@ import 'solidity-docgen';
 import './config/compile';
 import { HARDHAT_CHAIN_ID } from './config/hardhat';
 import { hardhatAccounts } from './config/hardhat-accounts';
-import { getHardhatNetwork, getRpcNetwork, local, mumbai, sepolia } from './config/network';
+import { baseSepolia, getRpcNetwork, polygonAmoy } from './config/network';
+
 dotenv.config();
 if (!process.env.SKIP_LOAD) {
   glob.sync('./tasks/**/*.ts').forEach(function (file) {
@@ -61,12 +62,8 @@ const config: HardhatUserConfig = {
       // },
     },
     // hardhat network
-    local: getHardhatNetwork(local),
-    // beta network
-    dev: getRpcNetwork(mumbai),
-    beta: getRpcNetwork(mumbai),
-    prod: getRpcNetwork(mumbai),
-    // prod network
+    baseSepolia: getRpcNetwork(baseSepolia),
+    polygonAmoy: getRpcNetwork(polygonAmoy),
   },
   paths: {
     cache: './target/cache',

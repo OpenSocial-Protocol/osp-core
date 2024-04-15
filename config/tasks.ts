@@ -8,6 +8,7 @@ export enum COMPILE_TASK_NAME {
 }
 export enum DEPLOY_TASK_NAME {
   FULL_DEPLOY_OSP = 'full-deploy-osp',
+  DEPLOY_OSP_CREATE2 = 'deploy-osp-create2',
   PLUGIN_DEPLOY = 'plugin-deploy',
   VERIFY_OSP = 'verify-osp',
 }

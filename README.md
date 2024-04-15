@@ -14,14 +14,8 @@
             `---`     `----'                                            `----'   ---`-'  `--`---'
 ```
 
-```bash
-npm install
-```
+deploy with kms
 
 ```bash
-npm run compile
-```
-
-```bash
-npm run test
+npx hardhat deploy-osp-create2 --env dev --network baseSepolia
 ```
