@@ -1,0 +1,15 @@
+node_modules
+.env
+
+.DS_Store
+.DS_Store?
+
+# OSP files
+target
+
+# zan contract review
+bin
+
+.idea
+
+broadcast

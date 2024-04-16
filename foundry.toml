@@ -1,0 +1,11 @@
+[profile.default]
+src = 'contracts'
+out = 'target/forge/out'
+libs = ['lib','node_modules']
+test = 'test/foundry'
+cache_path  = 'target/forge/cache'
+ffi = true
+
+fs_permissions = [{ access = "read-write", path = "./"}]
+
+# See more config options https://book.getfoundry.sh/reference/config.html
