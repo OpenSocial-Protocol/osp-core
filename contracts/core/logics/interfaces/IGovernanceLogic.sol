@@ -162,4 +162,14 @@ interface IGovernanceLogic is IERC4906, IERC5267, IAccessControl {
     function getState() external view returns (OspDataTypes.ProtocolState);
 
     function updateMetadata() external;
+
+    /**
+     * @dev Update The treasure address.This function can only be called by the current governance.
+     */
+    function setTreasureAddress(address treasure) external;
+
+    /**
+     * @dev Get The treasure address.
+     */
+    function getTreasureAddress() external view returns (address);
 }

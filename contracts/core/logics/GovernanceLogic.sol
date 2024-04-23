@@ -117,6 +117,13 @@ contract GovernanceLogic is IGovernanceLogic, OspLogicBase, AccessControlUpgrade
         emit BatchMetadataUpdate(1, type(uint256).max);
     }
 
+    function setTreasureAddress(
+        address treasure
+    ) external override onlyRole(Constants.GOVERNANCE) {
+        if (treasure == address(0)) revert OspErrors.InvalidTreasure();
+        _getGovernanceStorage()._treasure = treasure;
+    }
+
     /*///////////////////////////////////////////////////////////////
                         Public read functions
     //////////////////////////////////////////////////////////////*/
@@ -199,5 +206,9 @@ contract GovernanceLogic is IGovernanceLogic, OspLogicBase, AccessControlUpgrade
             bytes32(0),
             new uint256[](0)
         );
+    }
+
+    function getTreasureAddress() external view returns (address) {
+        return _getGovernanceStorage()._treasure;
     }
 }
