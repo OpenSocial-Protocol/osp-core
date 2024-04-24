@@ -14,7 +14,30 @@
             `---`     `----'                                            `----'   ---`-'  `--`---'
 ```
 
-## before deploy
+## Config
+
+### use kms
+
+Edit the file `.env` and set the `AWS_KMS_KEY_ID` to the key id of the KMS key you want to use.
+
+```env
+ACCESS_KEY_ID=<YOU_ACCESS_KEY_ID>
+SECRET_ACCESS_KEY=<YOUR_SECRET_ACCESS_KEY>
+AWS_KMS_KEY_ID=<YOUR_KMS_KEY_ID>
+AWS_REGION=<YOUR_AWS_REGION>
+```
+
+### use private key
+
+Edit the file `.env` and set the `PRIVATE_KEY` to the private key you want to use.
+
+```env
+PRIVATE_KEY=<YOUR_PRIVATE_KEY>
+```
+
+## Before deploy
+
+### check erc6551 registry
 
 you need to make sure the address 0x000000006551c19487814612e58fe06813775758(ERC6551Registry) exists bytecode.
 The registry can be deployed to any EVM-compatible chain using the following transaction:
@@ -27,7 +50,7 @@ The registry can be deployed to any EVM-compatible chain using the following tra
 }
 ```
 
-## deploy with kms
+## create2 deploy
 
 ```bash
 npx hardhat deploy-osp-create2 --env dev --network baseSepolia

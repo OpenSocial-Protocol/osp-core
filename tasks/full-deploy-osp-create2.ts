@@ -38,27 +38,11 @@ import { Signer } from 'ethers';
 import { deployCreate2, getDeployData } from './helpers/create2';
 import { getDeployer } from './helpers/kms';
 
-const GROUP = process.env.GROUP as string;
-const create2_directory = `create2-${GROUP}`;
+const create2_directory = `create2-osp`;
 
 function getAddresses(hre, env) {
   return JSON.parse(fs.readFileSync(`addresses-${env}-${hre.network.name}.json`).toString());
 }
-task('add-whitelist-community-creator')
-  .addParam('env')
-  .setAction(async ({ env }, hre) => {
-    const addresses = getAddresses(hre, env);
-    const whitelistAddressCommunityCond = WhitelistAddressCommunityCond__factory.connect(
-      addresses.whitelistAddressCommunityCond,
-      await getDeployer(hre)
-    );
-    await waitForTx(
-      whitelistAddressCommunityCond.setMaxCreationNumber(
-        '0x4c7f44906370132E63564BA7E4379fdff913D3bD',
-        1000000
-      )
-    );
-  });
 
 task(DEPLOY_TASK_NAME.DEPLOY_OSP_CREATE2, 'deploys the entire OpenSocial Protocol')
   .addParam('env')

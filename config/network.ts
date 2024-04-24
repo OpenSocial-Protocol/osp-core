@@ -32,10 +32,7 @@ export function getRpcNetwork(network: Network) {
     url: network.url,
     chainId: network.chainId,
     accounts: process.env.DEPLOYER_PRIVATE_KEY
-      ? [
-          process.env.DEPLOYER_PRIVATE_KEY,
-          process.env.GOVERNANCE_PRIVATE_KEY ? process.env.GOVERNANCE_PRIVATE_KEY : '',
-        ]
+      ? [process.env.DEPLOYER_PRIVATE_KEY]
       : hardhatAccounts.map((value) => value.privateKey),
   };
 }
