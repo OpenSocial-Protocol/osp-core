@@ -48,6 +48,7 @@ library OspErrors {
     error InvalidContentURI();
     error TagDoesNotExist();
     error TooManyTags();
+    error InvalidTreasure();
 
     //Plugin Errors
     error PluginNotEnable();

@@ -74,6 +74,7 @@ abstract contract OspStorage {
         mapping(bytes32 => bool) _reserveCommunityHandleHash;
         mapping(address => bool) _tokenWhitelisted;
         mapping(address => bool) _superCommunityCreatorWhitelisted;
+        address _treasure;
     }
 
     function _getGovernanceStorage()

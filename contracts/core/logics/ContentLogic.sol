@@ -301,7 +301,9 @@ contract ContentLogic is IContentLogic, OspLogicBase {
             revert OspErrors.InvalidToken();
         }
         megaphoneId = ++_getContentStorage()._megaphoneCount;
-        Payment.payERC20(vars.currency, msg.sender, address(this), vars.amount);
+        address treasure = _getGovernanceStorage()._treasure;
+        if (treasure == address(0)) revert OspErrors.InvalidTreasure();
+        Payment.payERC20(vars.currency, msg.sender, treasure, vars.amount);
         emit OspEvents.MegaphoneCreated(
             megaphoneId,
             vars.referencedProfileId,
