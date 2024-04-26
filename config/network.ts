@@ -18,15 +18,22 @@ export const polygonAmoy: Network = {
   url: 'https://rpc-amoy.polygon.technology',
 };
 
+export const anvil: Network = {
+  chainId: 31337,
+  url: 'http://127.0.0.1:8545',
+};
+
 export interface Network {
   chainId: number;
   url: string;
 }
+
 export const getHardhatNetwork = (network: Network) => ({
   url: network.url,
   chainId: network.chainId,
   accounts: hardhatAccounts.map((value) => value.privateKey),
 });
+
 export function getRpcNetwork(network: Network) {
   return {
     url: network.url,

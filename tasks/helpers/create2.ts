@@ -62,10 +62,15 @@ export const deployCreate2 = async (
   if (code && code != '0x') {
     return;
   }
-  const calldata = create2Factory.interface.encodeFunctionData('deploy', [
-    params.initCode,
-    ethers.utils.hexZeroPad(params.salt, 32),
-  ]);
+  let calldata;
+  if (create2Factory.address === '0x4e59b44847b379578588920cA78FbF26c0B4956C') {
+    calldata = params.salt + params.initCode.slice(2);
+  } else {
+    calldata = create2Factory.interface.encodeFunctionData('deploy', [
+      params.initCode,
+      ethers.utils.hexZeroPad(params.salt, 32),
+    ]);
+  }
   const tx = { to: create2Factory.address, data: calldata };
   await waitForTx(deployer.sendTransaction({ ...tx, gasLimit: 9000000 }));
   const code2 = await deployer.provider?.getCode(params.address);
