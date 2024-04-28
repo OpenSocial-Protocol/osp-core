@@ -288,6 +288,13 @@ abstract contract OspTestSetUp is OspTestConstant {
         );
         ospRouter.addRouter(
             IRouter.Router({
+                functionSelector: hex'8705c8d2',
+                functionSignature: 'getTreasureAddress()',
+                routerAddress: address(governanceLogic)
+            })
+        );
+        ospRouter.addRouter(
+            IRouter.Router({
                 functionSelector: hex'2f2ff15d',
                 functionSignature: 'grantRole(bytes32,address)',
                 routerAddress: address(governanceLogic)
@@ -374,6 +381,13 @@ abstract contract OspTestSetUp is OspTestConstant {
             IRouter.Router({
                 functionSelector: hex'56de96db',
                 functionSignature: 'setState(uint8)',
+                routerAddress: address(governanceLogic)
+            })
+        );
+        ospRouter.addRouter(
+            IRouter.Router({
+                functionSelector: hex'c36b9332',
+                functionSignature: 'setTreasureAddress(address)',
                 routerAddress: address(governanceLogic)
             })
         );

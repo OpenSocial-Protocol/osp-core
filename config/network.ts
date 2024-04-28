@@ -17,6 +17,10 @@ export const polygonAmoy: Network = {
   chainId: 80002,
   url: 'https://rpc-amoy.polygon.technology',
 };
+export const beraTestnet: Network = {
+  url: 'https://smart-spring-river.bera-artio.quiknode.pro/5400cbe24581860e9a78ac84dd9e10663b4d4d8c/',
+  chainId: 80085,
+};
 
 export interface Network {
   chainId: number;

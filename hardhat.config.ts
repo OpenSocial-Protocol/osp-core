@@ -11,7 +11,7 @@ import 'solidity-docgen';
 import './config/compile';
 import { HARDHAT_CHAIN_ID } from './config/hardhat';
 import { hardhatAccounts } from './config/hardhat-accounts';
-import { baseSepolia, getRpcNetwork, polygonAmoy } from './config/network';
+import { baseSepolia, beraTestnet, getRpcNetwork, polygonAmoy } from './config/network';
 
 dotenv.config();
 if (!process.env.SKIP_LOAD) {
@@ -64,6 +64,7 @@ const config: HardhatUserConfig = {
     // hardhat network
     baseSepolia: getRpcNetwork(baseSepolia),
     polygonAmoy: getRpcNetwork(polygonAmoy),
+    beraTestnet: getRpcNetwork(beraTestnet),
   },
   paths: {
     cache: './target/cache',

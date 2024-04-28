@@ -119,3 +119,7 @@ export function isHardhatNetwork(hre): boolean {
     hre.network.config.accounts.length == hardhatAccounts.length
   );
 }
+
+export function getAddresses(hre, env) {
+  return JSON.parse(fs.readFileSync(`addresses-${env}-${hre.network.name}.json`).toString());
+}
