@@ -7,7 +7,7 @@ export const local: Network = {
 };
 export const sepolia: Network = {
   chainId: 11155111,
-  url: 'https://eth-sepolia.g.alchemy.com/v2/UJu10EBnVKSI-qO8tp4yarUqVAoNAcrV',
+  url: 'https://eth-sepolia.g.alchemy.com/v2/FIL_uMHp4ubZpAYa64DbQOTmqhOiqMRm',
 };
 export const baseSepolia: Network = {
   chainId: 84532,
