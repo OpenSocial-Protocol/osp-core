@@ -40,10 +40,6 @@ import { getDeployer } from './helpers/kms';
 
 const create2_directory = `create2-osp`;
 
-function getAddresses(hre, env) {
-  return JSON.parse(fs.readFileSync(`addresses-${env}-${hre.network.name}.json`).toString());
-}
-
 task(DEPLOY_TASK_NAME.DEPLOY_OSP_CREATE2, 'deploys the entire OpenSocial Protocol')
   .addParam('env')
   .setAction(async ({ env }, hre) => {

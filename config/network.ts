@@ -7,7 +7,7 @@ export const local: Network = {
 };
 export const sepolia: Network = {
   chainId: 11155111,
-  url: 'https://eth-sepolia.g.alchemy.com/v2/UJu10EBnVKSI-qO8tp4yarUqVAoNAcrV',
+  url: 'https://eth-sepolia.g.alchemy.com/v2/FIL_uMHp4ubZpAYa64DbQOTmqhOiqMRm',
 };
 export const baseSepolia: Network = {
   chainId: 84532,
@@ -16,6 +16,10 @@ export const baseSepolia: Network = {
 export const polygonAmoy: Network = {
   chainId: 80002,
   url: 'https://rpc-amoy.polygon.technology',
+};
+export const beraTestnet: Network = {
+  url: 'https://smart-spring-river.bera-artio.quiknode.pro/5400cbe24581860e9a78ac84dd9e10663b4d4d8c/',
+  chainId: 80085,
 };
 
 export const anvil: Network = {

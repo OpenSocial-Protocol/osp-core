@@ -2,8 +2,6 @@ import { execSync } from 'child_process';
 import { BytesLike, ethers, Signer } from 'ethers';
 import { hexlify } from 'ethers/lib/utils';
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers';
-import { address } from 'hardhat/internal/core/config/config-validation';
-
 const create2_abi = [
   {
     inputs: [
@@ -53,7 +51,8 @@ export async function waitForTx(
   return await (await tx).wait();
 }
 
-export const create2Factory = getCreate2Factory();
+const create2Factory = getCreate2Factory();
+
 export const deployCreate2 = async (
   params: { initCode: string; salt: string; address: string },
   deployer: Signer
@@ -71,6 +70,7 @@ export const deployCreate2 = async (
       ethers.utils.hexZeroPad(params.salt, 32),
     ]);
   }
+
   const tx = { to: create2Factory.address, data: calldata };
   await waitForTx(deployer.sendTransaction({ ...tx, gasLimit: 9000000 }));
   const code2 = await deployer.provider?.getCode(params.address);
