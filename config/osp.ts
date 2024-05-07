@@ -32,8 +32,8 @@ export const whitelistSlotNftList: { [chainId: number]: string[] } = {
 };
 
 export const nftMetaBaseUrl: { [network: string]: string | undefined } = {
-  dev: 'https://dev.opensocial.trex.xyz/v2/meta/',
-  beta: 'https://opensocial.trex.xyz/v2/meta/',
-  pre: 'https://api.opensocial.fun/v2/meta/',
+  dev: 'https://dev.opensocial.trex.xyz/v2/meta',
+  beta: 'https://opensocial.trex.xyz/v2/meta',
+  pre: 'https://api.opensocial.fun/v2/meta',
   local: undefined,
 };

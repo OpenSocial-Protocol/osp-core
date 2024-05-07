@@ -46,7 +46,7 @@ function getAddresses(hre, env) {
 
 task(DEPLOY_TASK_NAME.DEPLOY_OSP_CREATE2, 'deploys the entire OpenSocial Protocol')
   .addParam('env')
-  .setAction(async ({ env, kms }, hre) => {
+  .setAction(async ({ env }, hre) => {
     await hre.run(COMPILE_TASK_NAME.COMPILE);
 
     const create2AccountFileName = `${create2_directory}/osp-${env}.json`;
@@ -324,9 +324,12 @@ task(DEPLOY_TASK_NAME.DEPLOY_OSP_CREATE2, 'deploys the entire OpenSocial Protoco
 
     const baseUrl = nftMetaBaseUrl[env];
     if (baseUrl) {
-      initData.push(openSocial.interface.encodeFunctionData('setBaseURI', [baseUrl]));
+      initData.push(
+        openSocial.interface.encodeFunctionData('setBaseURI', [
+          `${baseUrl}/${hre.network.config.chainId}/`,
+        ])
+      );
     }
-
     console.log('\n\t--Set OpenSocial State --');
     initData.push(openSocial.interface.encodeFunctionData('setState', [ProtocolState.Unpaused]));
 
