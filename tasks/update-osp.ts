@@ -132,6 +132,19 @@ task('add-whitelist-community-creator')
     await waitForTx(whitelistAddressCommunityCond.setMaxCreationNumber(address, amount));
   });
 
+task('add-whitelist-app')
+  .addParam('env')
+  .addParam('address')
+  .addParam('whitelist')
+  .setAction(async ({ env, address, whitelist }, hre) => {
+    const addresses = getAddresses(hre, env);
+    const whitelistAddressCommunityCond = OspClient__factory.connect(
+      addresses.routerProxy,
+      await getDeployer(hre)
+    );
+    await waitForTx(whitelistAddressCommunityCond.whitelistApp(address, whitelist == 'true'));
+  });
+
 task('set-treasure-address')
   .addParam('env')
   .addParam('address')
