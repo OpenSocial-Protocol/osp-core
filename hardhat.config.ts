@@ -18,6 +18,7 @@ import {
   getRpcNetwork,
   polygonAmoy,
   sepolia,
+  xLayerTestnet,
 } from './config/network';
 
 dotenv.config();
@@ -74,6 +75,7 @@ const config: HardhatUserConfig = {
     polygonAmoy: getRpcNetwork(polygonAmoy),
     anvil: getRpcNetwork(anvil),
     beraTestnet: getRpcNetwork(beraTestnet),
+    xLayerTestnet: getRpcNetwork(xLayerTestnet),
   },
   paths: {
     cache: './target/cache',

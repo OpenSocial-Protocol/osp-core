@@ -21,7 +21,10 @@ export const beraTestnet: Network = {
   url: 'https://smart-spring-river.bera-artio.quiknode.pro/5400cbe24581860e9a78ac84dd9e10663b4d4d8c/',
   chainId: 80085,
 };
-
+export const xLayerTestnet: Network = {
+  url: 'https://testrpc.xlayer.tech',
+  chainId: 195,
+};
 export const anvil: Network = {
   chainId: 31337,
   url: 'http://127.0.0.1:8545',

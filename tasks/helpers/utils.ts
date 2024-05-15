@@ -36,7 +36,7 @@ export async function deployWithVerify(
 ): Promise<Contract> {
   const deployedContract = await deployContract(tx);
   let count = 0;
-  let maxTries = 8;
+  const maxTries = 8;
   const runtimeHRE = require('hardhat');
   while (true) {
     await delay(10000);
@@ -69,7 +69,7 @@ export async function deployWithVerify(
 
 export async function verify(address: string, args: any, contractPath: string): Promise<string> {
   let count = 0;
-  let maxTries = 8;
+  const maxTries = 8;
   const runtimeHRE = require('hardhat');
   while (true) {
     await delay(10000);
@@ -120,6 +120,35 @@ export function isHardhatNetwork(hre): boolean {
   );
 }
 
-export function getAddresses(hre, env) {
+export type OspAddress = {
+  routerProxy: string;
+  governanceLogic?: string;
+  profileLogic?: string;
+  communityLogic?: string;
+  contentLogic?: string;
+  relationLogic?: string;
+  //impl
+  followSBTImpl?: string;
+  joinNFTImpl?: string;
+  communityNFT: string;
+  //nftProxy
+  communityNFTProxy: string;
+  //reaction
+  voteReaction: string;
+  //joinCondition
+  holdTokenJoinCond: string;
+  erc20FeeJoinCond: string;
+  nativeFeeJoinCond: string;
+  //referencedCondition
+  onlyMemberReferenceCond: string;
+  //condition
+  slotNFTCommunityCond: string;
+  whitelistAddressCommunityCond: string;
+};
+
+export function getAddresses(hre, env): OspAddress | null {
+  if (!fs.existsSync(`addresses-${env}-${hre.network.name}.json`)) {
+    return null;
+  }
   return JSON.parse(fs.readFileSync(`addresses-${env}-${hre.network.name}.json`).toString());
 }

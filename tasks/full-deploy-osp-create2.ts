@@ -17,6 +17,7 @@ import {
   ContentLogic__factory,
   ERC20FeeJoinCond__factory,
   FollowSBT__factory,
+  GovernanceLogic,
   GovernanceLogic__factory,
   HoldTokenJoinCond__factory,
   JoinNFT__factory,
@@ -33,12 +34,27 @@ import {
   WhitelistAddressCommunityCond__factory,
 } from '../target/typechain-types';
 import { getAddRouterDataMulti } from './helpers/fun-sig';
-import { deployContract, ProtocolState, waitForTx } from './helpers/utils';
-import { Signer } from 'ethers';
+import {
+  deployContract,
+  getAddresses,
+  OspAddress,
+  ProtocolState,
+  waitForTx,
+} from './helpers/utils';
+import { Contract, Signer } from 'ethers';
 import { deployCreate2, getDeployData } from './helpers/create2';
 import { getDeployer } from './helpers/kms';
 
 const create2_directory = `create2-osp`;
+
+task('deploy_factory').setAction(async (_, hre) => {
+  // https://eips.ethereum.org/EIPS/eip-2470
+  await (
+    await hre.ethers.provider.sendTransaction(
+      '0xf9016c8085174876e8008303c4d88080b90154608060405234801561001057600080fd5b50610134806100206000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c80634af63f0214602d575b600080fd5b60cf60048036036040811015604157600080fd5b810190602081018135640100000000811115605b57600080fd5b820183602082011115606c57600080fd5b80359060200191846001830284011164010000000083111715608d57600080fd5b91908080601f016020809104026020016040519081016040528093929190818152602001838380828437600092019190915250929550509135925060eb915050565b604080516001600160a01b039092168252519081900360200190f35b6000818351602085016000f5939250505056fea26469706673582212206b44f8a82cb6b156bfcc3dc6aadd6df4eefd204bc928a4397fd15dacf6d5320564736f6c634300060200331b83247000822470'
+    )
+  ).wait();
+});
 
 task(DEPLOY_TASK_NAME.DEPLOY_OSP_CREATE2, 'deploys the entire OpenSocial Protocol')
   .addParam('env')
@@ -172,193 +188,232 @@ task(DEPLOY_TASK_NAME.DEPLOY_OSP_CREATE2, 'deploys the entire OpenSocial Protoco
     console.log('\n\t-- Deploying reaction --');
     await deployCreate2(create2.voteReaction, deployer);
     const voteReaction = VoteReaction__factory.connect(create2.voteReaction.address, deployer);
+    let address: OspAddress | null;
 
-    console.log('\n\t-- Deploying Logic Implementation --');
-    const governanceLogic = await deployContract(new GovernanceLogic__factory(deployer).deploy());
-    const profileLogic = await deployContract(new ProfileLogic__factory(deployer).deploy());
-    const contentLogic = await deployContract(new ContentLogic__factory(deployer).deploy());
-    const relationLogic = await deployContract(new RelationLogic__factory(deployer).deploy());
-    const communityLogic = await deployContract(new CommunityLogic__factory(deployer).deploy());
+    address = getAddresses(hre, env);
+    if (!address) {
+      address = {
+        routerProxy: router.address,
+        communityNFT: communityNFT.address,
+        communityNFTProxy: communityNFTProxy.address,
+        voteReaction: voteReaction.address,
+        holdTokenJoinCond: holdTokenJoinCond.address,
+        erc20FeeJoinCond: erc20FeeJoinCond.address,
+        nativeFeeJoinCond: nativeFeeJoinCond.address,
+        onlyMemberReferenceCond: onlyMemberReferenceCond.address,
+        slotNFTCommunityCond: slotNFTCommunityCond.address,
+        whitelistAddressCommunityCond: whitelistAddressCommunityCond.address,
+      };
+    }
 
-    console.log('\n\t-- Deploying Follow & Collect & Join NFT Implementations --');
-    const FollowSBTImpl = await deployContract(
-      new FollowSBT__factory(deployer).deploy(router.address)
-    );
-    const joinNFTImpl = await deployContract(new JoinNFT__factory(deployer).deploy(router.address));
+    try {
+      console.log('\n\t-- Deploying Logic Implementation --');
+      let governanceLogic: Contract;
+      if (address.governanceLogic) {
+        governanceLogic = GovernanceLogic__factory.connect(address.governanceLogic, deployer);
+      } else {
+        governanceLogic = await deployContract(new GovernanceLogic__factory(deployer).deploy());
+        address.governanceLogic = governanceLogic.address;
+      }
+      let profileLogic: Contract;
+      if (address.profileLogic) {
+        profileLogic = ProfileLogic__factory.connect(address.profileLogic, deployer);
+      } else {
+        profileLogic = await deployContract(new ProfileLogic__factory(deployer).deploy());
+        address.profileLogic = profileLogic.address;
+      }
+      let contentLogic: Contract;
+      if (address.contentLogic) {
+        contentLogic = ContentLogic__factory.connect(address.contentLogic, deployer);
+      } else {
+        contentLogic = await deployContract(new ContentLogic__factory(deployer).deploy());
+        address.contentLogic = contentLogic.address;
+      }
+      let relationLogic: Contract;
+      if (address.relationLogic) {
+        relationLogic = RelationLogic__factory.connect(address.relationLogic, deployer);
+      } else {
+        relationLogic = await deployContract(new RelationLogic__factory(deployer).deploy());
+        address.relationLogic = relationLogic.address;
+      }
+      let communityLogic: Contract;
+      if (address.communityLogic) {
+        communityLogic = CommunityLogic__factory.connect(address.communityLogic, deployer);
+      } else {
+        communityLogic = await deployContract(new CommunityLogic__factory(deployer).deploy());
+        address.communityLogic = communityLogic.address;
+      }
 
-    console.log('\n\t-- get GovernanceLogic router --');
-    const governanceLogicFunSig: {
-      [name: string]: string;
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-    } = require('../target/fun-sig/core/logics/interfaces/IGovernanceLogic.json');
-    const governanceLogicInitData = await getAddRouterDataMulti(
-      governanceLogicFunSig,
-      governanceLogic.address,
-      router
-    );
-    console.log('\n\t-- get ProfileLogic router --');
-    const profileLogicFunSig: {
-      [name: string]: string;
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-    } = require('../target/fun-sig/core/logics/interfaces/IProfileLogic.json');
-    const profileLogicInitData = await getAddRouterDataMulti(
-      profileLogicFunSig,
-      profileLogic.address,
-      router
-    );
-    console.log('\n\t-- get CommunityLogic router --');
-    const communityLogicFunSig: {
-      [name: string]: string;
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-    } = require('../target/fun-sig/core/logics/interfaces/ICommunityLogic.json');
-    const communityLogicInitData = await getAddRouterDataMulti(
-      communityLogicFunSig,
-      communityLogic.address,
-      router
-    );
-    console.log('\n\t-- get ContentLogic router --');
-    const contentLogicFunSig: {
-      [name: string]: string;
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-    } = require('../target/fun-sig/core/logics/interfaces/IContentLogic.json');
-    const contentLogicInitData = await getAddRouterDataMulti(
-      contentLogicFunSig,
-      contentLogic.address,
-      router
-    );
-    console.log('\n\t-- get RelationLogic router --');
-    const relationLogicFunSig: {
-      [name: string]: string;
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-    } = require('../target/fun-sig/core/logics/interfaces/IRelationLogic.json');
-    const relationLogicInitData = await getAddRouterDataMulti(
-      relationLogicFunSig,
-      relationLogic.address,
-      router
-    );
+      console.log('\n\t-- Deploying Follow & Collect & Join NFT Implementations --');
+      let followSBTImpl: Contract;
+      if (address.followSBTImpl) {
+        followSBTImpl = FollowSBT__factory.connect(address.followSBTImpl, deployer);
+      } else {
+        followSBTImpl = await deployContract(
+          new FollowSBT__factory(deployer).deploy(router.address)
+        );
+        address.followSBTImpl = followSBTImpl.address;
+      }
+      let joinNFTImpl: Contract;
+      if (address.joinNFTImpl) {
+        joinNFTImpl = JoinNFT__factory.connect(address.joinNFTImpl, deployer);
+      } else {
+        joinNFTImpl = await deployContract(new JoinNFT__factory(deployer).deploy(router.address));
+        address.joinNFTImpl = joinNFTImpl.address;
+      }
 
-    console.log('\n\t-- init Opensocial Protocol --');
-    const initData = [
-      ...governanceLogicInitData,
-      ...profileLogicInitData,
-      ...contentLogicInitData,
-      ...relationLogicInitData,
-      ...communityLogicInitData,
-    ];
-    const openSocial = OspClient__factory.connect(router.address, deployer);
-    initData.push(
-      openSocial.interface.encodeFunctionData('initialize', [
-        OPENSOCIAL_SBT_NAME,
-        OPENSOCIAL_SBT_SYMBOL,
-        FollowSBTImpl.address,
-        joinNFTImpl.address,
-        communityNFTProxy.address,
-      ])
-    );
+      console.log('\n\t-- get GovernanceLogic router --');
+      const governanceLogicFunSig: {
+        [name: string]: string;
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+      } = require('../target/fun-sig/core/logics/interfaces/IGovernanceLogic.json');
+      const governanceLogicInitData = await getAddRouterDataMulti(
+        governanceLogicFunSig,
+        governanceLogic.address,
+        router
+      );
+      console.log('\n\t-- get ProfileLogic router --');
+      const profileLogicFunSig: {
+        [name: string]: string;
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+      } = require('../target/fun-sig/core/logics/interfaces/IProfileLogic.json');
+      const profileLogicInitData = await getAddRouterDataMulti(
+        profileLogicFunSig,
+        profileLogic.address,
+        router
+      );
+      console.log('\n\t-- get CommunityLogic router --');
+      const communityLogicFunSig: {
+        [name: string]: string;
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+      } = require('../target/fun-sig/core/logics/interfaces/ICommunityLogic.json');
+      const communityLogicInitData = await getAddRouterDataMulti(
+        communityLogicFunSig,
+        communityLogic.address,
+        router
+      );
+      console.log('\n\t-- get ContentLogic router --');
+      const contentLogicFunSig: {
+        [name: string]: string;
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+      } = require('../target/fun-sig/core/logics/interfaces/IContentLogic.json');
+      const contentLogicInitData = await getAddRouterDataMulti(
+        contentLogicFunSig,
+        contentLogic.address,
+        router
+      );
+      console.log('\n\t-- get RelationLogic router --');
+      const relationLogicFunSig: {
+        [name: string]: string;
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+      } = require('../target/fun-sig/core/logics/interfaces/IRelationLogic.json');
+      const relationLogicInitData = await getAddRouterDataMulti(
+        relationLogicFunSig,
+        relationLogic.address,
+        router
+      );
 
-    console.log('\n\t-- setting Opensocial Protocol --');
-    initData.push(
-      openSocial.interface.encodeFunctionData('grantRole', [
-        ethers.utils.keccak256(ethers.utils.toUtf8Bytes('APP_ADMIN')),
-        await deployer.getAddress(),
-      ])
-    );
-    initData.push(
-      openSocial.interface.encodeFunctionData('grantRole', [
-        ethers.utils.keccak256(ethers.utils.toUtf8Bytes('GOVERNANCE')),
-        await deployer.getAddress(),
-      ])
-    );
-    initData.push(
-      openSocial.interface.encodeFunctionData('grantRole', [
-        ethers.utils.keccak256(ethers.utils.toUtf8Bytes('OPERATION')),
-        await deployer.getAddress(),
-      ])
-    );
-    initData.push(
-      openSocial.interface.encodeFunctionData('grantRole', [
-        ethers.utils.keccak256(ethers.utils.toUtf8Bytes('STATE_ADMIN')),
-        await deployer.getAddress(),
-      ])
-    );
-
-    console.log('\n\t--Get Whitelisting Community Condition CallData --');
-    initData.push(
-      openSocial.interface.encodeFunctionData('whitelistApp', [slotNFTCommunityCond.address, true])
-    );
-    initData.push(
-      openSocial.interface.encodeFunctionData('whitelistApp', [
-        whitelistAddressCommunityCond.address,
-        true,
-      ])
-    );
-    console.log('\n\t--Get Whitelisting Join Condition CallData --');
-    initData.push(
-      openSocial.interface.encodeFunctionData('whitelistApp', [holdTokenJoinCond.address, true])
-    );
-    initData.push(
-      openSocial.interface.encodeFunctionData('whitelistApp', [erc20FeeJoinCond.address, true])
-    );
-    initData.push(
-      openSocial.interface.encodeFunctionData('whitelistApp', [nativeFeeJoinCond.address, true])
-    );
-    console.log('\n\t--Get Whitelisting Referenced Condition CallData --');
-    initData.push(
-      openSocial.interface.encodeFunctionData('whitelistApp', [
-        onlyMemberReferenceCond.address,
-        true,
-      ])
-    );
-    console.log('\n\t--Get Whitelisting Reaction CallData --');
-    initData.push(
-      openSocial.interface.encodeFunctionData('whitelistApp', [voteReaction.address, true])
-    );
-
-    whitelistTokenList[hre.ethers.provider.network.chainId]?.forEach((token) => {
-      initData.push(openSocial.interface.encodeFunctionData('whitelistToken', [token, true]));
-    });
-
-    const baseUrl = nftMetaBaseUrl[env];
-    if (baseUrl) {
+      console.log('\n\t-- init Opensocial Protocol --');
+      const initData = [
+        ...governanceLogicInitData,
+        ...profileLogicInitData,
+        ...contentLogicInitData,
+        ...relationLogicInitData,
+        ...communityLogicInitData,
+      ];
+      const openSocial = OspClient__factory.connect(router.address, deployer);
       initData.push(
-        openSocial.interface.encodeFunctionData('setBaseURI', [
-          `${baseUrl}/${hre.network.config.chainId}/`,
+        openSocial.interface.encodeFunctionData('initialize', [
+          OPENSOCIAL_SBT_NAME,
+          OPENSOCIAL_SBT_SYMBOL,
+          followSBTImpl.address,
+          joinNFTImpl.address,
+          communityNFTProxy.address,
         ])
       );
+
+      console.log('\n\t-- setting Opensocial Protocol --');
+      initData.push(
+        openSocial.interface.encodeFunctionData('grantRole', [
+          ethers.utils.keccak256(ethers.utils.toUtf8Bytes('APP_ADMIN')),
+          await deployer.getAddress(),
+        ])
+      );
+      initData.push(
+        openSocial.interface.encodeFunctionData('grantRole', [
+          ethers.utils.keccak256(ethers.utils.toUtf8Bytes('GOVERNANCE')),
+          await deployer.getAddress(),
+        ])
+      );
+      initData.push(
+        openSocial.interface.encodeFunctionData('grantRole', [
+          ethers.utils.keccak256(ethers.utils.toUtf8Bytes('OPERATION')),
+          await deployer.getAddress(),
+        ])
+      );
+      initData.push(
+        openSocial.interface.encodeFunctionData('grantRole', [
+          ethers.utils.keccak256(ethers.utils.toUtf8Bytes('STATE_ADMIN')),
+          await deployer.getAddress(),
+        ])
+      );
+
+      console.log('\n\t--Get Whitelisting Community Condition CallData --');
+      initData.push(
+        openSocial.interface.encodeFunctionData('whitelistApp', [
+          slotNFTCommunityCond.address,
+          true,
+        ])
+      );
+      initData.push(
+        openSocial.interface.encodeFunctionData('whitelistApp', [
+          whitelistAddressCommunityCond.address,
+          true,
+        ])
+      );
+      console.log('\n\t--Get Whitelisting Join Condition CallData --');
+      initData.push(
+        openSocial.interface.encodeFunctionData('whitelistApp', [holdTokenJoinCond.address, true])
+      );
+      initData.push(
+        openSocial.interface.encodeFunctionData('whitelistApp', [erc20FeeJoinCond.address, true])
+      );
+      initData.push(
+        openSocial.interface.encodeFunctionData('whitelistApp', [nativeFeeJoinCond.address, true])
+      );
+      console.log('\n\t--Get Whitelisting Referenced Condition CallData --');
+      initData.push(
+        openSocial.interface.encodeFunctionData('whitelistApp', [
+          onlyMemberReferenceCond.address,
+          true,
+        ])
+      );
+      console.log('\n\t--Get Whitelisting Reaction CallData --');
+      initData.push(
+        openSocial.interface.encodeFunctionData('whitelistApp', [voteReaction.address, true])
+      );
+
+      whitelistTokenList[hre.ethers.provider.network.chainId]?.forEach((token) => {
+        initData.push(openSocial.interface.encodeFunctionData('whitelistToken', [token, true]));
+      });
+
+      const baseUrl = nftMetaBaseUrl[env];
+      if (baseUrl) {
+        initData.push(
+          openSocial.interface.encodeFunctionData('setBaseURI', [
+            `${baseUrl}/${hre.network.config.chainId}/`,
+          ])
+        );
+      }
+      console.log('\n\t--Set OpenSocial State --');
+      initData.push(openSocial.interface.encodeFunctionData('setState', [ProtocolState.Unpaused]));
+
+      // multiCall the whitelisting data
+      console.log('\n\t--MultiCall init Data --');
+      await waitForTx(router.connect(deployer).multicall(initData, { gasLimit: 21474836 }));
+    } catch (e) {
+      console.log(e);
     }
-    console.log('\n\t--Set OpenSocial State --');
-    initData.push(openSocial.interface.encodeFunctionData('setState', [ProtocolState.Unpaused]));
-
-    // multiCall the whitelisting data
-    console.log('\n\t--MultiCall init Data --');
-    await waitForTx(router.connect(deployer).multicall(initData));
-
-    const address = {
-      routerProxy: router.address,
-      //logic
-      governanceLogic: governanceLogic.address,
-      profileLogic: profileLogic.address,
-      communityLogic: communityLogic.address,
-      contentLogic: contentLogic.address,
-      relationLogic: relationLogic.address,
-      //impl
-      followSBTImpl: FollowSBTImpl.address,
-      joinNFTImpl: joinNFTImpl.address,
-      communityNFT: communityNFT.address,
-      //nftProxy
-      communityNFTProxy: communityNFTProxy.address,
-      //reaction
-      voteReaction: voteReaction.address,
-      //joinCondition
-      holdTokenJoinCond: holdTokenJoinCond.address,
-      erc20FeeJoinCond: erc20FeeJoinCond.address,
-      nativeFeeJoinCond: nativeFeeJoinCond.address,
-      //referencedCondition
-      onlyMemberReferenceCond: onlyMemberReferenceCond.address,
-      //condition
-      slotNFTCommunityCond: slotNFTCommunityCond.address,
-      whitelistAddressCommunityCond: whitelistAddressCommunityCond.address,
-    };
     const json = JSON.stringify(address, null, 2);
     console.log(json);
     fs.writeFileSync(`addresses-${env}-${hre.network.name}.json`, json, 'utf-8');
