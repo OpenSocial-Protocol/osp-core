@@ -11,9 +11,10 @@ abstract contract CommunityCondBase is OspContext, ICommunityCondition, IERC165 
 
     function processCreateCommunity(
         address to,
+        string calldata handle,
         bytes calldata data
     ) external payable override onlyOsp {
-        _processCreateCommunity(to, data);
+        _processCreateCommunity(to, handle, data);
     }
 
     function supportsInterface(bytes4 interfaceId) external pure override returns (bool) {
@@ -22,5 +23,9 @@ abstract contract CommunityCondBase is OspContext, ICommunityCondition, IERC165 
             interfaceId == type(IERC165).interfaceId;
     }
 
-    function _processCreateCommunity(address to, bytes calldata data) internal virtual;
+    function _processCreateCommunity(
+        address to,
+        string calldata handle,
+        bytes calldata data
+    ) internal virtual;
 }

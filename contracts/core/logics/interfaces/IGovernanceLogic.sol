@@ -42,15 +42,6 @@ interface IGovernanceLogic is IERC4906, IERC5267, IAccessControl {
     function setState(OspDataTypes.ProtocolState newState) external;
 
     /**
-     *@dev Adds or removes a super community creator from the whitelist. This function can only be called by the current
-     * governance address.
-     *
-     * @param communityCreator The community creator address to add or remove from the whitelist.
-     * @param whitelist Whether or not the community creator should be whitelisted.
-     */
-    function whitelistSuperCommunityCreator(address communityCreator, bool whitelist) external;
-
-    /**
      * @dev Adds or removes a app from the whitelist. This function can only be called by the
      * current governance address.
      *
@@ -89,17 +80,6 @@ interface IGovernanceLogic is IERC4906, IERC5267, IAccessControl {
     /// ************************
     /// *****VIEW FUNCTIONS*****
     /// ************************
-
-    /**
-     * @dev Returns whether or not a super community creator is whitelisted.
-     *
-     * @param communityCreator The address of the super community creator to check.
-     *
-     * @return bool True if the super community creator is whitelisted, false otherwise.
-     */
-    function isSuperCommunityCreatorWhitelisted(
-        address communityCreator
-    ) external view returns (bool);
 
     function isAppWhitelisted(address app) external view returns (bool);
 

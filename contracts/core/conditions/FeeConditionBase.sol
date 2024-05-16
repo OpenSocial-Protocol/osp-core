@@ -2,9 +2,9 @@
 
 pragma solidity 0.8.20;
 
-import '../../libraries/OspErrors.sol';
-import '../../libraries/OspEvents.sol';
-import '../../core/base/OspContext.sol';
+import {OspContext} from '../../core/base/OspContext.sol';
+import {CondErrors} from './libraries/CondErrors.sol';
+import {IGovernanceLogic} from '../logics/interfaces/IGovernanceLogic.sol';
 
 /**
  * @title FeeConditionBase
@@ -21,7 +21,7 @@ abstract contract FeeConditionBase is OspContext {
     ) internal pure {
         (address decodedCurrency, uint256 decodedAmount) = abi.decode(data, (address, uint256));
         if (decodedAmount != amount || decodedCurrency != currency)
-            revert OspErrors.ConditionDataMismatch();
+            revert CondErrors.ConditionDataMismatch();
     }
 
     function _tokenWhitelisted(address token) internal view returns (bool) {

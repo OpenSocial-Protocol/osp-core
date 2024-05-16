@@ -13,6 +13,7 @@ import {IActivityExtension} from '../../interfaces/IActivityExtension.sol';
 import {IReferenceCondition} from '../../interfaces/IReferenceCondition.sol';
 import {ICommunityCondition} from '../../interfaces/ICommunityCondition.sol';
 import {IFollowCondition} from '../../interfaces/IFollowCondition.sol';
+import {AccessControlUpgradeable} from '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 
 /**
  * @title OspLogicBase
@@ -74,6 +75,14 @@ contract OspLogicBase is OspMultiState, OspStorage, EIP712Base {
                 type(IReferenceCondition).interfaceId
             )
         ) revert OspErrors.AppNotWhitelisted();
+    }
+
+    function _hashRole(bytes32 role, address account) internal view returns (bool) {
+        AccessControlUpgradeable.AccessControlStorage storage $;
+        assembly {
+            $.slot := 0x02dd7bc7dec4dceedda775e58dd541e08a116c6c53815c0bd028192f7b626800
+        }
+        return $._roles[role].hasRole[account];
     }
 
     /**

@@ -41,19 +41,6 @@ library OspEvents {
      */
     event AppWhitelisted(address indexed app, bool indexed whitelisted, uint256 timestamp);
 
-    /**
-     * @dev Emitted when a super community creator is added to or removed from the whitelist.
-     *
-     * @param superCommunityCreator The address of the super community creator.
-     * @param whitelisted Whether or not the super community creator is being added to the whitelist.
-     * @param timestamp The current block timestamp.
-     */
-    event SuperCommunityCreatorWhitelisted(
-        address indexed superCommunityCreator,
-        bool indexed whitelisted,
-        uint256 timestamp
-    );
-
     event TokenWhitelisted(address indexed token, bool indexed whitelisted, uint256 timestamp);
 
     /**
