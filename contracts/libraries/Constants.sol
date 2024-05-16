@@ -23,5 +23,6 @@ library Constants {
     bytes32 internal constant GOVERNANCE = keccak256('GOVERNANCE');
     bytes32 internal constant OPERATION = keccak256('OPERATION');
     bytes32 internal constant STATE_ADMIN = keccak256('STATE_ADMIN');
+    bytes32 internal constant SUPER_COMMUNITY_CREATOR = keccak256('SUPER_COMMUNITY_CREATOR');
     uint256 internal constant MAX_TAGS_NUMBER = 10;
 }

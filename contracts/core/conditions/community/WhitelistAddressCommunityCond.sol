@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.20;
 
-import {OspErrors} from '../../../libraries/OspErrors.sol';
+import {CondErrors} from '../libraries/CondErrors.sol';
 import {CommunityCondBase} from '../../base/CommunityCondBase.sol';
 
 /**
@@ -25,10 +25,11 @@ contract WhitelistAddressCommunityCond is CommunityCondBase {
      */
     function _processCreateCommunity(
         address to,
+        string calldata /*handle*/,
         bytes calldata /*data*/
     ) internal override nonPayable {
         if (maxCreationNumber[to] <= creationCount[to]) {
-            revert OspErrors.NotWhitelisted();
+            revert CondErrors.NotWhitelisted();
         }
         creationCount[to]++;
     }

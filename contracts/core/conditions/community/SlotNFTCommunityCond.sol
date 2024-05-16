@@ -2,9 +2,10 @@
 
 pragma solidity 0.8.20;
 
-import {OspErrors} from '../../../libraries/OspErrors.sol';
+import {CondErrors} from '../libraries/CondErrors.sol';
 import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import {CommunityCondBase} from '../../base/CommunityCondBase.sol';
+import {CondDataTypes} from '../libraries/CondDataTypes.sol';
 
 /**
  * @title SlotNFTCommunityCond
@@ -14,35 +15,56 @@ import {CommunityCondBase} from '../../base/CommunityCondBase.sol';
  * Each slotNFT can only be used once.
  */
 contract SlotNFTCommunityCond is CommunityCondBase {
-    event SlotNFTWhitelisted(address indexed slot, bool whitelist, uint256 timestamp);
+    event SlotNFTCondDataSet(address indexed slot, uint256 minHandleLength, uint256 timestamp);
 
     constructor(address osp) CommunityCondBase(osp) {}
 
     mapping(address => mapping(uint256 => bool)) _slotNFTUsed;
-    mapping(address => bool) _slotNFTWhitelisted;
+
+    mapping(address => CondDataTypes.SlotNFTCondData) _slotNFTCondData;
 
     /**
      * @dev process create community,if the slotNFT is used, revert.
      */
-    function _processCreateCommunity(address to, bytes calldata data) internal override nonPayable {
-        (address slotNTF, uint256 tokenId) = abi.decode(data, (address, uint256));
-        _validateSlotNFT(to, slotNTF, tokenId);
-        _slotNFTUsed[slotNTF][tokenId] = true;
+    function _processCreateCommunity(
+        address to,
+        string calldata handle,
+        bytes calldata data
+    ) internal override nonPayable {
+        (address slot, uint256 tokenId) = abi.decode(data, (address, uint256));
+        _validateSlotNFT(to, slot, tokenId);
+        uint256 len = bytes(handle).length;
+        if (len < _slotNFTCondData[slot].minHandleLength) {
+            revert CondErrors.HandleLengthNotEnough();
+        }
+        _slotNFTUsed[slot][tokenId] = true;
     }
 
     /**
-     *  @dev Whitelist a slotNFT,only openSocial governance can call this function.
+     * @dev Set slotNFT condition data.
+     * @param slot NFT contract address.
+     * @param whitelist Whether the slotNFT is whitelisted.
+     * @param minHandleLength Minimum handle length to create a community.
      */
-    function whitelistCommunitySlot(address slot, bool whitelist) external onlyOperation {
-        _slotNFTWhitelisted[slot] = whitelist;
-        emit SlotNFTWhitelisted(slot, whitelist, block.timestamp);
+    function setSlotNFTCondData(
+        address slot,
+        bool whitelist,
+        uint256 minHandleLength
+    ) external onlyOperation {
+        if (slot == address(0) || minHandleLength <= 0) {
+            revert CondErrors.InitParamsInvalid();
+        }
+        _slotNFTCondData[slot] = CondDataTypes.SlotNFTCondData({
+            whitelist: whitelist,
+            minHandleLength: minHandleLength
+        });
+        emit SlotNFTCondDataSet(slot, minHandleLength, block.timestamp);
     }
 
-    /**
-     * @dev Check if a slotNFT is whitelisted.
-     */
-    function isCommunitySlotWhitelisted(address slot) external view returns (bool) {
-        return _slotNFTWhitelisted[slot];
+    function getSlotNFTCondData(
+        address slot
+    ) external view returns (CondDataTypes.SlotNFTCondData memory) {
+        return _slotNFTCondData[slot];
     }
 
     /**
@@ -56,21 +78,18 @@ contract SlotNFTCommunityCond is CommunityCondBase {
         address addr,
         uint256 tokenId
     ) external view returns (bool) {
-        return
-            _slotNFTWhitelisted[slot] &&
-            !_slotNFTUsed[slot][tokenId] &&
-            IERC721(slot).ownerOf(tokenId) == addr;
+        return !_slotNFTUsed[slot][tokenId] && IERC721(slot).ownerOf(tokenId) == addr;
     }
 
-    function _validateSlotNFT(address addr, address slotNFTAddress, uint256 tokenId) internal view {
-        if (!_slotNFTWhitelisted[slotNFTAddress]) {
-            revert OspErrors.SlotNFTNotWhitelisted();
+    function _validateSlotNFT(address addr, address slot, uint256 tokenId) internal view {
+        if (!_slotNFTCondData[slot].whitelist) {
+            revert CondErrors.SlotNFTNotWhitelisted();
         }
-        if (IERC721(slotNFTAddress).ownerOf(tokenId) != addr) {
-            revert OspErrors.NotSlotNFTOwner();
+        if (IERC721(slot).ownerOf(tokenId) != addr) {
+            revert CondErrors.NotSlotNFTOwner();
         }
-        if (_slotNFTUsed[slotNFTAddress][tokenId]) {
-            revert OspErrors.SlotNFTAlreadyUsed();
+        if (_slotNFTUsed[slot][tokenId]) {
+            revert CondErrors.SlotNFTAlreadyUsed();
         }
     }
 }

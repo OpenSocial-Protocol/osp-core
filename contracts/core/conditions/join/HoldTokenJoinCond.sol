@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.20;
 
-import {OspErrors} from '../../../libraries/OspErrors.sol';
+import {CondErrors} from '../libraries/CondErrors.sol';
 import {JoinConditionBase} from '../../base/JoinConditionBase.sol';
 
 /**
@@ -59,7 +59,7 @@ contract HoldTokenJoinCond is JoinConditionBase {
             //ERC20 or ERC721 token
             return;
         }
-        revert OspErrors.JoinInvalid();
+        revert CondErrors.JoinInvalid();
     }
 
     function _processTransferJoinNFT(
@@ -69,7 +69,7 @@ contract HoldTokenJoinCond is JoinConditionBase {
         address to
     ) internal override {
         if (from != address(0) && to != address(0)) {
-            revert OspErrors.JoinNFTTransferInvalid();
+            revert CondErrors.JoinNFTTransferInvalid();
         }
     }
 

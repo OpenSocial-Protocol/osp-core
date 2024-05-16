@@ -15,5 +15,9 @@ interface ICommunityCondition {
      * @param to community creator.
      * @param data condition data for checking.
      */
-    function processCreateCommunity(address to, bytes calldata data) external payable;
+    function processCreateCommunity(
+        address to,
+        string calldata handle,
+        bytes calldata data
+    ) external payable;
 }

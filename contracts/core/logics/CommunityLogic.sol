@@ -130,26 +130,32 @@ contract CommunityLogic is OspLogicBase, ICommunityLogic {
         OspDataTypes.CreateCommunityData calldata vars
     ) internal returns (uint256 communityId) {
         if (vars.tags.length > Constants.MAX_TAGS_NUMBER) revert OspErrors.TooManyTags();
-        _validateHasProfile(msg.sender);
-        _validateCommunityCondition(msg.sender, vars.communityConditionAndData, msg.value);
-        CommunityStorage storage communityStorage = _getCommunityStorage();
+        bool isSuperCreator = _hashRole(Constants.SUPER_COMMUNITY_CREATOR, msg.sender);
+        if (!isSuperCreator) {
+            _validateHasProfile(msg.sender);
+            _validateCommunityCondition(
+                msg.sender,
+                vars.handle,
+                vars.communityConditionAndData,
+                msg.value
+            );
+        }
         // mint community NFT
         communityId = ICommunityNFT(_communityNFT()).mint(msg.sender);
-        // init community
-        _initHandle(communityId, msg.sender, vars.handle, communityStorage);
+        // validate and register handle
+        _registerHandle(vars.handle, isSuperCreator, communityId);
         // deploy Join NFT
         address joinNFT = _deployJoinNFT(communityId, vars.handle);
         // deploy community TBA
         _deployCommunityTBA(communityId);
-        communityStorage._communityById[communityId].joinNFT = joinNFT;
+        _getCommunityStorage()._communityById[communityId].joinNFT = joinNFT;
         IJoinNFT(joinNFT).mint(msg.sender);
         //init join condition
         address joinCondition;
         if (vars.joinConditionInitCode.length != 0) {
             joinCondition = _initJoinCondition(communityId, vars.joinConditionInitCode);
-            communityStorage._communityById[communityId].joinCondition = joinCondition;
+            _getCommunityStorage()._communityById[communityId].joinCondition = joinCondition;
         }
-
         emit OspEvents.CommunityCreated(
             communityId,
             msg.sender,
@@ -211,6 +217,7 @@ contract CommunityLogic is OspLogicBase, ICommunityLogic {
 
     function _validateCommunityCondition(
         address creator,
+        string calldata handle,
         bytes calldata communityConditionAndData,
         uint256 value
     ) internal {
@@ -219,32 +226,48 @@ contract CommunityLogic is OspLogicBase, ICommunityLogic {
         bytes memory callData = communityConditionAndData[20:];
         ICommunityCondition(communityCondition).processCreateCommunity{value: value}(
             creator,
+            handle,
             callData
         );
     }
 
-    function _initHandle(
-        uint256 communityId,
-        address creator,
-        string memory handle,
+    function _validateHandle(
+        string calldata handle,
+        bool isSuperCreator,
         CommunityStorage storage communityStorage
-    ) internal {
-        GovernanceStorage storage governanceStorage = _getGovernanceStorage();
+    ) internal view returns (bytes32 hash) {
         bytes memory byteHandle = bytes(handle);
-        if (!governanceStorage._superCommunityCreatorWhitelisted[creator]) {
-            if (
-                byteHandle.length < 5 ||
-                byteHandle.length > Constants.MAX_COMMUNITY_NAME_LENGTH ||
-                governanceStorage._reserveCommunityHandleHash[keccak256(bytes(byteHandle))]
-            ) revert OspErrors.HandleLengthInvalid();
-        } else if (byteHandle.length == 0 || byteHandle.length > Constants.MAX_HANDLE_LENGTH) {
-            revert OspErrors.HandleLengthInvalid();
-        }
-        mapping(bytes32 => uint256) storage _communityIdByHandleHash = communityStorage
-            ._communityIdByHandleHash;
         bytes32 handleHash = keccak256(bytes(handle));
-        if (_communityIdByHandleHash[handleHash] != 0) revert OspErrors.HandleTaken();
-        _communityIdByHandleHash[handleHash] = communityId;
+        if (byteHandle.length == 0 || byteHandle.length > Constants.MAX_COMMUNITY_NAME_LENGTH)
+            revert OspErrors.HandleLengthInvalid();
+        GovernanceStorage storage governanceStorage = _getGovernanceStorage();
+        if (governanceStorage._reserveCommunityHandleHash[handleHash] && !isSuperCreator)
+            revert OspErrors.HandleTaken();
+        if (communityStorage._communityIdByHandleHash[handleHash] != 0)
+            revert OspErrors.HandleTaken();
+        uint256 byteHandleLength = byteHandle.length;
+        for (uint256 i; i < byteHandleLength; ) {
+            if (
+                (byteHandle[i] < '0' ||
+                    byteHandle[i] > 'z' ||
+                    (byteHandle[i] > '9' && byteHandle[i] < 'A') ||
+                    (byteHandle[i] > 'Z' && byteHandle[i] < 'a')) && byteHandle[i] != '_'
+            ) revert OspErrors.HandleContainsInvalidCharacters();
+            unchecked {
+                ++i;
+            }
+        }
+        return keccak256(byteHandle);
+    }
+
+    function _registerHandle(
+        string calldata handle,
+        bool isSuperCreator,
+        uint256 communityId
+    ) internal {
+        CommunityStorage storage communityStorage = _getCommunityStorage();
+        bytes32 handleHash = _validateHandle(handle, isSuperCreator, communityStorage);
+        communityStorage._communityIdByHandleHash[handleHash] = communityId;
         communityStorage._communityById[communityId].handle = handle;
     }
 

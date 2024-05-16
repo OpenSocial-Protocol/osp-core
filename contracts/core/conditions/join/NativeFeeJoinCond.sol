@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.20;
 
-import {OspErrors} from '../../../libraries/OspErrors.sol';
+import {CondErrors} from '../libraries/CondErrors.sol';
 import {JoinConditionBase} from '../../base/JoinConditionBase.sol';
 import {Payment} from '../../../libraries/Payment.sol';
 
@@ -34,7 +34,7 @@ contract NativeFeeJoinCond is JoinConditionBase {
         bytes calldata data
     ) internal override onlyOsp {
         (uint256 amount, address recipient) = abi.decode(data, (uint256, address));
-        if (recipient == address(0) || amount == 0) revert OspErrors.InitParamsInvalid();
+        if (recipient == address(0) || amount == 0) revert CondErrors.InitParamsInvalid();
         _dataByCommunity[communityId].amount = amount;
         _dataByCommunity[communityId].recipient = recipient;
     }
@@ -48,7 +48,8 @@ contract NativeFeeJoinCond is JoinConditionBase {
         bytes calldata data
     ) internal override onlyOsp {
         uint256 value = msg.value;
-        if (value != _dataByCommunity[communityId].amount) revert OspErrors.ConditionDataMismatch();
+        if (value != _dataByCommunity[communityId].amount)
+            revert CondErrors.ConditionDataMismatch();
         Payment.payNative(_dataByCommunity[communityId].recipient, value);
         (follower, data); //unused
     }

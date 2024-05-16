@@ -57,19 +57,6 @@ contract GovernanceLogic is IGovernanceLogic, OspLogicBase, AccessControlUpgrade
     }
 
     /// @inheritdoc IGovernanceLogic
-    function whitelistSuperCommunityCreator(
-        address communityCreator,
-        bool whitelist
-    ) external override onlyRole(Constants.OPERATION) {
-        _getGovernanceStorage()._superCommunityCreatorWhitelisted[communityCreator] = whitelist;
-        emit OspEvents.SuperCommunityCreatorWhitelisted(
-            communityCreator,
-            whitelist,
-            block.timestamp
-        );
-    }
-
-    /// @inheritdoc IGovernanceLogic
     function whitelistApp(address app, bool whitelist) external onlyRole(Constants.APP_ADMIN) {
         _getGovernanceStorage()._appWhitelisted[app] = whitelist;
         emit OspEvents.AppWhitelisted(app, whitelist, block.timestamp);
@@ -88,7 +75,7 @@ contract GovernanceLogic is IGovernanceLogic, OspLogicBase, AccessControlUpgrade
     function reserveCommunityHandle(
         string calldata handle,
         bool isReserve
-    ) external override onlyRole(Constants.OPERATION) {
+    ) external override onlyRole(Constants.SUPER_COMMUNITY_CREATOR) {
         _getGovernanceStorage()._reserveCommunityHandleHash[keccak256(bytes(handle))] = isReserve;
         emit OspEvents.CommunityHandleReserve(
             keccak256(bytes(handle)),
@@ -125,13 +112,6 @@ contract GovernanceLogic is IGovernanceLogic, OspLogicBase, AccessControlUpgrade
     /*///////////////////////////////////////////////////////////////
                         Public read functions
     //////////////////////////////////////////////////////////////*/
-
-    /// @inheritdoc IGovernanceLogic
-    function isSuperCommunityCreatorWhitelisted(
-        address communityCreator
-    ) external view override returns (bool) {
-        return _getGovernanceStorage()._superCommunityCreatorWhitelisted[communityCreator];
-    }
 
     /// @inheritdoc IGovernanceLogic
     function isAppWhitelisted(address app) external view override returns (bool) {

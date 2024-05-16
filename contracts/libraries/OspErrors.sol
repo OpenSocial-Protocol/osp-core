@@ -49,23 +49,11 @@ library OspErrors {
     error TagDoesNotExist();
     error TooManyTags();
     error InvalidTreasure();
+    error InitParamsInvalid();
 
     //Plugin Errors
     error PluginNotEnable();
     error PluginAlreadyPurchased();
-
-    // Condition Errors
-    error InitParamsInvalid();
-    error FollowInvalid();
-    error ConditionDataMismatch();
-    error JoinInvalid();
-
-    //Condition Errors
-    error NotWhitelisted();
-    error SlotNFTNotWhitelisted();
-    error NotSlotNFTOwner();
-    error SlotNFTAlreadyUsed();
-    error JoinNFTTransferInvalid();
 
     // MultiState Errors
     error Paused();
