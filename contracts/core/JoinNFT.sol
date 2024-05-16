@@ -24,9 +24,9 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
     mapping(address => bool) internal _blockList;
     mapping(address => uint256) internal _role;
 
-    uint256 constant ADMIN_ACCESS = 0x1;
-    uint256 constant MODS_ACCESS = 0x10;
-    uint256 constant SUPER_MEMBER_ACCESS = 0x100;
+    uint256 constant ADMIN_ACCESS = 1;
+    uint256 constant MODS_ACCESS = 1 << 1;
+    uint256 constant SUPER_MEMBER_ACCESS = 1 << 2;
 
     // We create the CollectNFT with the pre-computed OSP address before deploying the osp proxy in order
     // to initialize the osp proxy at construction.
