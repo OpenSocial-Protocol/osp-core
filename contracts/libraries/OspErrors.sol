@@ -20,6 +20,7 @@ library OspErrors {
 
     //JOIN NFT Errors
     error JoinNFTDuplicated();
+    error JoinNFTUnauthorizedAccount();
 
     //OSP Errors
     error NotOSP();

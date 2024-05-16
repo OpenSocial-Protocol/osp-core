@@ -2,12 +2,14 @@
 
 pragma solidity 0.8.20;
 
-import '../interfaces/IJoinNFT.sol';
-import '../libraries/OspErrors.sol';
-import '../libraries/OspEvents.sol';
-import '../libraries/OspDataTypes.sol';
-import './base/OspNFTBase.sol';
-import './logics/interfaces/IRelationLogic.sol';
+import {IJoinNFT} from '../interfaces/IJoinNFT.sol';
+import {OspErrors} from '../libraries/OspErrors.sol';
+import {OspEvents} from '../libraries/OspEvents.sol';
+import {OspDataTypes} from '../libraries/OspDataTypes.sol';
+import {OspNFTBase, ERC721Upgradeable} from './base/OspNFTBase.sol';
+import {OspClient} from './logics/interfaces/OspClient.sol';
+
+import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 
 /**
  * @title JoinNFT
@@ -19,6 +21,12 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
 
     uint256 internal _communityId;
     uint256 internal _tokenIdCounter;
+    mapping(address => bool) internal _blockList;
+    mapping(address => uint256) internal _role;
+
+    uint256 constant ADMIN_ACCESS = 0x1;
+    uint256 constant MODS_ACCESS = 0x10;
+    uint256 constant SUPER_MEMBER_ACCESS = 0x100;
 
     // We create the CollectNFT with the pre-computed OSP address before deploying the osp proxy in order
     // to initialize the osp proxy at construction.
@@ -49,13 +57,69 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
         }
     }
 
+    function setAdmin(address account, bool enable) public returns (bool) {
+        if (_isCommunityOwner(_msgSender())) {
+            return
+                enable
+                    ? _grantRole(ADMIN_ACCESS | MODS_ACCESS, account)
+                    : _revokeRole(ADMIN_ACCESS | MODS_ACCESS, account);
+        }
+        revert OspErrors.NotCommunityOwner();
+    }
+
+    function setMods(address account, bool enable) public returns (bool) {
+        if (hasOneRole(ADMIN_ACCESS, _msgSender()) || _isCommunityOwner(_msgSender())) {
+            return enable ? _grantRole(MODS_ACCESS, account) : _revokeRole(MODS_ACCESS, account);
+        }
+        revert OspErrors.JoinNFTUnauthorizedAccount();
+    }
+
+    function setSuperMember(address account, bool enable) public returns (bool) {
+        if (
+            hasOneRole(ADMIN_ACCESS | MODS_ACCESS, _msgSender()) || _isCommunityOwner(_msgSender())
+        ) {
+            return
+                enable
+                    ? _grantRole(SUPER_MEMBER_ACCESS, account)
+                    : _revokeRole(SUPER_MEMBER_ACCESS, account);
+        }
+        revert OspErrors.JoinNFTUnauthorizedAccount();
+    }
+
+    function setBlockList(address account, bool enable) public returns (bool) {
+        if (
+            hasOneRole(ADMIN_ACCESS | MODS_ACCESS, _msgSender()) || _isCommunityOwner(_msgSender())
+        ) {
+            if (_blockList[account] != enable) {
+                _blockList[account] = enable;
+                return true;
+            }
+            return false;
+        }
+        revert OspErrors.JoinNFTUnauthorizedAccount();
+    }
+
     /// @inheritdoc IJoinNFT
     function getSourceCommunityPointer() external view override returns (uint256) {
         return _communityId;
     }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
-        return IRelationLogic(OSP).getJoinNFTURI(_communityId, tokenId);
+        return OspClient(OSP).getJoinNFTURI(_communityId, tokenId);
+    }
+
+    function balanceOf(
+        address addr
+    ) public view override(IERC721, ERC721Upgradeable) returns (uint256) {
+        return _blockList[addr] ? 0 : super.balanceOf(addr);
+    }
+
+    function hasOneRole(uint256 role, address account) public returns (bool) {
+        return _role[account] & role != 0;
+    }
+
+    function hasAllRole(uint256 role, address account) public returns (bool) {
+        return _role[account] & role == role;
     }
 
     /**
@@ -64,6 +128,28 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
     function _afterTokenTransfer(address from, address to, uint256 tokenId) internal override {
         super._afterTokenTransfer(from, to, tokenId);
         if (balanceOf(to) > 1) revert OspErrors.JoinNFTDuplicated();
-        IRelationLogic(OSP).emitJoinNFTTransferEvent(_communityId, tokenId, from, to);
+        OspClient(OSP).emitJoinNFTTransferEvent(_communityId, tokenId, from, to);
+    }
+
+    function _isCommunityOwner(address account) internal returns (bool) {
+        return IERC721(OspClient(OSP).getCommunityNFT()).ownerOf(_communityId) == account;
+    }
+
+    function _grantRole(uint256 role, address account) internal returns (bool) {
+        uint256 oldRole = _role[account];
+        if (oldRole & role == 0) {
+            _role[account] = oldRole | role;
+            return true;
+        }
+        return false;
+    }
+
+    function _revokeRole(uint256 role, address account) internal returns (bool) {
+        uint256 oldRole = _role[account];
+        if (oldRole & role == 0) {
+            return false;
+        }
+        _role[account] = oldRole & ~role;
+        return true;
     }
 }
