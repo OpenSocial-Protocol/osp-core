@@ -321,4 +321,13 @@ library OspEvents {
     );
 
     event ERC6551AccountImplSet(address accountImpl, uint256 timestamp);
+
+    event JoinNFTRoleChanged(
+        uint256 indexed communityId,
+        address indexed account,
+        uint256 indexed role,
+        bool enable
+    );
+
+    event JoinNFTAccountBlocked(uint256 indexed communityId, address indexed account, bool isBlock);
 }

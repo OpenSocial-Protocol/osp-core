@@ -25,4 +25,8 @@ library Constants {
     bytes32 internal constant STATE_ADMIN = keccak256('STATE_ADMIN');
     bytes32 internal constant SUPER_COMMUNITY_CREATOR = keccak256('SUPER_COMMUNITY_CREATOR');
     uint256 internal constant MAX_TAGS_NUMBER = 10;
+    // community join nft roles
+    uint256 internal constant COMMUNITY_ADMIN_ACCESS = 1;
+    uint256 internal constant COMMUNITY_MODS_ACCESS = 1 << 1;
+    uint256 internal constant COMMUNITY_SUPER_MEMBER_ACCESS = 1 << 2;
 }

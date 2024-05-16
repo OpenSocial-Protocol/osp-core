@@ -5,6 +5,7 @@ pragma solidity 0.8.20;
 import {IJoinNFT} from '../interfaces/IJoinNFT.sol';
 import {OspErrors} from '../libraries/OspErrors.sol';
 import {OspEvents} from '../libraries/OspEvents.sol';
+import {Constants} from '../libraries/Constants.sol';
 import {OspDataTypes} from '../libraries/OspDataTypes.sol';
 import {OspNFTBase, ERC721Upgradeable} from './base/OspNFTBase.sol';
 import {OspClient} from './logics/interfaces/OspClient.sol';
@@ -23,10 +24,6 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
     uint256 internal _tokenIdCounter;
     mapping(address => bool) internal _blockList;
     mapping(address => uint256) internal _role;
-
-    uint256 constant ADMIN_ACCESS = 1;
-    uint256 constant MODS_ACCESS = 1 << 1;
-    uint256 constant SUPER_MEMBER_ACCESS = 1 << 2;
 
     // We create the CollectNFT with the pre-computed OSP address before deploying the osp proxy in order
     // to initialize the osp proxy at construction.
@@ -61,37 +58,50 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
         if (_isCommunityOwner(_msgSender())) {
             return
                 enable
-                    ? _grantRole(ADMIN_ACCESS | MODS_ACCESS, account)
-                    : _revokeRole(ADMIN_ACCESS | MODS_ACCESS, account);
+                    ? _grantRole(Constants.COMMUNITY_ADMIN_ACCESS, account)
+                    : _revokeRole(Constants.COMMUNITY_ADMIN_ACCESS, account);
         }
         revert OspErrors.NotCommunityOwner();
     }
 
     function setMods(address account, bool enable) public returns (bool) {
-        if (hasOneRole(ADMIN_ACCESS, _msgSender()) || _isCommunityOwner(_msgSender())) {
-            return enable ? _grantRole(MODS_ACCESS, account) : _revokeRole(MODS_ACCESS, account);
+        if (
+            hasOneRole(Constants.COMMUNITY_ADMIN_ACCESS, _msgSender()) ||
+            _isCommunityOwner(_msgSender())
+        ) {
+            return
+                enable
+                    ? _grantRole(Constants.COMMUNITY_MODS_ACCESS, account)
+                    : _revokeRole(Constants.COMMUNITY_MODS_ACCESS, account);
         }
         revert OspErrors.JoinNFTUnauthorizedAccount();
     }
 
     function setSuperMember(address account, bool enable) public returns (bool) {
         if (
-            hasOneRole(ADMIN_ACCESS | MODS_ACCESS, _msgSender()) || _isCommunityOwner(_msgSender())
+            hasOneRole(
+                Constants.COMMUNITY_ADMIN_ACCESS | Constants.COMMUNITY_MODS_ACCESS,
+                _msgSender()
+            ) || _isCommunityOwner(_msgSender())
         ) {
             return
                 enable
-                    ? _grantRole(SUPER_MEMBER_ACCESS, account)
-                    : _revokeRole(SUPER_MEMBER_ACCESS, account);
+                    ? _grantRole(Constants.COMMUNITY_SUPER_MEMBER_ACCESS, account)
+                    : _revokeRole(Constants.COMMUNITY_SUPER_MEMBER_ACCESS, account);
         }
         revert OspErrors.JoinNFTUnauthorizedAccount();
     }
 
     function setBlockList(address account, bool enable) public returns (bool) {
         if (
-            hasOneRole(ADMIN_ACCESS | MODS_ACCESS, _msgSender()) || _isCommunityOwner(_msgSender())
+            hasOneRole(
+                Constants.COMMUNITY_ADMIN_ACCESS | Constants.COMMUNITY_MODS_ACCESS,
+                _msgSender()
+            ) || _isCommunityOwner(_msgSender())
         ) {
             if (_blockList[account] != enable) {
                 _blockList[account] = enable;
+                OspClient(OSP).emitJoinNFTAccountBlockedEvent(_communityId, account, enable);
                 return true;
             }
             return false;
@@ -137,8 +147,9 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
 
     function _grantRole(uint256 role, address account) internal returns (bool) {
         uint256 oldRole = _role[account];
-        if (oldRole & role == 0) {
+        if (role != 0 && oldRole & role == 0) {
             _role[account] = oldRole | role;
+            OspClient(OSP).emitJoinNFTRoleChangedEvent(_communityId, account, role, true);
             return true;
         }
         return false;
@@ -146,10 +157,11 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
 
     function _revokeRole(uint256 role, address account) internal returns (bool) {
         uint256 oldRole = _role[account];
-        if (oldRole & role == 0) {
+        if (role == 0 || oldRole & role == 0) {
             return false;
         }
         _role[account] = oldRole & ~role;
+        OspClient(OSP).emitJoinNFTRoleChangedEvent(_communityId, account, role, false);
         return true;
     }
 }

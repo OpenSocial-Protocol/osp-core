@@ -330,13 +330,6 @@ abstract contract OspTestSetUp is OspTestConstant {
         );
         ospRouter.addRouter(
             IRouter.Router({
-                functionSelector: hex'b8ebaba2',
-                functionSignature: 'isSuperCommunityCreatorWhitelisted(address)',
-                routerAddress: address(governanceLogic)
-            })
-        );
-        ospRouter.addRouter(
-            IRouter.Router({
                 functionSelector: hex'b5af090f',
                 functionSignature: 'isTokenWhitelisted(address)',
                 routerAddress: address(governanceLogic)
@@ -402,13 +395,6 @@ abstract contract OspTestSetUp is OspTestConstant {
             IRouter.Router({
                 functionSelector: hex'5b61491f',
                 functionSignature: 'whitelistApp(address,bool)',
-                routerAddress: address(governanceLogic)
-            })
-        );
-        ospRouter.addRouter(
-            IRouter.Router({
-                functionSelector: hex'225b3752',
-                functionSignature: 'whitelistSuperCommunityCreator(address,bool)',
                 routerAddress: address(governanceLogic)
             })
         );

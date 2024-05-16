@@ -112,4 +112,17 @@ interface IRelationLogic {
         address from,
         address to
     ) external;
+
+    function emitJoinNFTRoleChangedEvent(
+        uint256 communityId,
+        address account,
+        uint256 role,
+        bool enable
+    ) external;
+
+    function emitJoinNFTAccountBlockedEvent(
+        uint256 communityId,
+        address account,
+        bool isBlock
+    ) external;
 }

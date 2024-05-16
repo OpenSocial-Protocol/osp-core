@@ -1,6 +1,6 @@
 //config
-export const OPENSOCIAL_SBT_NAME = 'OpenSocial Protocol Profiles';
-export const OPENSOCIAL_SBT_SYMBOL = 'OSPT';
+export const OPENSOCIAL_SBT_NAME = 'OpenSocial Protocol Profile';
+export const OPENSOCIAL_SBT_SYMBOL = 'OSPP';
 export const OPENSOCIAL_COMMUNITY_NAME = 'OpenSocial Protocol Community';
 export const OPENSOCIAL_COMMUNITY_SYMBOL = 'OSPC';
 //const

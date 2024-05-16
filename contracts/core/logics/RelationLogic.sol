@@ -102,7 +102,7 @@ contract RelationLogic is IRelationLogic, OspLogicBase {
         address to
     ) external override {
         if (_getProfileStorage()._profileById[profileId].followSBT != msg.sender) {
-            revert OspErrors.NotJoinNFT();
+            revert OspErrors.NotFollowSBT();
         }
         emit OspEvents.FollowSBTTransferred(profileId, followSBTId, from, to, block.timestamp);
     }
@@ -115,13 +115,34 @@ contract RelationLogic is IRelationLogic, OspLogicBase {
         address to
     ) external override {
         if (_getCommunityStorage()._communityById[communityId].joinNFT != msg.sender) {
-            revert OspErrors.NotFollowSBT();
+            revert OspErrors.NotJoinNFT();
         }
         address joinCondition = _getCommunityStorage()._communityById[communityId].joinCondition;
         if (joinCondition != address(0)) {
             IJoinCondition(joinCondition).processTransferJoinNFT(communityId, joinNFTId, from, to);
         }
         emit OspEvents.JoinNFTTransferred(communityId, joinNFTId, from, to, block.timestamp);
+    }
+
+    /// @inheritdoc IRelationLogic
+    function emitJoinNFTRoleChangedEvent(
+        uint256 communityId,
+        address account,
+        uint256 role,
+        bool enable
+    ) external override {
+        _checkFromJoinNFT(communityId);
+        emit OspEvents.JoinNFTRoleChanged(communityId, account, role, enable);
+    }
+
+    /// @inheritdoc IRelationLogic
+    function emitJoinNFTAccountBlockedEvent(
+        uint256 communityId,
+        address account,
+        bool isBlock
+    ) external override {
+        _checkFromJoinNFT(communityId);
+        emit OspEvents.JoinNFTAccountBlocked(communityId, account, isBlock);
     }
 
     /*///////////////////////////////////////////////////////////////
@@ -335,6 +356,12 @@ contract RelationLogic is IRelationLogic, OspLogicBase {
                 communityId,
                 joinConditionData
             );
+        }
+    }
+
+    function _checkFromJoinNFT(uint256 communityId) internal {
+        if (_getCommunityStorage()._communityById[communityId].joinNFT != msg.sender) {
+            revert OspErrors.NotJoinNFT();
         }
     }
 }
