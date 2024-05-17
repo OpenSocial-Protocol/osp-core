@@ -130,6 +130,7 @@ export type OspAddress = {
   //impl
   followSBTImpl?: string;
   joinNFTImpl?: string;
+  erc6551AccountImpl?: string;
   communityNFT: string;
   //nftProxy
   communityNFTProxy: string;

@@ -16,6 +16,7 @@ import '../../upgradeability/JoinNFTProxy.sol';
 import '@openzeppelin/contracts/utils/Strings.sol';
 import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
+import '../base/ERC6551Account.sol';
 
 /**
  * @title CommunityLogic
@@ -205,14 +206,18 @@ contract CommunityLogic is OspLogicBase, ICommunityLogic {
     }
 
     function _deployCommunityTBA(uint256 communityId) internal returns (address) {
-        return
-            IERC6551Registry(Constants.ERC6551_REGISTRY).createAccount(
-                _getGovernanceStorage()._communityAccountProxy,
-                Constants.COMMUNITY_TBA_SALT,
-                block.chainid,
-                _communityNFT(),
-                communityId
-            );
+        if (_getGovernanceStorage()._erc6551AccountImpl == address(0)) {
+            revert OspErrors.ERC6551AccountImplNotDeployed();
+        }
+        address tbaAccount = IERC6551Registry(Constants.ERC6551_REGISTRY).createAccount(
+            _getGovernanceStorage()._communityAccountProxy,
+            Constants.COMMUNITY_TBA_SALT,
+            block.chainid,
+            _communityNFT(),
+            communityId
+        );
+        ERC6551Account(tbaAccount).initialize(communityId);
+        return tbaAccount;
     }
 
     function _validateCommunityCondition(

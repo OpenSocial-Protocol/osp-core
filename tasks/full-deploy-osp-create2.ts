@@ -16,6 +16,7 @@ import {
   CommunityNFT__factory,
   ContentLogic__factory,
   ERC20FeeJoinCond__factory,
+  ERC6551Account__factory,
   FollowSBT__factory,
   GovernanceLogic,
   GovernanceLogic__factory,
@@ -262,6 +263,16 @@ task(DEPLOY_TASK_NAME.DEPLOY_OSP_CREATE2, 'deploys the entire OpenSocial Protoco
         address.joinNFTImpl = joinNFTImpl.address;
       }
 
+      let erc6551AccountImpl: Contract;
+      if (address.erc6551AccountImpl) {
+        erc6551AccountImpl = ERC6551Account__factory.connect(address.erc6551AccountImpl, deployer);
+      } else {
+        erc6551AccountImpl = await deployContract(
+          new ERC6551Account__factory(deployer).deploy(router.address)
+        );
+        address.erc6551AccountImpl = erc6551AccountImpl.address;
+      }
+
       console.log('\n\t-- get GovernanceLogic router --');
       const governanceLogicFunSig: {
         [name: string]: string;
@@ -355,6 +366,12 @@ task(DEPLOY_TASK_NAME.DEPLOY_OSP_CREATE2, 'deploys the entire OpenSocial Protoco
         openSocial.interface.encodeFunctionData('grantRole', [
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes('STATE_ADMIN')),
           await deployer.getAddress(),
+        ])
+      );
+
+      initData.push(
+        openSocial.interface.encodeFunctionData('setERC6551AccountImpl', [
+          erc6551AccountImpl.address,
         ])
       );
 

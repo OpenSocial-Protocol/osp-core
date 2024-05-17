@@ -51,6 +51,7 @@ library OspErrors {
     error TooManyTags();
     error InvalidTreasure();
     error InitParamsInvalid();
+    error ERC6551AccountImplNotDeployed();
 
     //Plugin Errors
     error PluginNotEnable();

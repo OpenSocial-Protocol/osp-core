@@ -15,8 +15,9 @@ import {FollowSBT} from '../../contracts/core/FollowSBT.sol';
 import {JoinNFT} from '../../contracts/core/JoinNFT.sol';
 import {CommunityNFT} from '../../contracts/core/CommunityNFT.sol';
 import {OspUniversalProxy} from '../../contracts/upgradeability/OspUniversalProxy.sol';
-import '@openzeppelin/contracts/utils/Address.sol';
-import '../../contracts/libraries/Constants.sol';
+import {Address} from '@openzeppelin/contracts/utils/Address.sol';
+import {Constants} from 'contracts/libraries/Constants.sol';
+import {ERC6551Account} from 'contracts/core/base/ERC6551Account.sol';
 
 abstract contract OspTestSetUp is OspTestConstant {
     ProfileLogic profileLogic;
@@ -75,6 +76,8 @@ abstract contract OspTestSetUp is OspTestConstant {
         ospClient.grantRole(Constants.APP_ADMIN, deployer);
         ospClient.grantRole(Constants.OPERATION, deployer);
         ospClient.grantRole(Constants.STATE_ADMIN, deployer);
+        ERC6551Account erc6551AccountImpl = new ERC6551Account(address(ospClient));
+        ospClient.setERC6551AccountImpl(address(erc6551AccountImpl));
         //deploy registry
         Address.functionCall(
             0x4e59b44847b379578588920cA78FbF26c0B4956C,

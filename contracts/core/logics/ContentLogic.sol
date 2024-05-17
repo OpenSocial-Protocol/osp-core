@@ -14,7 +14,6 @@ import {IContentLogic} from './interfaces/IContentLogic.sol';
 import {OspLogicBase} from './OspLogicBase.sol';
 import {Payment} from '../../libraries/Payment.sol';
 import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
-import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 
 /**
  * @title ContentLogic
