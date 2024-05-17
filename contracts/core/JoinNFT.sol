@@ -168,7 +168,12 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
         uint256 oldRole = _role[account];
         if (role != 0 && oldRole & role == 0) {
             _role[account] = oldRole | role;
-            OspClient(OSP).emitJoinNFTRoleChangedEvent(_communityId, account, role, true);
+            OspClient(OSP).emitJoinNFTRoleChangedEvent(
+                _communityId,
+                account,
+                ~oldRole & role,
+                true
+            );
             return true;
         }
         return false;
@@ -183,7 +188,7 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
             return false;
         }
         _role[account] = oldRole & ~role;
-        OspClient(OSP).emitJoinNFTRoleChangedEvent(_communityId, account, role, false);
+        OspClient(OSP).emitJoinNFTRoleChangedEvent(_communityId, account, oldRole & role, false);
         return true;
     }
 }
