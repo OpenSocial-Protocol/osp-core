@@ -24,6 +24,7 @@ contract MockCommunityCond is OspContext, ICommunityCondition, IERC165 {
 
     function processCreateCommunity(
         address /*to*/,
+        string calldata handle,
         bytes calldata data
     ) external payable override onlyOsp {
         uint256 number = abi.decode(data, (uint256));

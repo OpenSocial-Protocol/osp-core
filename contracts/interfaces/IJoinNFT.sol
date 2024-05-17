@@ -30,9 +30,59 @@ interface IJoinNFT {
     function mint(address to) external returns (uint256);
 
     /**
+     * @dev Sets the admin role for the specified account.
+     *
+     * @param account The account to set the admin role for.
+     * @param enable A boolean indicating whether to enable or disable the admin role.
+     *
+     * @return bool A boolean indicating whether the operation was successful.
+     */
+    function setAdmin(address account, bool enable) external returns (bool);
+
+    /**
+     * @dev Sets the mods role for the specified account.
+     *
+     * @param account The account to set the mods role for.
+     * @param enable A boolean indicating whether to enable or disable the mods role.
+     *
+     * @return bool A boolean indicating whether the operation was successful.
+     */
+    function setMods(address account, bool enable) external returns (bool);
+
+    /**
+     * @dev Sets the super member role for the specified account.
+     *
+     * @param account The account to set the super member role for.
+     * @param enable A boolean indicating whether to enable or disable the super member role.
+     *
+     * @return bool A boolean indicating whether the operation was successful.
+     */
+    function setSuperMember(address account, bool enable) external returns (bool);
+
+    /**
+     * @dev Adds or removes the specified account from the block list.
+     *
+     * @param account The account to add or remove from the block list.
+     * @param enable A boolean indicating whether to add or remove the account from the block list.
+     *
+     * @return bool A boolean indicating whether the operation was successful.
+     */
+    function setBlockList(address account, bool enable) external returns (bool);
+
+    /**
      * @dev Returns the source community pointer mapped to this collect NFT.
      *
      * @return communityId.
      */
     function getSourceCommunityPointer() external view returns (uint256);
+
+    /**
+     * @dev Returns `true` if `account` has been granted the `role`.
+     */
+    function hasOneRole(uint256 roles, address account) external view returns (bool);
+
+    /**
+     * @dev Returns `true` if `account` has been granted all `role`.
+     */
+    function hasAllRole(uint256 roles, address account) external view returns (bool);
 }

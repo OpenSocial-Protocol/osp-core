@@ -54,7 +54,8 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
         }
     }
 
-    function setAdmin(address account, bool enable) public returns (bool) {
+    /// @inheritdoc IJoinNFT
+    function setAdmin(address account, bool enable) public override returns (bool) {
         if (_isCommunityOwner(_msgSender())) {
             return
                 enable
@@ -64,7 +65,8 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
         revert OspErrors.NotCommunityOwner();
     }
 
-    function setMods(address account, bool enable) public returns (bool) {
+    /// @inheritdoc IJoinNFT
+    function setMods(address account, bool enable) public override returns (bool) {
         if (
             hasOneRole(Constants.COMMUNITY_ADMIN_ACCESS, _msgSender()) ||
             _isCommunityOwner(_msgSender())
@@ -77,7 +79,8 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
         revert OspErrors.JoinNFTUnauthorizedAccount();
     }
 
-    function setSuperMember(address account, bool enable) public returns (bool) {
+    /// @inheritdoc IJoinNFT
+    function setSuperMember(address account, bool enable) public override returns (bool) {
         if (
             hasOneRole(
                 Constants.COMMUNITY_ADMIN_ACCESS | Constants.COMMUNITY_MODS_ACCESS,
@@ -92,7 +95,8 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
         revert OspErrors.JoinNFTUnauthorizedAccount();
     }
 
-    function setBlockList(address account, bool enable) public returns (bool) {
+    /// @inheritdoc IJoinNFT
+    function setBlockList(address account, bool enable) public override returns (bool) {
         if (
             hasOneRole(
                 Constants.COMMUNITY_ADMIN_ACCESS | Constants.COMMUNITY_MODS_ACCESS,
@@ -124,12 +128,14 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
         return _blockList[addr] ? 0 : super.balanceOf(addr);
     }
 
-    function hasOneRole(uint256 role, address account) public returns (bool) {
-        return _role[account] & role != 0;
+    /// @inheritdoc IJoinNFT
+    function hasOneRole(uint256 roles, address account) public view override returns (bool) {
+        return _role[account] & roles != 0;
     }
 
-    function hasAllRole(uint256 role, address account) public returns (bool) {
-        return _role[account] & role == role;
+    /// @inheritdoc IJoinNFT
+    function hasAllRole(uint256 roles, address account) public view override returns (bool) {
+        return _role[account] & roles == roles;
     }
 
     /**
@@ -145,6 +151,9 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
         return IERC721(OspClient(OSP).getCommunityNFT()).ownerOf(_communityId) == account;
     }
 
+    /**
+     * @dev Grant a role to an account.
+     */
     function _grantRole(uint256 role, address account) internal returns (bool) {
         uint256 oldRole = _role[account];
         if (role != 0 && oldRole & role == 0) {
@@ -155,6 +164,9 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
         return false;
     }
 
+    /**
+     * @dev Revoke a role from an account.
+     */
     function _revokeRole(uint256 role, address account) internal returns (bool) {
         uint256 oldRole = _role[account];
         if (role == 0 || oldRole & role == 0) {

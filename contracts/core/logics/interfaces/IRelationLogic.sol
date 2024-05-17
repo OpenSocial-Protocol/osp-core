@@ -73,6 +73,32 @@ interface IRelationLogic {
     function isJoin(uint256 communityId, address addr) external view returns (bool);
 
     /**
+     * @dev Returns `true` if the account has the specified role in the community.
+     *
+     * @param communityId The community ID to check the role for.
+     * @param role The role to check for.
+     * @param account The account to check the role for.
+     */
+    function hasOneCommunityRole(
+        uint256 communityId,
+        uint256 role,
+        address account
+    ) external view returns (bool);
+
+    /**
+     * @dev Returns `true` if the account has all the specified roles in the community.
+     *
+     * @param communityId The community ID to check the roles for.
+     * @param role The roles to check for.
+     * @param account The account to check the roles for.
+     */
+    function hasAllCommunityRole(
+        uint256 communityId,
+        uint256 role,
+        address account
+    ) external view returns (bool);
+
+    /**
      * @dev Returns the URI for a joinNFT token.
      *
      * @param communityId  The communityId associated with the join NFT.

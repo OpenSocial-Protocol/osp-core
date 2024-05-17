@@ -652,6 +652,20 @@ abstract contract OspTestSetUp is OspTestConstant {
         );
         ospRouter.addRouter(
             IRouter.Router({
+                functionSelector: hex'cebd5a59',
+                functionSignature: 'hasAllCommunityRole(uint256,uint256,address)',
+                routerAddress: address(relationLogic)
+            })
+        );
+        ospRouter.addRouter(
+            IRouter.Router({
+                functionSelector: hex'd2d0c246',
+                functionSignature: 'hasOneCommunityRole(uint256,uint256,address)',
+                routerAddress: address(relationLogic)
+            })
+        );
+        ospRouter.addRouter(
+            IRouter.Router({
                 functionSelector: hex'1130c42b',
                 functionSignature: 'isFollow(uint256,address)',
                 routerAddress: address(relationLogic)
