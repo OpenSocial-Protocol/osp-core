@@ -128,6 +128,16 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
         return _blockList[addr] ? 0 : super.balanceOf(addr);
     }
 
+    function ownerOf(
+        uint256 tokenId
+    ) public view override(IERC721, ERC721Upgradeable) returns (address) {
+        address owner = super.ownerOf(tokenId);
+        if (_blockList[owner]) {
+            revert ERC721NonexistentToken(tokenId);
+        }
+        return owner;
+    }
+
     /// @inheritdoc IJoinNFT
     function hasOneRole(uint256 roles, address account) public view override returns (bool) {
         return _role[account] & roles != 0;

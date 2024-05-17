@@ -50,4 +50,8 @@ contract CommunityNFT is OspNFTBase, ICommunityNFT, IERC4906 {
     function updateMetadata() external override {
         emit BatchMetadataUpdate(1, type(uint256).max);
     }
+
+    function burn(uint256 tokenId) public override {
+        _update(address(this), tokenId, _msgSender());
+    }
 }
