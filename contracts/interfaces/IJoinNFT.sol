@@ -50,14 +50,14 @@ interface IJoinNFT {
     function setMods(address account, bool enable) external returns (bool);
 
     /**
-     * @dev Sets the super member role for the specified account.
+     * @dev Sets the member level for the specified account.
      *
-     * @param account The account to set the super member role for.
-     * @param enable A boolean indicating whether to enable or disable the super member role.
+     * @param account The account to set the member level for.
+     * @param level The level to set for the account.
      *
      * @return bool A boolean indicating whether the operation was successful.
      */
-    function setSuperMember(address account, bool enable) external returns (bool);
+    function setMemberLevel(address account, uint256 level) external returns (bool);
 
     /**
      * @dev Adds or removes the specified account from the block list.
@@ -85,4 +85,14 @@ interface IJoinNFT {
      * @dev Returns `true` if `account` has been granted all `role`.
      */
     function hasAllRole(uint256 roles, address account) external view returns (bool);
+
+    /**
+     * @dev Returns the member level of the account.
+     */
+    function memberLevel(address account) external view returns (uint256);
+
+    /**
+     * @dev Returns the block list status of the account.
+     */
+    function isBlockList(address account) external view returns (bool);
 }

@@ -24,6 +24,7 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
     uint256 internal _tokenIdCounter;
     mapping(address => bool) internal _blockList;
     mapping(address => uint256) internal _role;
+    mapping(address => uint256) internal _level;
 
     // We create the CollectNFT with the pre-computed OSP address before deploying the osp proxy in order
     // to initialize the osp proxy at construction.
@@ -80,17 +81,14 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
     }
 
     /// @inheritdoc IJoinNFT
-    function setSuperMember(address account, bool enable) public override returns (bool) {
+    function setMemberLevel(address account, uint256 level) public override returns (bool) {
         if (
             hasOneRole(
                 Constants.COMMUNITY_ADMIN_ACCESS | Constants.COMMUNITY_MODS_ACCESS,
                 _msgSender()
             ) || _isCommunityOwner(_msgSender())
         ) {
-            return
-                enable
-                    ? _grantRole(Constants.COMMUNITY_SUPER_MEMBER_ACCESS, account)
-                    : _revokeRole(Constants.COMMUNITY_SUPER_MEMBER_ACCESS, account);
+            _level[account] = level;
         }
         revert OspErrors.JoinNFTUnauthorizedAccount();
     }
@@ -133,7 +131,7 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
     ) public view override(IERC721, ERC721Upgradeable) returns (address) {
         address owner = super.ownerOf(tokenId);
         if (_blockList[owner]) {
-            revert ERC721NonexistentToken(tokenId);
+            revert OspErrors.JoinNFTBlocked();
         }
         return owner;
     }
@@ -148,10 +146,23 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
         return _role[account] & roles == roles;
     }
 
+    /// @inheritdoc IJoinNFT
+    function memberLevel(address account) external view override returns (uint256) {
+        return _level[account];
+    }
+
+    /// @inheritdoc IJoinNFT
+    function isBlockList(address account) external view override returns (bool) {
+        return _blockList[account];
+    }
+
     /**
      * @dev Upon transfers, we emit the transfer event in the osp.
      */
     function _afterTokenTransfer(address from, address to, uint256 tokenId) internal override {
+        if (_blockList[from] || _blockList[to]) {
+            revert OspErrors.JoinNFTBlocked();
+        }
         super._afterTokenTransfer(from, to, tokenId);
         if (balanceOf(to) > 1) revert OspErrors.JoinNFTDuplicated();
         OspClient(OSP).emitJoinNFTTransferEvent(_communityId, tokenId, from, to);

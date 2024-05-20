@@ -14,7 +14,7 @@ library CondHelpers {
     function getHandleETHPrice(
         string calldata handle,
         CondDataTypes.FixFeeCondData memory fixFeeCondData
-    ) external pure returns (uint256) {
+    ) internal pure returns (uint256) {
         uint256 len = bytes(handle).length;
         uint256 ethPrice;
         if (len >= 7) {
