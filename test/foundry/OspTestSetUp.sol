@@ -235,6 +235,13 @@ abstract contract OspTestSetUp is OspTestConstant {
         );
         ospRouter.addRouter(
             IRouter.Router({
+                functionSelector: hex'e8a3d485',
+                functionSignature: 'contractURI()',
+                routerAddress: address(governanceLogic)
+            })
+        );
+        ospRouter.addRouter(
+            IRouter.Router({
                 functionSelector: hex'84b0196e',
                 functionSignature: 'eip712Domain()',
                 routerAddress: address(governanceLogic)
@@ -363,6 +370,13 @@ abstract contract OspTestSetUp is OspTestConstant {
             IRouter.Router({
                 functionSelector: hex'55f804b3',
                 functionSignature: 'setBaseURI(string)',
+                routerAddress: address(governanceLogic)
+            })
+        );
+        ospRouter.addRouter(
+            IRouter.Router({
+                functionSelector: hex'938e3d7b',
+                functionSignature: 'setContractURI(string)',
                 routerAddress: address(governanceLogic)
             })
         );

@@ -10,13 +10,19 @@ import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol'
 import '../../interfaces/IERC6551Registry.sol';
 import '../../libraries/Constants.sol';
 import '../../upgradeability/CommunityAccountProxy.sol';
+import '@thirdweb-dev/contracts/extension/upgradeable/ContractMetadata.sol';
 
 /**
  * @title GovernanceLogic
  * @author OpenSocial Protocol
  * @dev GovernanceLogic is the contract that manages the governance of the protocol.
  */
-contract GovernanceLogic is IGovernanceLogic, OspLogicBase, AccessControlUpgradeable {
+contract GovernanceLogic is
+    IGovernanceLogic,
+    OspLogicBase,
+    AccessControlUpgradeable,
+    ContractMetadata
+{
     /*///////////////////////////////////////////////////////////////
                         Public functions
     //////////////////////////////////////////////////////////////*/
@@ -186,7 +192,11 @@ contract GovernanceLogic is IGovernanceLogic, OspLogicBase, AccessControlUpgrade
         );
     }
 
-    function getTreasureAddress() external view returns (address) {
+    function getTreasureAddress() external view override returns (address) {
         return _getGovernanceStorage()._treasure;
+    }
+
+    function _canSetContractURI() internal view override returns (bool) {
+        return _hashRole(Constants.GOVERNANCE, _msgSender());
     }
 }

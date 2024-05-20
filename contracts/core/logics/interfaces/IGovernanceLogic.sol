@@ -7,6 +7,7 @@ import '../../base/IERC4906.sol';
 import '@openzeppelin/contracts/interfaces/IERC5267.sol';
 import '../../../libraries/Constants.sol';
 import '@openzeppelin/contracts/access/IAccessControl.sol';
+import '@thirdweb-dev/contracts/extension/interface/IContractMetadata.sol';
 
 /**
  * @title IGovernanceLogic
@@ -14,7 +15,7 @@ import '@openzeppelin/contracts/access/IAccessControl.sol';
  *
  * @dev This is the interface for the GovernanceLogic contract.
  */
-interface IGovernanceLogic is IERC4906, IERC5267, IAccessControl {
+interface IGovernanceLogic is IERC4906, IERC5267, IAccessControl, IContractMetadata {
     /**
      * @dev Initializes the Profile SBT, setting the initial governance address as well as the name and symbol.
      *

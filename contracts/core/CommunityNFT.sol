@@ -2,18 +2,19 @@
 
 pragma solidity 0.8.20;
 
-import './logics/interfaces/ICommunityLogic.sol';
+import './logics/interfaces/OspClient.sol';
 import '../interfaces/ICommunityNFT.sol';
 import '../libraries/OspErrors.sol';
 import './base/OspNFTBase.sol';
 import './base/IERC4906.sol';
+import '@thirdweb-dev/contracts/extension/upgradeable/ContractMetadata.sol';
 
 /**
  * @title CommunityNFT
  * @author OpenSocial Protocol
  * @dev This NFT contract is minted upon community is created.
  */
-contract CommunityNFT is OspNFTBase, ICommunityNFT, IERC4906 {
+contract CommunityNFT is OspNFTBase, ContractMetadata, ICommunityNFT, IERC4906 {
     address public immutable OSP;
     uint256 internal _tokenIdCounter;
 
@@ -53,5 +54,9 @@ contract CommunityNFT is OspNFTBase, ICommunityNFT, IERC4906 {
 
     function burn(uint256 tokenId) public override {
         _update(address(this), tokenId, _msgSender());
+    }
+
+    function _canSetContractURI() internal view override returns (bool) {
+        return OspClient(OSP).hasRole(Constants.GOVERNANCE, _msgSender());
     }
 }
