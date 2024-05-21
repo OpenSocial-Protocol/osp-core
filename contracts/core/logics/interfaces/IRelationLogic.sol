@@ -99,6 +99,25 @@ interface IRelationLogic {
     ) external view returns (bool);
 
     /**
+     * @dev Returns the level of the account in the community.
+     *
+     * @param communityId The community ID to get the level for.
+     * @param account The account to get level for.
+     */
+    function getCommunityMemberLevel(
+        uint256 communityId,
+        address account
+    ) external view returns (uint256);
+
+    /**
+     * @dev Returns the block status of the account in the community.
+     *
+     * @param communityId The community ID to get the block status for.
+     * @param account The account to get block status for.
+     */
+    function isCommunityBlock(uint256 communityId, address account) external view returns (bool);
+
+    /**
      * @dev Returns the URI for a joinNFT token.
      *
      * @param communityId  The communityId associated with the join NFT.

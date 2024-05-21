@@ -99,6 +99,7 @@ contract RelationLogic is IRelationLogic, OspLogicBase {
         return IERC721(joinNFT).balanceOf(addr) > 0;
     }
 
+    /// @inheritdoc IRelationLogic
     function hasOneCommunityRole(
         uint256 communityId,
         uint256 role,
@@ -108,6 +109,7 @@ contract RelationLogic is IRelationLogic, OspLogicBase {
         return IJoinNFT(joinNFT).hasOneRole(role, account);
     }
 
+    /// @inheritdoc IRelationLogic
     function hasAllCommunityRole(
         uint256 communityId,
         uint256 role,
@@ -115,6 +117,21 @@ contract RelationLogic is IRelationLogic, OspLogicBase {
     ) external view override returns (bool) {
         address joinNFT = _getCommunityStorage()._communityById[communityId].joinNFT;
         return IJoinNFT(joinNFT).hasAllRole(role, account);
+    }
+
+    /// @inheritdoc IRelationLogic
+    function getCommunityMemberLevel(
+        uint256 communityId,
+        address account
+    ) external view returns (uint256) {
+        address joinNFT = _getCommunityStorage()._communityById[communityId].joinNFT;
+        return IJoinNFT(joinNFT).getMemberLevel(account);
+    }
+
+    /// @inheritdoc IRelationLogic
+    function isCommunityBlock(uint256 communityId, address account) external view returns (bool) {
+        address joinNFT = _getCommunityStorage()._communityById[communityId].joinNFT;
+        return IJoinNFT(joinNFT).isBlock(account);
     }
 
     /// @inheritdoc IRelationLogic

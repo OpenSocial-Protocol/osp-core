@@ -26,6 +26,11 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
     mapping(address => uint256) internal _role;
     mapping(address => uint256) internal _level;
 
+    modifier notBlock(address account) {
+        if (_blockList[account]) revert OspErrors.JoinNFTBlocked();
+        _;
+    }
+
     // We create the CollectNFT with the pre-computed OSP address before deploying the osp proxy in order
     // to initialize the osp proxy at construction.
     constructor(address osp) {
@@ -56,7 +61,10 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
     }
 
     /// @inheritdoc IJoinNFT
-    function setAdmin(address account, bool enable) public override returns (bool) {
+    function setAdmin(
+        address account,
+        bool enable
+    ) public override notBlock(account) returns (bool) {
         if (_isCommunityOwner(_msgSender())) {
             return
                 enable
@@ -67,7 +75,10 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
     }
 
     /// @inheritdoc IJoinNFT
-    function setMods(address account, bool enable) public override returns (bool) {
+    function setMods(
+        address account,
+        bool enable
+    ) public override notBlock(account) returns (bool) {
         if (
             hasOneRole(Constants.COMMUNITY_ADMIN_ACCESS, _msgSender()) ||
             _isCommunityOwner(_msgSender())
@@ -81,14 +92,17 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
     }
 
     /// @inheritdoc IJoinNFT
-    function setMemberLevel(address account, uint256 level) public override returns (bool) {
+    function setMemberLevel(
+        address account,
+        uint256 level
+    ) public override notBlock(account) returns (bool) {
         if (
             hasOneRole(
                 Constants.COMMUNITY_ADMIN_ACCESS | Constants.COMMUNITY_MODS_ACCESS,
                 _msgSender()
             ) || _isCommunityOwner(_msgSender())
         ) {
-            if(_level[account] != level){
+            if (_level[account] != level) {
                 _level[account] = level;
                 OspClient(OSP).emitJoinNFTAccountLevelChangedEvent(_communityId, account, level);
             }
@@ -125,8 +139,8 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
 
     function balanceOf(
         address addr
-    ) public view override(IERC721, ERC721Upgradeable) returns (uint256) {
-        return _blockList[addr] ? 0 : super.balanceOf(addr);
+    ) public view override(IERC721, ERC721Upgradeable) notBlock(addr) returns (uint256) {
+        return super.balanceOf(addr);
     }
 
     function ownerOf(
@@ -150,12 +164,12 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
     }
 
     /// @inheritdoc IJoinNFT
-    function memberLevel(address account) external view override returns (uint256) {
+    function getMemberLevel(address account) external view override returns (uint256) {
         return _level[account];
     }
 
     /// @inheritdoc IJoinNFT
-    function isBlockList(address account) external view override returns (bool) {
+    function isBlock(address account) external view override returns (bool) {
         return _blockList[account];
     }
 

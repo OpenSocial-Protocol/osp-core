@@ -89,10 +89,10 @@ interface IJoinNFT {
     /**
      * @dev Returns the member level of the account.
      */
-    function memberLevel(address account) external view returns (uint256);
+    function getMemberLevel(address account) external view returns (uint256);
 
     /**
-     * @dev Returns the block list status of the account.
+     * @dev Returns the block status of the account.
      */
-    function isBlockList(address account) external view returns (bool);
+    function isBlock(address account) external view returns (bool);
 }
