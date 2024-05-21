@@ -88,7 +88,10 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
                 _msgSender()
             ) || _isCommunityOwner(_msgSender())
         ) {
-            _level[account] = level;
+            if(_level[account] != level){
+                _level[account] = level;
+                OspClient(OSP).emitJoinNFTAccountLevelChangedEvent(_communityId, account, level);
+            }
         }
         revert OspErrors.JoinNFTUnauthorizedAccount();
     }

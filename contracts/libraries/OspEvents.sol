@@ -328,8 +328,21 @@ library OspEvents {
         uint256 indexed communityId,
         address indexed account,
         uint256 indexed role,
-        bool enable
+        bool enable,
+        uint256 timestamp
     );
 
-    event JoinNFTAccountBlocked(uint256 indexed communityId, address indexed account, bool isBlock);
+    event JoinNFTAccountBlocked(
+        uint256 indexed communityId,
+        address indexed account,
+        bool isBlock,
+        uint256 timestamp
+    );
+
+    event JoinNFTAccountLevelChanged(
+        uint256 indexed communityId,
+        address indexed account,
+        uint256 level,
+        uint256 timestamp
+    );
 }

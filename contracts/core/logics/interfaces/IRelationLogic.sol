@@ -151,4 +151,10 @@ interface IRelationLogic {
         address account,
         bool isBlock
     ) external;
+
+    function emitJoinNFTAccountLevelChangedEvent(
+        uint256 communityId,
+        address account,
+        uint256 level
+    ) external;
 }

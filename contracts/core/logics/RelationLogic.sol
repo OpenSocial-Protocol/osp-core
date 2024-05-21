@@ -22,6 +22,11 @@ import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 contract RelationLogic is IRelationLogic, OspLogicBase {
     using Strings for uint256;
 
+    modifier onlyJoinNFT(uint256 communityId) {
+        _checkFromJoinNFT(communityId);
+        _;
+    }
+
     /*///////////////////////////////////////////////////////////////
                         Public functions
     //////////////////////////////////////////////////////////////*/
@@ -148,9 +153,8 @@ contract RelationLogic is IRelationLogic, OspLogicBase {
         address account,
         uint256 role,
         bool enable
-    ) external override {
-        _checkFromJoinNFT(communityId);
-        emit OspEvents.JoinNFTRoleChanged(communityId, account, role, enable);
+    ) external override onlyJoinNFT(communityId) {
+        emit OspEvents.JoinNFTRoleChanged(communityId, account, role, enable, block.timestamp);
     }
 
     /// @inheritdoc IRelationLogic
@@ -158,9 +162,17 @@ contract RelationLogic is IRelationLogic, OspLogicBase {
         uint256 communityId,
         address account,
         bool isBlock
-    ) external override {
-        _checkFromJoinNFT(communityId);
-        emit OspEvents.JoinNFTAccountBlocked(communityId, account, isBlock);
+    ) external override onlyJoinNFT(communityId) {
+        emit OspEvents.JoinNFTAccountBlocked(communityId, account, isBlock, block.timestamp);
+    }
+
+    /// @inheritdoc IRelationLogic
+    function emitJoinNFTAccountLevelChangedEvent(
+        uint256 communityId,
+        address account,
+        uint256 level
+    ) external override onlyJoinNFT(communityId) {
+        emit OspEvents.JoinNFTAccountLevelChanged(communityId, account, level, block.timestamp);
     }
 
     /*///////////////////////////////////////////////////////////////
