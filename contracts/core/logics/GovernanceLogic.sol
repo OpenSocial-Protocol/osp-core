@@ -105,6 +105,11 @@ contract GovernanceLogic is
         emit OspEvents.ERC6551AccountImplSet(accountImpl, block.timestamp);
     }
 
+    function setJoinNFTImpl(address joinNFTImpl) external override onlyRole(Constants.GOVERNANCE) {
+        _getGovernanceStorage()._joinNFTImpl = joinNFTImpl;
+        emit OspEvents.JoinNFTImplSet(joinNFTImpl, block.timestamp);
+    }
+
     /// @inheritdoc IGovernanceLogic
     function updateMetadata() external override onlyRole(Constants.GOVERNANCE) {
         emit BatchMetadataUpdate(1, type(uint256).max);

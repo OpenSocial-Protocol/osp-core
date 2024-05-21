@@ -389,6 +389,13 @@ abstract contract OspTestSetUp is OspTestConstant {
         );
         ospRouter.addRouter(
             IRouter.Router({
+                functionSelector: hex'11cc3540',
+                functionSignature: 'setJoinNFTImpl(address)',
+                routerAddress: address(governanceLogic)
+            })
+        );
+        ospRouter.addRouter(
+            IRouter.Router({
                 functionSelector: hex'56de96db',
                 functionSignature: 'setState(uint8)',
                 routerAddress: address(governanceLogic)

@@ -26,7 +26,7 @@ export const xLayerTestnet: Network = {
   chainId: 195,
 };
 export const anvil: Network = {
-  chainId: 31337,
+  chainId: 84532,
   url: 'http://127.0.0.1:8545',
 };
 

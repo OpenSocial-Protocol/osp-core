@@ -78,6 +78,8 @@ interface IGovernanceLogic is IERC4906, IERC5267, IAccessControl, IContractMetad
 
     function setERC6551AccountImpl(address accountImpl) external;
 
+    function setJoinNFTImpl(address joinNFTImpl) external;
+
     /// ************************
     /// *****VIEW FUNCTIONS*****
     /// ************************

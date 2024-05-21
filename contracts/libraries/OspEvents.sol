@@ -322,6 +322,8 @@ library OspEvents {
 
     event ERC6551AccountImplSet(address accountImpl, uint256 timestamp);
 
+    event JoinNFTImplSet(address accountImpl, uint256 timestamp);
+
     event JoinNFTRoleChanged(
         uint256 indexed communityId,
         address indexed account,

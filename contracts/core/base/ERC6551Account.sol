@@ -40,10 +40,11 @@ contract ERC6551Account is IERC721Receiver, IERC1155Receiver {
      * @dev For previous TBA accounts，initialize communityId.
      */
     function setCommunityId(uint256 communityId) external {
-        if (tokenId != 0) revert OspErrors.InitParamsInvalid();
-        if (OspClient(OSP).getCommunityAccount(communityId) == address(this)) {
+        if (tokenId == 0 && OspClient(OSP).getCommunityAccount(communityId) == address(this)) {
             tokenId = communityId;
+            return;
         }
+        revert OspErrors.InitParamsInvalid();
     }
 
     /// @notice Executes a transaction from the account

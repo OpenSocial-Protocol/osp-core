@@ -2,12 +2,8 @@ import '@nomiclabs/hardhat-ethers';
 import fs from 'fs';
 import { task } from 'hardhat/config';
 import { OspRouterImmutable__factory } from '../target/typechain-types';
-import { waitForTx } from './helpers/utils';
+import { getAddresses, waitForTx } from './helpers/utils';
 import { getDeployer } from './helpers/kms';
-
-function getAddresses(hre, env) {
-  return JSON.parse(fs.readFileSync(`addresses-${env}-${hre.network.name}.json`).toString());
-}
 
 function getFunSig(logicName: string) {
   const interfaceName = logicName.at(0)?.toUpperCase() + logicName.slice(1);
@@ -22,15 +18,28 @@ task('update-router', 'update-router')
   .addParam('logic')
   .addParam('env')
   .setAction(async ({ logic, env }, hre) => {
-    const logicName = logic as string;
+    const { ospAddressConfig, calldata } = await getUpdateCallDatas(logic, hre, env);
+    const router = OspRouterImmutable__factory.connect(
+      ospAddressConfig.routerProxy,
+      await getDeployer(hre)
+    );
+    await waitForTx(router.multicall(calldata));
+    fs.writeFileSync(
+      `addresses-${env}-${hre.network.name}.json`,
+      JSON.stringify(ospAddressConfig, null, 2)
+    );
+  });
+
+export async function getUpdateCallDatas(logic, hre, env) {
+  const logics = (logic as string).split(',');
+  console.log(logics);
+  const ospAddressConfig = getAddresses(hre, env);
+  const deployer = await getDeployer(hre);
+  const ospAddress = ospAddressConfig.routerProxy;
+  const router = OspRouterImmutable__factory.connect(ospAddress, deployer);
+  const calldata: string[] = [];
+  for (const logicName of logics) {
     console.log(`start update router ,logic is ${logicName}.`);
-
-    const deployer = await getDeployer(hre);
-    const ospAddressConfig = getAddresses(hre, env);
-    const ospAddress = ospAddressConfig.routerProxy;
-
-    const router = OspRouterImmutable__factory.connect(ospAddress, deployer);
-
     const allRouters = await router.getAllRouters();
     const logicRouters = await router.getAllFunctionsOfRouter(
       ospAddressConfig[`${logicName}Logic`]
@@ -68,19 +77,21 @@ task('update-router', 'update-router')
     console.log(addFun);
 
     const logicContract = await hre.ethers.deployContract(
-      logicName.at(0).toUpperCase() + logicName.slice(1) + 'Logic',
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      `${logicName.at(0).toUpperCase() + logicName.slice(1)}Logic`,
       deployer
     );
     console.log(`deploy logic contract: ${logicContract.address}`);
 
     const contractAddress = logicContract.address;
 
-    const calldata: string[] = [];
-
     removeFun.forEach((selector) => {
       calldata.push(
         router.interface.encodeFunctionData('removeRouter', [
           selector,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           allRouters.find((item) => item.functionSelector == selector).functionSignature as string,
         ])
       );
@@ -109,13 +120,9 @@ task('update-router', 'update-router')
         ])
       );
     });
-    console.log(calldata);
-
-    await waitForTx(router.multicall(calldata));
-
     ospAddressConfig[`${logicName}Logic`] = contractAddress;
-    fs.writeFileSync(
-      `addresses-${env}-${hre.network.name}.json`,
-      JSON.stringify(ospAddressConfig, null, 2)
-    );
-  });
+  }
+  console.log(calldata);
+  console.log(calldata.length);
+  return { ospAddressConfig, calldata };
+}

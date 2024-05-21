@@ -4,6 +4,7 @@ import { Contract, ContractTransaction, PopulatedTransaction } from 'ethers';
 import fs from 'fs';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { hardhatAccounts } from '../../config/hardhat-accounts';
+import { getDeployer } from './kms';
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
@@ -147,9 +148,31 @@ export type OspAddress = {
   whitelistAddressCommunityCond: string;
 };
 
-export function getAddresses(hre, env): OspAddress | null {
+export function getAddresses(hre: HardhatRuntimeEnvironment, env: string): OspAddress {
   if (!fs.existsSync(`addresses-${env}-${hre.network.name}.json`)) {
-    return null;
+    throw new Error();
   }
   return JSON.parse(fs.readFileSync(`addresses-${env}-${hre.network.name}.json`).toString());
+}
+
+export async function getMulticall3(hre: HardhatRuntimeEnvironment) {
+  const abi = [
+    'function aggregate(tuple(address target, bytes callData)[] calls) payable returns (uint256 blockNumber, bytes[] returnData)',
+    'function aggregate3(tuple(address target, bool allowFailure, bytes callData)[] calls) payable returns (tuple(bool success, bytes returnData)[] returnData)',
+    'function aggregate3Value(tuple(address target, bool allowFailure, uint256 value, bytes callData)[] calls) payable returns (tuple(bool success, bytes returnData)[] returnData)',
+    'function blockAndAggregate(tuple(address target, bytes callData)[] calls) payable returns (uint256 blockNumber, bytes32 blockHash, tuple(bool success, bytes returnData)[] returnData)',
+    'function getBasefee() view returns (uint256 basefee)',
+    'function getBlockHash(uint256 blockNumber) view returns (bytes32 blockHash)',
+    'function getBlockNumber() view returns (uint256 blockNumber)',
+    'function getChainId() view returns (uint256 chainid)',
+    'function getCurrentBlockCoinbase() view returns (address coinbase)',
+    'function getCurrentBlockDifficulty() view returns (uint256 difficulty)',
+    'function getCurrentBlockGasLimit() view returns (uint256 gaslimit)',
+    'function getCurrentBlockTimestamp() view returns (uint256 timestamp)',
+    'function getEthBalance(address addr) view returns (uint256 balance)',
+    'function getLastBlockHash() view returns (bytes32 blockHash)',
+    'function tryAggregate(bool requireSuccess, tuple(address target, bytes callData)[] calls) payable returns (tuple(bool success, bytes returnData)[] returnData)',
+    'function tryBlockAndAggregate(bool requireSuccess, tuple(address target, bytes callData)[] calls) payable returns (uint256 blockNumber, bytes32 blockHash, tuple(bool success, bytes returnData)[] returnData)',
+  ];
+  return new Contract('0xcA11bde05977b3631167028862bE2a173976CA11', abi, await getDeployer(hre));
 }
