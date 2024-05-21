@@ -3,7 +3,6 @@ import { ethers, Wallet } from 'ethers';
 import { task } from 'hardhat/config';
 import {
   CommunityNFT__factory,
-  ERC20FeeJoinCond__factory,
   ERC6551Account__factory,
   JoinNFT__factory,
   OspClient__factory,
@@ -13,7 +12,6 @@ import {
 } from '../target/typechain-types';
 import { deployContract, getAddresses, getMulticall3, waitForTx } from './helpers/utils';
 import { getDeployer } from './helpers/kms';
-import { ProtocolState } from '../config/osp';
 import { getUpdateCallDatas } from './update-all-router';
 import fs from 'fs';
 
@@ -103,7 +101,6 @@ task('update-20240521')
     //update core
     const ospClient = OspClient__factory.connect(address.routerProxy, deployer);
     const calldatas: Array<string> = [];
-    calldatas.push(ospClient.interface.encodeFunctionData('setState', [ProtocolState.Paused]));
     const { ospAddressConfig, calldata: updateRouterCallDatas } = await getUpdateCallDatas(
       'content,community,governance,relation',
       hre,
@@ -126,7 +123,6 @@ task('update-20240521')
     );
     ospAddressConfig.joinNFTImpl = joinNFTImpl.address;
     calldatas.push(ospClient.interface.encodeFunctionData('setJoinNFTImpl', [joinNFTImpl.address]));
-    calldatas.push(ospClient.interface.encodeFunctionData('setState', [ProtocolState.Unpaused]));
 
     await waitForTx(
       OspRouterImmutable__factory.connect(address.routerProxy, deployer).multicall(calldatas)
