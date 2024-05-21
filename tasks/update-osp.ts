@@ -83,23 +83,28 @@ task('set-treasure-address')
 task('update-20240521')
   .addParam('env')
   .setAction(async ({ env }, hre) => {
-    const address = getAddresses(hre, env);
+    const addresses = getAddresses(hre, env);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const deployer = await getDeployer(hre);
 
     // update community nft
     const communityNFTProxy = OspUniversalProxy__factory.connect(
-      address?.communityNFTProxy,
+      addresses?.communityNFTProxy,
       deployer
     );
     const communityNftImpl = await deployContract(
-      new CommunityNFT__factory(deployer).deploy(address.routerProxy)
+      new CommunityNFT__factory(deployer).deploy(addresses.routerProxy)
     );
+    addresses.communityNFT = communityNftImpl.address;
     await waitForTx(communityNFTProxy.updateToAndCall(communityNftImpl.address, []));
+    fs.writeFileSync(
+      `addresses-${env}-${hre.network.name}.json`,
+      JSON.stringify(addresses, null, 2)
+    );
 
     //update core
-    const ospClient = OspClient__factory.connect(address.routerProxy, deployer);
+    const ospClient = OspClient__factory.connect(addresses.routerProxy, deployer);
     const calldatas: Array<string> = [];
     const { ospAddressConfig, calldata: updateRouterCallDatas } = await getUpdateCallDatas(
       'content,community,governance,relation',
@@ -110,7 +115,7 @@ task('update-20240521')
 
     //update 6551 account
     const erc6551Impl = await deployContract(
-      new ERC6551Account__factory(deployer).deploy(address.routerProxy)
+      new ERC6551Account__factory(deployer).deploy(addresses.routerProxy)
     );
     ospAddressConfig.erc6551AccountImpl = erc6551Impl.address;
     calldatas.push(
@@ -119,13 +124,13 @@ task('update-20240521')
 
     //update join nft impl
     const joinNFTImpl = await deployContract(
-      new JoinNFT__factory(deployer).deploy(address.routerProxy)
+      new JoinNFT__factory(deployer).deploy(addresses.routerProxy)
     );
     ospAddressConfig.joinNFTImpl = joinNFTImpl.address;
     calldatas.push(ospClient.interface.encodeFunctionData('setJoinNFTImpl', [joinNFTImpl.address]));
 
     await waitForTx(
-      OspRouterImmutable__factory.connect(address.routerProxy, deployer).multicall(calldatas)
+      OspRouterImmutable__factory.connect(addresses.routerProxy, deployer).multicall(calldatas)
     );
     fs.writeFileSync(
       `addresses-${env}-${hre.network.name}.json`,
@@ -134,7 +139,7 @@ task('update-20240521')
 
     //update 6551 account
     const multicall3 = await getMulticall3(hre);
-    const communityNFT = CommunityNFT__factory.connect(address?.communityNFTProxy, deployer);
+    const communityNFT = CommunityNFT__factory.connect(addresses?.communityNFTProxy, deployer);
     const totalSupply = await communityNFT.totalSupply();
     const communityIds: Array<number> = [];
     for (let i = 1; i <= totalSupply.toNumber(); i++) {
@@ -144,7 +149,7 @@ task('update-20240521')
       (
         await multicall3.callStatic.aggregate(
           communityIds.map((communityId) => ({
-            target: address.routerProxy,
+            target: addresses.routerProxy,
             callData: ospClient.interface.encodeFunctionData('getCommunityAccount(uint256)', [
               communityId,
             ]),
