@@ -86,7 +86,7 @@ interface IContentLogic {
      */
     function createMegaphone(
         OspDataTypes.CreateMegaphoneData calldata vars
-    ) external returns (uint256 megaphoneId);
+    ) external payable returns (uint256 megaphoneId);
 
     /// ************************
     /// *****VIEW FUNCTIONS*****

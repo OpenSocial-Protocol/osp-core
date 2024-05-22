@@ -141,7 +141,7 @@ contract ContentLogic is IContentLogic, OspLogicBase {
     /// @inheritdoc IContentLogic
     function createMegaphone(
         OspDataTypes.CreateMegaphoneData calldata vars
-    ) external whenPublishingEnabled returns (uint256 megaphoneId) {
+    ) external payable whenPublishingEnabled returns (uint256 megaphoneId) {
         _validateIsProfileOwner(msg.sender, vars.profileId);
         return _createMegaphone(vars);
     }
@@ -302,7 +302,12 @@ contract ContentLogic is IContentLogic, OspLogicBase {
         megaphoneId = ++_getContentStorage()._megaphoneCount;
         address treasure = _getGovernanceStorage()._treasure;
         if (treasure == address(0)) revert OspErrors.InvalidTreasure();
-        Payment.payERC20(vars.currency, msg.sender, treasure, vars.amount);
+        if (vars.currency == address(0)) {
+            if (msg.value != vars.amount) revert OspErrors.DataMismatch();
+            Payment.payNative(treasure, vars.amount);
+        } else {
+            Payment.payERC20(vars.currency, msg.sender, treasure, vars.amount);
+        }
         emit OspEvents.MegaphoneCreated(
             megaphoneId,
             vars.referencedProfileId,
