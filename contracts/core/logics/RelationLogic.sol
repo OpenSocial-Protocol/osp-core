@@ -222,7 +222,7 @@ contract RelationLogic is IRelationLogic, OspLogicBase {
      * @return address The address of the deployed Follow SBT contract.
      */
     function _deployFollowSBT(uint256 profileId) internal returns (address) {
-        string memory idStr = Strings.toString(profileId);
+        string memory idStr = profileId.toString();
         string memory name = string(abi.encodePacked(idStr, Constants.FOLLOW_NFT_NAME_SUFFIX));
         string memory symbol = string(abi.encodePacked(idStr, Constants.FOLLOW_NFT_SYMBOL_SUFFIX));
 
