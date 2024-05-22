@@ -237,7 +237,7 @@ contract CommunityLogic is OspLogicBase, ICommunityLogic {
                 byteHandle.length > Constants.MAX_COMMUNITY_NAME_LENGTH ||
                 governanceStorage._reserveCommunityHandleHash[keccak256(bytes(byteHandle))]
             ) revert OspErrors.HandleLengthInvalid();
-        } else if (byteHandle.length == 0 || byteHandle.length > Constants.MAX_HANDLE_LENGTH) {
+        } else if (byteHandle.length == 0 || byteHandle.length > Constants.MAX_COMMUNITY_NAME_LENGTH) {
             revert OspErrors.HandleLengthInvalid();
         }
         mapping(bytes32 => uint256) storage _communityIdByHandleHash = communityStorage

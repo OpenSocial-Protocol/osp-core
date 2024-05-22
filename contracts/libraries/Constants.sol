@@ -8,10 +8,10 @@ pragma solidity 0.8.20;
  * @notice This library defines constants for the OpenSocial Protocol.
  */
 library Constants {
-    string internal constant FOLLOW_NFT_NAME_SUFFIX = '-Follower';
-    string internal constant FOLLOW_NFT_SYMBOL_SUFFIX = '-Fl';
-    string internal constant JOIN_NFT_NAME_INFIX = '-Member';
-    string internal constant JOIN_NFT_SYMBOL_INFIX = '-Mb';
+    string internal constant FOLLOW_NFT_NAME_SUFFIX = ' Follower';
+    string internal constant FOLLOW_NFT_SYMBOL_SUFFIX = '_Fl';
+    string internal constant JOIN_NFT_NAME_INFIX = ' Member';
+    string internal constant JOIN_NFT_SYMBOL_INFIX = '_Mb';
     uint8 internal constant MAX_HANDLE_LENGTH = 15;
     uint8 internal constant MIN_HANDLE_LENGTH = 4;
     uint8 internal constant MAX_COMMUNITY_NAME_LENGTH = 63;
