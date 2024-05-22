@@ -13,7 +13,7 @@ contract OspTestConstant is Test {
 
     address immutable deployer = makeAddr('deployer');
     string constant OSP_NAME = 'osp-name';
-    string constant OSP_SYMBOL = 'osp-symbl';
+    string constant OSP_SYMBOL = 'osp-symbol';
     string constant MOCK_URL = 'ipfs://osposposposposposposposp';
     string constant BASE_URL = 'https://opensocial.xyz/token/';
 

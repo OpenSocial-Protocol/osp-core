@@ -53,6 +53,7 @@ library OspErrors {
     error InvalidTreasure();
     error InitParamsInvalid();
     error ERC6551AccountImplNotDeployed();
+    error DataMismatch();
 
     //Plugin Errors
     error PluginNotEnable();

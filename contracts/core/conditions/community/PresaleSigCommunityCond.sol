@@ -30,13 +30,13 @@ contract PresaleSigCommunityCond is CommunityCondBase {
 
     constructor(
         address osp,
-        uint256 _presaleStartTime,
         address _fixFeeCommunityCond,
-        address _signer
+        address _signer,
+        uint256 _presaleStartTime
     ) CommunityCondBase(osp) {
-        _setPresaleTime(_presaleStartTime);
         fixFeeCommunityCond = _fixFeeCommunityCond;
         signer = _signer;
+        _setPresaleTime(_presaleStartTime);
     }
 
     /**
@@ -108,7 +108,7 @@ contract PresaleSigCommunityCond is CommunityCondBase {
         return abi.decode(returnData, (CondDataTypes.FixFeeCondData));
     }
 
-    function _setPresaleTime(uint256 _presaleStartTime)  {
+    function _setPresaleTime(uint256 _presaleStartTime) internal {
         CondDataTypes.FixFeeCondData memory fixFeeCondData = _getFixFeeCondData();
         require(_presaleStartTime < fixFeeCondData.createStartTime, 'Invalid time');
         presaleStartTime = _presaleStartTime;
