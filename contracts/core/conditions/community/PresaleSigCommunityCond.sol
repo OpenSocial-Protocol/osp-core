@@ -34,7 +34,7 @@ contract PresaleSigCommunityCond is CommunityCondBase {
         address _fixFeeCommunityCond,
         address _signer
     ) CommunityCondBase(osp) {
-        presaleStartTime = _presaleStartTime;
+        _setPresaleTime(_presaleStartTime);
         fixFeeCommunityCond = _fixFeeCommunityCond;
         signer = _signer;
     }
@@ -83,7 +83,22 @@ contract PresaleSigCommunityCond is CommunityCondBase {
     }
 
     /**
-     * @dev Get the fix fee condition data from fixFeeCommunityCond contract.
+     * @dev Set the presale start time, must be less than the official sale time
+     */
+    function setPresaleTime(uint256 _presaleStartTime) external onlyOperation {
+        _setPresaleTime(_presaleStartTime);
+    }
+
+    /**
+     * @dev Set the signer address
+     */
+    function setSigner(address _signer) external onlyOperation {
+        signer = _signer;
+    }
+
+
+    /**
+    * @dev Get the fix fee condition data from fixFeeCommunityCond contract.
      */
     function _getFixFeeCondData() internal view returns (CondDataTypes.FixFeeCondData memory) {
         (bool success, bytes memory returnData) = fixFeeCommunityCond.staticcall(
@@ -93,19 +108,9 @@ contract PresaleSigCommunityCond is CommunityCondBase {
         return abi.decode(returnData, (CondDataTypes.FixFeeCondData));
     }
 
-    /**
-     * @dev Set the presale start time, must be less than the official sale time
-     */
-    function setPresaleTime(uint256 _presaleStartTime) external onlyOperation {
+    function _setPresaleTime(uint256 _presaleStartTime)  {
         CondDataTypes.FixFeeCondData memory fixFeeCondData = _getFixFeeCondData();
         require(_presaleStartTime < fixFeeCondData.createStartTime, 'Invalid time');
         presaleStartTime = _presaleStartTime;
-    }
-
-    /**
-     * @dev Set the signer address
-     */
-    function setSigner(address _signer) external onlyOperation {
-        signer = _signer;
     }
 }
