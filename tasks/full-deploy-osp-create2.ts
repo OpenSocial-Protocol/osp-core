@@ -2,11 +2,15 @@ import '@nomiclabs/hardhat-ethers';
 import fs from 'fs';
 import { task } from 'hardhat/config';
 import {
+  APP_ADMIN,
+  GOVERNANCE,
   nftMetaBaseUrl,
   OPENSOCIAL_COMMUNITY_NAME,
   OPENSOCIAL_COMMUNITY_SYMBOL,
   OPENSOCIAL_SBT_NAME,
   OPENSOCIAL_SBT_SYMBOL,
+  OPERATION,
+  STATE_ADMIN,
   whitelistTokenList,
 } from '../config/osp';
 import { COMPILE_TASK_NAME, DEPLOY_TASK_NAME } from '../config/tasks';
@@ -335,25 +339,25 @@ task(DEPLOY_TASK_NAME.DEPLOY_OSP_CREATE2, 'deploys the entire OpenSocial Protoco
       console.log('\n\t-- setting Opensocial Protocol --');
       initData.push(
         openSocial.interface.encodeFunctionData('grantRole', [
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes('APP_ADMIN')),
+          APP_ADMIN,
           await deployer.getAddress(),
         ])
       );
       initData.push(
         openSocial.interface.encodeFunctionData('grantRole', [
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes('GOVERNANCE')),
+          GOVERNANCE,
           await deployer.getAddress(),
         ])
       );
       initData.push(
         openSocial.interface.encodeFunctionData('grantRole', [
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes('OPERATION')),
+          OPERATION,
           await deployer.getAddress(),
         ])
       );
       initData.push(
         openSocial.interface.encodeFunctionData('grantRole', [
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes('STATE_ADMIN')),
+          STATE_ADMIN,
           await deployer.getAddress(),
         ])
       );
