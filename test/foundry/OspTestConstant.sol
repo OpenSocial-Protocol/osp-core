@@ -6,6 +6,7 @@ contract OspTestConstant is Test {
     address constant ZERO_ADDRESS = address(0);
     bytes constant EMPTY_BYTES = new bytes(0);
     string[] EMPTY_STRINGS = new string[](0);
+    string EMPTY_STRING = '';
     address[] EMPTY_ADDRESS_ARRAY = new address[](0);
     bytes[] EMPTY_BYTES_ARRAY = new bytes[](0);
     bytes constant CORRECT_BYTES = abi.encode(1);

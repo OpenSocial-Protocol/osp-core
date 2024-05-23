@@ -16,6 +16,13 @@ import {CondDataTypes} from '../libraries/CondDataTypes.sol';
  */
 contract SlotNFTCommunityCond is CommunityCondBase {
     event SlotNFTCondDataSet(address indexed slot, uint256 minHandleLength, uint256 timestamp);
+    event SlotNFTUsed(
+        address indexed to,
+        address indexed slot,
+        uint256 indexed tokenId,
+        string handle,
+        uint256 timestamp
+    );
 
     constructor(address osp) CommunityCondBase(osp) {}
 
@@ -38,6 +45,7 @@ contract SlotNFTCommunityCond is CommunityCondBase {
             revert CondErrors.HandleLengthNotEnough();
         }
         _slotNFTUsed[slot][tokenId] = true;
+        emit SlotNFTUsed(to, slot, tokenId, handle, block.timestamp);
     }
 
     /**

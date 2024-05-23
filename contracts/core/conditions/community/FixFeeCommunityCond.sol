@@ -19,6 +19,7 @@ import {CondHelpers} from '../libraries/CondHelpers.sol';
  */
 contract FixFeeCommunityCond is CommunityCondBase {
     event FixFeeCondDataSet(CondDataTypes.FixFeeCondData data, uint256 timestamp);
+    event FixFeePaid(address indexed to, uint256 price, string handle, uint256 timestamp);
 
     CondDataTypes.FixFeeCondData public stableFeeCondData;
 
@@ -32,11 +33,16 @@ contract FixFeeCommunityCond is CommunityCondBase {
         string calldata handle,
         bytes calldata data
     ) internal override {
-        if (block.timestamp < stableFeeCondData.createStartTime) {
+        /// @dev if createStartTime is not set, indicates no initialization.
+        if (
+            block.timestamp < stableFeeCondData.createStartTime ||
+            stableFeeCondData.createStartTime == 0
+        ) {
             revert CondErrors.NotCreateTime();
         }
-        uint256 cost = CondHelpers.getHandleETHPrice(handle, stableFeeCondData);
-        _charge(cost, to);
+        uint256 price = CondHelpers.getHandleETHPrice(handle, stableFeeCondData);
+        _charge(price, to);
+        emit FixFeePaid(to, price, handle, block.timestamp);
     }
 
     function setStableFeeCondData(
@@ -56,17 +62,17 @@ contract FixFeeCommunityCond is CommunityCondBase {
         emit FixFeeCondDataSet(data, block.timestamp);
     }
 
-    function _charge(uint256 cost, address to) internal virtual {
-        if (msg.value < cost) {
+    function _charge(uint256 price, address to) internal virtual {
+        if (msg.value < price) {
             revert CondErrors.InsufficientPayment();
         }
         uint256 overpayment;
         unchecked {
-            overpayment = msg.value - cost;
+            overpayment = msg.value - price;
         }
         if (overpayment > 0) {
             Payment.payNative(to, overpayment);
         }
-        Payment.payNative(stableFeeCondData.treasure, cost);
+        Payment.payNative(stableFeeCondData.treasure, price);
     }
 }
