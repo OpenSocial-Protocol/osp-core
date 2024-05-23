@@ -142,7 +142,7 @@ export type OspAddress = {
   //referencedCondition
   onlyMemberReferenceCond: string;
   //condition
-  slotNFTCommunityCond: string;
+  slotNFTCommunityCond?: string;
   whitelistAddressCommunityCond: string;
 };
 

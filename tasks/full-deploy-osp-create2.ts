@@ -162,11 +162,11 @@ task(DEPLOY_TASK_NAME.DEPLOY_OSP_CREATE2, 'deploys the entire OpenSocial Protoco
       create2.whitelistAddressCommunityCond.address,
       deployer
     );
-    await deployCreate2(create2.slotNFTCommunityCond, deployer);
-    const slotNFTCommunityCond = SlotNFTCommunityCond__factory.connect(
-      create2.slotNFTCommunityCond.address,
-      deployer
-    );
+    // await deployCreate2(create2.slotNFTCommunityCond, deployer);
+    // const slotNFTCommunityCond = SlotNFTCommunityCond__factory.connect(
+    //   create2.slotNFTCommunityCond.address,
+    //   deployer
+    // );
     console.log('\n\t-- Deploying JoinCondition --');
     await deployCreate2(create2.holdTokenJoinCond, deployer);
     await deployCreate2(create2.erc20FeeJoinCond, deployer);
@@ -205,7 +205,7 @@ task(DEPLOY_TASK_NAME.DEPLOY_OSP_CREATE2, 'deploys the entire OpenSocial Protoco
         erc20FeeJoinCond: erc20FeeJoinCond.address,
         nativeFeeJoinCond: nativeFeeJoinCond.address,
         onlyMemberReferenceCond: onlyMemberReferenceCond.address,
-        slotNFTCommunityCond: slotNFTCommunityCond.address,
+        // slotNFTCommunityCond: slotNFTCommunityCond.address,
         whitelistAddressCommunityCond: whitelistAddressCommunityCond.address,
       };
     }
@@ -363,12 +363,12 @@ task(DEPLOY_TASK_NAME.DEPLOY_OSP_CREATE2, 'deploys the entire OpenSocial Protoco
       );
 
       console.log('\n\t--Get Whitelisting Community Condition CallData --');
-      initData.push(
-        openSocial.interface.encodeFunctionData('whitelistApp', [
-          slotNFTCommunityCond.address,
-          true,
-        ])
-      );
+      // initData.push(
+      //   openSocial.interface.encodeFunctionData('whitelistApp', [
+      //     slotNFTCommunityCond.address,
+      //     true,
+      //   ])
+      // );
       initData.push(
         openSocial.interface.encodeFunctionData('whitelistApp', [
           whitelistAddressCommunityCond.address,
