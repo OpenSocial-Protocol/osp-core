@@ -50,7 +50,7 @@ export type OspRole = {
 };
 
 export const ospRoles: { [chainId: number]: OspRole } = {
-  84532: {
+  8453: {
     stateAdmin: ['0xe84ec627c902B8dfDd6e97278066de1FA0a83fAd'],
     appAdmin: ['0xe84ec627c902B8dfDd6e97278066de1FA0a83fAd'],
     governance: ['0x0B45cA958E9f655C154e70Da909795baC1B4aD83'],
