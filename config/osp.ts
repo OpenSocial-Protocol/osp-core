@@ -26,6 +26,7 @@ export const whitelistTokenList: { [chainId: number]: string[] } = {
     '0xAa8Ff530B040A36eaF29CF161F79b44F4e76d254',
   ],
   31337: [],
+  8543: ['0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'],
 };
 
 export const whitelistSlotNftList: { [chainId: number]: string[] } = {
