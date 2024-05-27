@@ -33,6 +33,10 @@ export const base: Network = {
   chainId: 8453,
   url: 'https://mainnet.base.org',
 };
+export const xLayer: Network = {
+  url: 'https://rpc.xlayer.tech',
+  chainId: 196,
+};
 
 export interface Network {
   chainId: number;
