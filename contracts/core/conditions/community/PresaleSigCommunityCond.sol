@@ -20,6 +20,16 @@ import {MessageHashUtils} from '@openzeppelin/contracts/utils/cryptography/Messa
  * If the official sale time is reached, the contract will automatically expire.
  */
 contract PresaleSigCommunityCond is CommunityCondBase {
+    event PresaleTimeSet(uint256 indexed presaleStartTime, uint256 timestamp);
+    event SignerSet(address indexed signer, uint256 timestamp);
+    event PresaleSigPaid(
+        address to,
+        uint256 indexed uid,
+        uint256 price,
+        string handle,
+        uint256 timestamp
+    );
+
     using ECDSA for bytes32;
     using MessageHashUtils for bytes32;
 
@@ -36,7 +46,9 @@ contract PresaleSigCommunityCond is CommunityCondBase {
     ) CommunityCondBase(osp) {
         fixFeeCommunityCond = _fixFeeCommunityCond;
         signer = _signer;
+        emit SignerSet(signer, block.timestamp);
         _setPresaleTime(_presaleStartTime);
+        emit PresaleTimeSet(presaleStartTime, block.timestamp);
     }
 
     /**
@@ -80,6 +92,7 @@ contract PresaleSigCommunityCond is CommunityCondBase {
             Payment.payNative(to, overpayment);
         }
         Payment.payNative(fixFeeCondData.treasure, price);
+        emit PresaleSigPaid(to, uid, price, handle, block.timestamp);
     }
 
     /**
@@ -87,6 +100,7 @@ contract PresaleSigCommunityCond is CommunityCondBase {
      */
     function setPresaleTime(uint256 _presaleStartTime) external onlyOperation {
         _setPresaleTime(_presaleStartTime);
+        emit PresaleTimeSet(presaleStartTime, block.timestamp);
     }
 
     /**
@@ -94,11 +108,11 @@ contract PresaleSigCommunityCond is CommunityCondBase {
      */
     function setSigner(address _signer) external onlyOperation {
         signer = _signer;
+        emit SignerSet(signer, block.timestamp);
     }
 
-
     /**
-    * @dev Get the fix fee condition data from fixFeeCommunityCond contract.
+     * @dev Get the fix fee condition data from fixFeeCommunityCond contract.
      */
     function _getFixFeeCondData() internal view returns (CondDataTypes.FixFeeCondData memory) {
         (bool success, bytes memory returnData) = fixFeeCommunityCond.staticcall(

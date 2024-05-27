@@ -36,6 +36,21 @@ contract CreateCommunityTest is CreateCommunityTestSetUp {
         assertEq(communityNFT.ownerOf(TEST_COMMUNITY_ID), user1, 'owner not eq');
     }
 
+    function testCreateCommunity_BySuperCreator() public {
+        vm.startPrank(superCreator);
+        vm.expectEmit();
+        ospClient.createCommunity(
+            OspDataTypes.CreateCommunityData({
+                handle: COMMUNITY_1_HANDLE,
+                communityConditionAndData: abi.encodePacked(mockCommunityCond, CORRECT_BYTES),
+                joinConditionInitCode: EMPTY_BYTES,
+                tags: EMPTY_STRINGS,
+                ctx: EMPTY_BYTES
+            })
+        );
+        vm.stopPrank();
+    }
+
     function testCreateCommunity_WithJoinModule() public whitelistJoinCondition forUser1 {
         ospClient.createCommunity(
             OspDataTypes.CreateCommunityData({
@@ -78,5 +93,53 @@ contract CreateCommunityTest is CreateCommunityTestSetUp {
                 ctx: EMPTY_BYTES
             })
         );
+    }
+
+    function testCreateCommunity_WithEmptyHandle() public {
+        vm.startPrank(superCreator);
+        vm.expectRevert(OspErrors.HandleLengthInvalid.selector);
+        ospClient.createCommunity(
+            OspDataTypes.CreateCommunityData({
+                handle: EMPTY_STRING,
+                communityConditionAndData: abi.encodePacked(mockCommunityCond, CORRECT_BYTES),
+                joinConditionInitCode: EMPTY_BYTES,
+                tags: EMPTY_STRINGS,
+                ctx: EMPTY_BYTES
+            })
+        );
+        vm.stopPrank();
+    }
+
+    function testCreateCommunity_WithOutOfLengthHandle() public {
+        vm.startPrank(superCreator);
+        vm.expectRevert(OspErrors.HandleLengthInvalid.selector);
+        ospClient.createCommunity(
+            OspDataTypes.CreateCommunityData({
+                handle: 'This is a 64-character long string.1234567890123456789012345678901234567890123456789012345678901234',
+                communityConditionAndData: abi.encodePacked(mockCommunityCond, CORRECT_BYTES),
+                joinConditionInitCode: EMPTY_BYTES,
+                tags: EMPTY_STRINGS,
+                ctx: EMPTY_BYTES
+            })
+        );
+        vm.stopPrank();
+    }
+
+    function testCreateCommunity_CannotUseReserveHandle() public {
+        vm.startPrank(superCreator);
+        ospClient.reserveCommunityHandle(COMMUNITY_1_HANDLE, true);
+        vm.stopPrank();
+        vm.expectRevert(OspErrors.HandleTaken.selector);
+        vm.startPrank(user1);
+        ospClient.createCommunity(
+            OspDataTypes.CreateCommunityData({
+                handle: COMMUNITY_1_HANDLE,
+                communityConditionAndData: abi.encodePacked(mockCommunityCond, CORRECT_BYTES),
+                joinConditionInitCode: EMPTY_BYTES,
+                tags: EMPTY_STRINGS,
+                ctx: EMPTY_BYTES
+            })
+        );
+        vm.stopPrank();
     }
 }
