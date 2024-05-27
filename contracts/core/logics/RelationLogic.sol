@@ -96,7 +96,11 @@ contract RelationLogic is IRelationLogic, OspLogicBase {
     /// @inheritdoc IRelationLogic
     function isJoin(uint256 communityId, address addr) external view override returns (bool) {
         address joinNFT = _getCommunityStorage()._communityById[communityId].joinNFT;
-        return IERC721(joinNFT).balanceOf(addr) > 0;
+        try IERC721(joinNFT).balanceOf(addr) returns (uint256 balance) {
+            return balance > 0;
+        } catch {
+            return false;
+        }
     }
 
     /// @inheritdoc IRelationLogic

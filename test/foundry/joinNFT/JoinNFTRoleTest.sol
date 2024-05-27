@@ -4,7 +4,8 @@ pragma solidity 0.8.20;
 import './JoinNFTTestSetUp.sol';
 
 contract JoinNFTRoleTest is JoinNFTTestSetUp {
-    function testGrantAdminRole_Owner() public {
+    // admin test
+    function test_GrantAdminRole_Owner() public {
         assertFalse(joinNFT.hasOneRole(Constants.COMMUNITY_ADMIN_ACCESS, member));
         assertFalse(joinNFT.hasAllRole(Constants.COMMUNITY_ADMIN_ACCESS, member));
         assertFalse(
@@ -50,7 +51,7 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
         );
     }
 
-    function testRevertGrantAdminRole_NotOwner() public {
+    function testRevert_GrantAdminRole_NotOwner() public {
         vm.expectRevert(OspErrors.NotCommunityOwner.selector);
         vm.prank(admin);
         joinNFT.setAdmin(member, true);
@@ -62,11 +63,12 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
         joinNFT.setAdmin(member, true);
     }
 
-    function testGrantModRole_Owner() public {
+    // mod test
+    function test_GrantModRole_Owner() public {
         _grantModRole(owner);
     }
 
-    function testGrantModRole_Admin() public {
+    function test_GrantModRole_Admin() public {
         _grantModRole(admin);
     }
 
@@ -116,7 +118,7 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
         );
     }
 
-    function testRevertGrantModRole_NotOwnerOrAdmin() public {
+    function testRevert_GrantModRole_NotOwnerOrAdmin() public {
         vm.expectRevert(OspErrors.JoinNFTUnauthorizedAccount.selector);
         vm.prank(mod);
         joinNFT.setModerator(member, true);
@@ -125,15 +127,16 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
         joinNFT.setModerator(member, true);
     }
 
-    function testSetMemberLevel_Owner() public {
+    // member level test
+    function test_SetMemberLevel_Owner() public {
         _setMemberLevel(owner);
     }
 
-    function testSetMemberLevel_Admin() public {
+    function test_SetMemberLevel_Admin() public {
         _setMemberLevel(admin);
     }
 
-    function testSetMemberLevel_Mod() public {
+    function test_SetMemberLevel_Mod() public {
         _setMemberLevel(mod);
     }
 
@@ -155,21 +158,22 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
         assertEq(ospClient.getCommunityMemberLevel(TEST_COMMUNITY_ID, member), newLevel);
     }
 
-    function testRevertSetMemberLevel_NotOwnerOrAdminOrMod() public {
+    function testRevert_SetMemberLevel_NotOwnerOrAdminOrMod() public {
         vm.expectRevert(OspErrors.JoinNFTUnauthorizedAccount.selector);
         vm.prank(member);
         joinNFT.setMemberLevel(member, 10);
     }
 
-    function testBlockAccount_Owner() public {
+    // block list test
+    function test_BlockAccount_Owner() public {
         _setMemberLevel(owner);
     }
 
-    function testBlockAccount_Admin() public {
+    function test_BlockAccount_Admin() public {
         _setMemberLevel(admin);
     }
 
-    function testBlockAccount_Mod() public {
+    function test_BlockAccount_Mod() public {
         _setMemberLevel(mod);
     }
 
@@ -190,9 +194,60 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
         assert(ospClient.isCommunityBlock(TEST_COMMUNITY_ID, member));
     }
 
-    function testBlockAccount_NotOwnerOrAdminOrMod() public {
+    function test_BlockAccount_NotOwnerOrAdminOrMod() public {
         vm.expectRevert(OspErrors.JoinNFTUnauthorizedAccount.selector);
         vm.prank(member);
         joinNFT.setBlockList(member, true);
+    }
+
+    function test_JoinNFTTransfer() public {
+        address to = address(0x123);
+        uint256 tokenId = joinNFT.tokenOfOwnerByIndex(member, 0);
+        vm.expectEmit(address(ospClient));
+        emit OspEvents.JoinNFTTransferred(TEST_COMMUNITY_ID, tokenId, member, to, block.timestamp);
+        vm.prank(member);
+        joinNFT.transferFrom(member, to, tokenId);
+        assert(joinNFT.ownerOf(tokenId) == to);
+        assert(ospClient.isJoin(TEST_COMMUNITY_ID, to));
+        assertFalse(ospClient.isJoin(TEST_COMMUNITY_ID, member));
+        assertEq(joinNFT.tokenOfOwnerByIndex(to, 0), tokenId);
+    }
+
+    function testRevert_JoinNFTTransfer_ToAddressHasNFT() public {
+        address to = mod;
+        uint256 tokenId = joinNFT.tokenOfOwnerByIndex(member, 0);
+        vm.expectRevert(OspErrors.JoinNFTDuplicated.selector);
+        vm.prank(member);
+        joinNFT.transferFrom(member, to, tokenId);
+    }
+
+    function testRevert_JoinNFTTransfer_FromAddressBlocked() public {
+        address to = address(0x123);
+        uint256 tokenId = joinNFT.tokenOfOwnerByIndex(member, 0);
+        vm.prank(owner);
+        joinNFT.setBlockList(member, true);
+        vm.expectRevert(OspErrors.JoinNFTBlocked.selector);
+        vm.prank(member);
+        joinNFT.transferFrom(member, to, tokenId);
+    }
+
+    function testRevert_JoinNFTTransfer_ToAddressBlocked() public {
+        address to = address(0x123);
+        uint256 tokenId = joinNFT.tokenOfOwnerByIndex(member, 0);
+        vm.prank(owner);
+        joinNFT.setBlockList(to, true);
+        vm.expectRevert(OspErrors.JoinNFTBlocked.selector);
+        vm.prank(member);
+        joinNFT.transferFrom(member, to, tokenId);
+    }
+
+    function testRevert_BalanceOf_AddressBlocked() public {
+        assert(ospClient.isJoin(TEST_COMMUNITY_ID, member));
+        assertEq(joinNFT.balanceOf(member), 1);
+        vm.prank(owner);
+        joinNFT.setBlockList(member, true);
+        vm.expectRevert(OspErrors.JoinNFTBlocked.selector);
+        joinNFT.balanceOf(member);
+        assertFalse(ospClient.isJoin(TEST_COMMUNITY_ID, member));
     }
 }
