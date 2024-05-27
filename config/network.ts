@@ -34,7 +34,7 @@ export const base: Network = {
   url: 'https://mainnet.base.org',
 };
 export const xLayer: Network = {
-  url: 'https://rpc.xlayer.tech',
+  url: 'https://xlayerrpc.okx.com',
   chainId: 196,
 };
 
