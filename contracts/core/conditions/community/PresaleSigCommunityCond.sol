@@ -34,17 +34,17 @@ contract PresaleSigCommunityCond is CommunityCondBase {
     using MessageHashUtils for bytes32;
 
     uint256 public presaleStartTime;
-    address immutable fixFeeCommunityCond;
+    address immutable fixedFeeCommunityCond;
     address signer;
     mapping(uint256 => bool) private _used;
 
     constructor(
         address osp,
-        address _fixFeeCommunityCond,
+        address _fixedFeeCommunityCond,
         address _signer,
         uint256 _presaleStartTime
     ) CommunityCondBase(osp) {
-        fixFeeCommunityCond = _fixFeeCommunityCond;
+        fixedFeeCommunityCond = _fixedFeeCommunityCond;
         signer = _signer;
         emit SignerSet(signer, block.timestamp);
         _setPresaleTime(_presaleStartTime);
@@ -59,9 +59,9 @@ contract PresaleSigCommunityCond is CommunityCondBase {
         string calldata handle,
         bytes calldata data
     ) internal override {
-        CondDataTypes.FixFeeCondData memory fixFeeCondData = _getFixFeeCondData();
+        CondDataTypes.FixedFeeCondData memory fixedFeeCondData = _getFixedFeeCondData();
         if (
-            block.timestamp < presaleStartTime || block.timestamp > fixFeeCondData.createStartTime
+            block.timestamp < presaleStartTime || block.timestamp > fixedFeeCondData.createStartTime
         ) {
             revert CondErrors.NotPresaleTime();
         }
@@ -77,8 +77,8 @@ contract PresaleSigCommunityCond is CommunityCondBase {
         if (hash.toEthSignedMessageHash().recover(signature) != signer || target != to) {
             revert CondErrors.SignatureInvalid();
         }
-        uint256 price = CondHelpers.getHandleETHPrice(handle, fixFeeCondData);
-        if (price == 0 || fixFeeCondData.treasure == address(0)) {
+        uint256 price = CondHelpers.getHandleETHPrice(handle, fixedFeeCondData);
+        if (price == 0 || fixedFeeCondData.treasure == address(0)) {
             revert CondErrors.NotPresaleTime();
         }
         if (msg.value < price) {
@@ -91,7 +91,7 @@ contract PresaleSigCommunityCond is CommunityCondBase {
         if (overpayment > 0) {
             Payment.payNative(to, overpayment);
         }
-        Payment.payNative(fixFeeCondData.treasure, price);
+        Payment.payNative(fixedFeeCondData.treasure, price);
         emit PresaleSigPaid(to, uid, price, handle, block.timestamp);
     }
 
@@ -112,18 +112,18 @@ contract PresaleSigCommunityCond is CommunityCondBase {
     }
 
     /**
-     * @dev Get the fix fee condition data from fixFeeCommunityCond contract.
+     * @dev Get the fixed fee condition data from fixFeeCommunityCond contract.
      */
-    function _getFixFeeCondData() internal view returns (CondDataTypes.FixFeeCondData memory) {
-        (bool success, bytes memory returnData) = fixFeeCommunityCond.staticcall(
-            abi.encodeWithSignature('stableFeeCondData()')
+    function _getFixedFeeCondData() internal view returns (CondDataTypes.FixedFeeCondData memory) {
+        (bool success, bytes memory returnData) = fixedFeeCommunityCond.staticcall(
+            abi.encodeWithSignature('fixedFeeCondData()')
         );
         require(success, 'call fixFeeCommunityCond failed');
-        return abi.decode(returnData, (CondDataTypes.FixFeeCondData));
+        return abi.decode(returnData, (CondDataTypes.FixedFeeCondData));
     }
 
     function _setPresaleTime(uint256 _presaleStartTime) internal {
-        CondDataTypes.FixFeeCondData memory fixFeeCondData = _getFixFeeCondData();
+        CondDataTypes.FixedFeeCondData memory fixFeeCondData = _getFixedFeeCondData();
         require(_presaleStartTime < fixFeeCondData.createStartTime, 'Invalid time');
         presaleStartTime = _presaleStartTime;
     }

@@ -22,7 +22,6 @@ import {
   ERC20FeeJoinCond__factory,
   ERC6551Account__factory,
   FollowSBT__factory,
-  GovernanceLogic,
   GovernanceLogic__factory,
   HoldTokenJoinCond__factory,
   JoinNFT__factory,
@@ -41,16 +40,14 @@ import {
 import { getAddRouterDataMulti } from './helpers/fun-sig';
 import {
   deployContract,
-  getAddresses,
+  getNullableAddresses,
   OspAddress,
   ProtocolState,
   waitForTx,
 } from './helpers/utils';
 import { Contract, Signer } from 'ethers';
-import { deployCreate2, getDeployData } from './helpers/create2';
+import { create2_directory, deployCreate2, getDeployData } from './helpers/create2';
 import { getDeployer } from './helpers/kms';
-
-const create2_directory = `create2-osp`;
 
 task('deploy_factory').setAction(async (_, hre) => {
   // https://eips.ethereum.org/EIPS/eip-2470
@@ -69,7 +66,6 @@ task(DEPLOY_TASK_NAME.DEPLOY_OSP_CREATE2, 'deploys the entire OpenSocial Protoco
     const create2AccountFileName = `${create2_directory}/osp-${env}.json`;
     const deployer: Signer = await getDeployer(hre);
     console.log(`deployer address: ${await deployer.getAddress()}`);
-    const ethers = hre.ethers;
     const routerAdmin = await deployer.getAddress();
 
     if (!fs.existsSync(create2_directory)) {
@@ -195,7 +191,7 @@ task(DEPLOY_TASK_NAME.DEPLOY_OSP_CREATE2, 'deploys the entire OpenSocial Protoco
     const voteReaction = VoteReaction__factory.connect(create2.voteReaction.address, deployer);
     let address: OspAddress | null;
 
-    address = getAddresses(hre, env);
+    address = getNullableAddresses(hre, env);
     if (!address) {
       address = {
         routerProxy: router.address,

@@ -14,7 +14,7 @@ library CondDataTypes {
         uint256 minHandleLength;
     }
 
-    struct FixFeeCondData {
+    struct FixedFeeCondData {
         uint256 price1Letter;
         uint256 price2Letter;
         uint256 price3Letter;

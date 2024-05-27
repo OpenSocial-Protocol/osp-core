@@ -11,17 +11,17 @@ import {CondDataTypes} from '../libraries/CondDataTypes.sol';
 import {CondHelpers} from '../libraries/CondHelpers.sol';
 
 /**
- * @title FixFeeCommunityCond
+ * @title FixedFeeCommunityCond
  * @author OpenSocial Protocol
  *
  * @dev This contract specifies that pay the specified amount of ETH to create the community.
  * The amount of ETH paid is related to the handle length of the community.
  */
-contract FixFeeCommunityCond is CommunityCondBase {
-    event FixFeeCondDataSet(CondDataTypes.FixFeeCondData data, uint256 timestamp);
+contract FixedFeeCommunityCond is CommunityCondBase {
+    event FixFeeCondDataSet(CondDataTypes.FixedFeeCondData data, uint256 timestamp);
     event FixFeePaid(address indexed to, uint256 price, string handle, uint256 timestamp);
 
-    CondDataTypes.FixFeeCondData public stableFeeCondData;
+    CondDataTypes.FixedFeeCondData public fixedFeeCondData;
 
     constructor(address osp) CommunityCondBase(osp) {}
 
@@ -35,20 +35,20 @@ contract FixFeeCommunityCond is CommunityCondBase {
     ) internal override {
         /// @dev if createStartTime is not set, indicates no initialization.
         if (
-            block.timestamp < stableFeeCondData.createStartTime ||
-            stableFeeCondData.createStartTime == 0
+            block.timestamp < fixedFeeCondData.createStartTime ||
+            fixedFeeCondData.createStartTime == 0
         ) {
             revert CondErrors.NotCreateTime();
         }
-        uint256 price = CondHelpers.getHandleETHPrice(handle, stableFeeCondData);
+        uint256 price = CondHelpers.getHandleETHPrice(handle, fixedFeeCondData);
         _charge(price, to);
         emit FixFeePaid(to, price, handle, block.timestamp);
     }
 
-    function setStableFeeCondData(
-        CondDataTypes.FixFeeCondData calldata data
+    function setFixedFeeCondData(
+        CondDataTypes.FixedFeeCondData calldata data
     ) external onlyOperation {
-        stableFeeCondData = CondDataTypes.FixFeeCondData({
+        fixedFeeCondData = CondDataTypes.FixedFeeCondData({
             price1Letter: data.price1Letter,
             price2Letter: data.price2Letter,
             price3Letter: data.price3Letter,
@@ -73,6 +73,6 @@ contract FixFeeCommunityCond is CommunityCondBase {
         if (overpayment > 0) {
             Payment.payNative(to, overpayment);
         }
-        Payment.payNative(stableFeeCondData.treasure, price);
+        Payment.payNative(fixedFeeCondData.treasure, price);
     }
 }

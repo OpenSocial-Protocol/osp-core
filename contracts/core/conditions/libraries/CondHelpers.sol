@@ -8,29 +8,29 @@ library CondHelpers {
     /**
      * @dev Get the ETH price based on the length of the handle.
      * @param handle The handle to get the ETH price for.
-     * @param fixFeeCondData The fixed fee condition data.
+     * @param fixedFeeCondData The fixed fee condition data.
      * @return The ETH price.
      */
     function getHandleETHPrice(
         string calldata handle,
-        CondDataTypes.FixFeeCondData memory fixFeeCondData
+        CondDataTypes.FixedFeeCondData memory fixedFeeCondData
     ) internal pure returns (uint256) {
         uint256 len = bytes(handle).length;
         uint256 ethPrice;
         if (len >= 7) {
-            ethPrice = fixFeeCondData.price7ToMoreLetter;
+            ethPrice = fixedFeeCondData.price7ToMoreLetter;
         } else if (len == 6) {
-            ethPrice = fixFeeCondData.price6Letter;
+            ethPrice = fixedFeeCondData.price6Letter;
         } else if (len == 5) {
-            ethPrice = fixFeeCondData.price5Letter;
+            ethPrice = fixedFeeCondData.price5Letter;
         } else if (len == 4) {
-            ethPrice = fixFeeCondData.price4Letter;
+            ethPrice = fixedFeeCondData.price4Letter;
         } else if (len == 3) {
-            ethPrice = fixFeeCondData.price3Letter;
+            ethPrice = fixedFeeCondData.price3Letter;
         } else if (len == 2) {
-            ethPrice = fixFeeCondData.price2Letter;
+            ethPrice = fixedFeeCondData.price2Letter;
         } else {
-            ethPrice = fixFeeCondData.price1Letter;
+            ethPrice = fixedFeeCondData.price1Letter;
         }
         return ethPrice;
     }

@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import {OspTestSetUp} from '../OspTestSetUp.sol';
-import {FixFeeCommunityCond} from '../../../contracts/core/conditions/community/FixFeeCommunityCond.sol';
+import {FixedFeeCommunityCond} from '../../../contracts/core/conditions/community/FixedFeeCommunityCond.sol';
 import {PresaleSigCommunityCond} from '../../../contracts/core/conditions/community/PresaleSigCommunityCond.sol';
 import {CondDataTypes} from '../../../contracts/core/conditions/libraries/CondDataTypes.sol';
 import {OspDataTypes} from '../../../contracts/libraries/OspDataTypes.sol';
@@ -10,7 +10,7 @@ import {CondErrors} from '../../../contracts/core/conditions/libraries/CondError
 import {console2} from 'forge-std/Test.sol';
 
 contract FixFeeCondTest is OspTestSetUp {
-    FixFeeCommunityCond fixFeeCommunityCond;
+    FixedFeeCommunityCond fixedFeeCommunityCond;
 
     PresaleSigCommunityCond presaleSigCommunityCond;
 
@@ -21,11 +21,11 @@ contract FixFeeCondTest is OspTestSetUp {
     function setUp() public virtual override {
         vm.warp(100);
         super.setUp();
-        fixFeeCommunityCond = new FixFeeCommunityCond(address(ospClient));
+        fixedFeeCommunityCond = new FixedFeeCommunityCond(address(ospClient));
         vm.startPrank(deployer);
-        ospClient.whitelistApp(address(fixFeeCommunityCond), true);
-        fixFeeCommunityCond.setStableFeeCondData(
-            CondDataTypes.FixFeeCondData({
+        ospClient.whitelistApp(address(fixedFeeCommunityCond), true);
+        fixedFeeCommunityCond.setFixedFeeCondData(
+            CondDataTypes.FixedFeeCondData({
                 price1Letter: 7 ether,
                 price2Letter: 6 ether,
                 price3Letter: 5 ether,
@@ -39,7 +39,7 @@ contract FixFeeCondTest is OspTestSetUp {
         );
         presaleSigCommunityCond = new PresaleSigCommunityCond(
             address(ospClient),
-            address(fixFeeCommunityCond),
+            address(fixedFeeCommunityCond),
             user2,
             presaleStartTime
         );
@@ -59,7 +59,7 @@ contract FixFeeCondTest is OspTestSetUp {
             OspDataTypes.CreateCommunityData({
                 handle: 'a',
                 communityConditionAndData: abi.encodePacked(
-                    address(fixFeeCommunityCond),
+                    address(fixedFeeCommunityCond),
                     CORRECT_BYTES
                 ),
                 joinConditionInitCode: EMPTY_BYTES,
@@ -108,7 +108,7 @@ contract FixFeeCondTest is OspTestSetUp {
             OspDataTypes.CreateCommunityData({
                 handle: 'a',
                 communityConditionAndData: abi.encodePacked(
-                    address(fixFeeCommunityCond),
+                    address(fixedFeeCommunityCond),
                     CORRECT_BYTES
                 ),
                 joinConditionInitCode: EMPTY_BYTES,

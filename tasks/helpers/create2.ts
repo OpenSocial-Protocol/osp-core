@@ -2,6 +2,9 @@ import { execSync } from 'child_process';
 import { BytesLike, ethers, Signer } from 'ethers';
 import { hexlify } from 'ethers/lib/utils';
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers';
+
+export const create2_directory = `create2-osp`;
+
 const create2_abi = [
   {
     inputs: [

@@ -145,8 +145,19 @@ export type OspAddress = {
   onlyMemberReferenceCond: string;
   //condition
   slotNFTCommunityCond?: string;
+  fixedFeeCommunityCond?: string;
   whitelistAddressCommunityCond: string;
 };
+
+export function getNullableAddresses(
+  hre: HardhatRuntimeEnvironment,
+  env: string
+): OspAddress | null {
+  if (!fs.existsSync(`addresses-${env}-${hre.network.name}.json`)) {
+    return null;
+  }
+  return JSON.parse(fs.readFileSync(`addresses-${env}-${hre.network.name}.json`).toString());
+}
 
 export function getAddresses(hre: HardhatRuntimeEnvironment, env: string): OspAddress {
   if (!fs.existsSync(`addresses-${env}-${hre.network.name}.json`)) {
