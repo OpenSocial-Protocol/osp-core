@@ -194,7 +194,7 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
         assert(ospClient.isCommunityBlock(TEST_COMMUNITY_ID, member));
     }
 
-    function test_BlockAccount_NotOwnerOrAdminOrMod() public {
+    function testRevert_BlockAccount_NotOwnerOrAdminOrMod() public {
         vm.expectRevert(OspErrors.JoinNFTUnauthorizedAccount.selector);
         vm.prank(member);
         joinNFT.setBlockList(member, true);
