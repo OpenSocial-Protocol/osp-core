@@ -47,7 +47,7 @@ interface IJoinNFT {
      *
      * @return bool A boolean indicating whether the operation was successful.
      */
-    function setMods(address account, bool enable) external returns (bool);
+    function setModerator(address account, bool enable) external returns (bool);
 
     /**
      * @dev Sets the member level for the specified account.

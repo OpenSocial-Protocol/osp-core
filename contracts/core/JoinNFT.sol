@@ -75,7 +75,7 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
     }
 
     /// @inheritdoc IJoinNFT
-    function setMods(
+    function setModerator(
         address account,
         bool enable
     ) public override notBlock(account) returns (bool) {
@@ -85,8 +85,8 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
         ) {
             return
                 enable
-                    ? _grantRole(Constants.COMMUNITY_MODS_ACCESS, account)
-                    : _revokeRole(Constants.COMMUNITY_MODS_ACCESS, account);
+                    ? _grantRole(Constants.COMMUNITY_MODERATOR_ACCESS, account)
+                    : _revokeRole(Constants.COMMUNITY_MODERATOR_ACCESS, account);
         }
         revert OspErrors.JoinNFTUnauthorizedAccount();
     }
@@ -98,14 +98,21 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
     ) public override notBlock(account) returns (bool) {
         if (
             hasOneRole(
-                Constants.COMMUNITY_ADMIN_ACCESS | Constants.COMMUNITY_MODS_ACCESS,
+                Constants.COMMUNITY_ADMIN_ACCESS | Constants.COMMUNITY_MODERATOR_ACCESS,
                 _msgSender()
             ) || _isCommunityOwner(_msgSender())
         ) {
             if (_level[account] != level) {
                 _level[account] = level;
-                OspClient(OSP).emitJoinNFTAccountLevelChangedEvent(_communityId, account, level);
+                OspClient(OSP).emitJoinNFTAccountLevelChangedEvent(
+                    _communityId,
+                    _msgSender(),
+                    account,
+                    level
+                );
+                return true;
             }
+            return false;
         }
         revert OspErrors.JoinNFTUnauthorizedAccount();
     }
@@ -114,13 +121,18 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
     function setBlockList(address account, bool enable) public override returns (bool) {
         if (
             hasOneRole(
-                Constants.COMMUNITY_ADMIN_ACCESS | Constants.COMMUNITY_MODS_ACCESS,
+                Constants.COMMUNITY_ADMIN_ACCESS | Constants.COMMUNITY_MODERATOR_ACCESS,
                 _msgSender()
             ) || _isCommunityOwner(_msgSender())
         ) {
             if (_blockList[account] != enable) {
                 _blockList[account] = enable;
-                OspClient(OSP).emitJoinNFTAccountBlockedEvent(_communityId, account, enable);
+                OspClient(OSP).emitJoinNFTAccountBlockedEvent(
+                    _communityId,
+                    _msgSender(),
+                    account,
+                    enable
+                );
                 return true;
             }
             return false;
@@ -182,6 +194,9 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
         }
         super._afterTokenTransfer(from, to, tokenId);
         if (balanceOf(to) > 1) revert OspErrors.JoinNFTDuplicated();
+        if (from != address(0)) {
+            _revokeRole(type(uint256).max, from);
+        }
         OspClient(OSP).emitJoinNFTTransferEvent(_communityId, tokenId, from, to);
     }
 
@@ -193,11 +208,13 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
      * @dev Grant a role to an account.
      */
     function _grantRole(uint256 role, address account) internal returns (bool) {
+        if (balanceOf(account) == 0) revert OspErrors.NotJoinCommunity();
         uint256 oldRole = _role[account];
         if (role != 0 && oldRole & role == 0) {
             _role[account] = oldRole | role;
             OspClient(OSP).emitJoinNFTRoleChangedEvent(
                 _communityId,
+                _msgSender(),
                 account,
                 ~oldRole & role,
                 true
@@ -216,7 +233,13 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
             return false;
         }
         _role[account] = oldRole & ~role;
-        OspClient(OSP).emitJoinNFTRoleChangedEvent(_communityId, account, oldRole & role, false);
+        OspClient(OSP).emitJoinNFTRoleChangedEvent(
+            _communityId,
+            _msgSender(),
+            account,
+            oldRole & role,
+            false
+        );
         return true;
     }
 }

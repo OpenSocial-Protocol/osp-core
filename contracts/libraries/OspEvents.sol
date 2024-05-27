@@ -326,14 +326,16 @@ library OspEvents {
 
     event JoinNFTRoleChanged(
         uint256 indexed communityId,
+        address indexed sender,
         address indexed account,
-        uint256 indexed role,
+        uint256 role,
         bool enable,
         uint256 timestamp
     );
 
     event JoinNFTAccountBlocked(
         uint256 indexed communityId,
+        address indexed sender,
         address indexed account,
         bool isBlock,
         uint256 timestamp
@@ -341,6 +343,7 @@ library OspEvents {
 
     event JoinNFTAccountLevelChanged(
         uint256 indexed communityId,
+        address indexed sender,
         address indexed account,
         uint256 level,
         uint256 timestamp

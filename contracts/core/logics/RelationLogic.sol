@@ -167,29 +167,51 @@ contract RelationLogic is IRelationLogic, OspLogicBase {
     /// @inheritdoc IRelationLogic
     function emitJoinNFTRoleChangedEvent(
         uint256 communityId,
+        address sender,
         address account,
         uint256 role,
         bool enable
     ) external override onlyJoinNFT(communityId) {
-        emit OspEvents.JoinNFTRoleChanged(communityId, account, role, enable, block.timestamp);
+        emit OspEvents.JoinNFTRoleChanged(
+            communityId,
+            sender,
+            account,
+            role,
+            enable,
+            block.timestamp
+        );
     }
 
     /// @inheritdoc IRelationLogic
     function emitJoinNFTAccountBlockedEvent(
         uint256 communityId,
+        address sender,
         address account,
         bool isBlock
     ) external override onlyJoinNFT(communityId) {
-        emit OspEvents.JoinNFTAccountBlocked(communityId, account, isBlock, block.timestamp);
+        emit OspEvents.JoinNFTAccountBlocked(
+            communityId,
+            sender,
+            account,
+            isBlock,
+            block.timestamp
+        );
     }
 
     /// @inheritdoc IRelationLogic
     function emitJoinNFTAccountLevelChangedEvent(
         uint256 communityId,
+        address sender,
         address account,
         uint256 level
     ) external override onlyJoinNFT(communityId) {
-        emit OspEvents.JoinNFTAccountLevelChanged(communityId, account, level, block.timestamp);
+        emit OspEvents.JoinNFTAccountLevelChanged(
+            communityId,
+            sender,
+            account,
+            level,
+            block.timestamp
+        );
     }
 
     /*///////////////////////////////////////////////////////////////

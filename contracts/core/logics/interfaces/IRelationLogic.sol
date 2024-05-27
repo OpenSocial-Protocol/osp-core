@@ -160,6 +160,7 @@ interface IRelationLogic {
 
     function emitJoinNFTRoleChangedEvent(
         uint256 communityId,
+        address sender,
         address account,
         uint256 role,
         bool enable
@@ -167,12 +168,14 @@ interface IRelationLogic {
 
     function emitJoinNFTAccountBlockedEvent(
         uint256 communityId,
+        address sender,
         address account,
         bool isBlock
     ) external;
 
     function emitJoinNFTAccountLevelChangedEvent(
         uint256 communityId,
+        address sender,
         address account,
         uint256 level
     ) external;

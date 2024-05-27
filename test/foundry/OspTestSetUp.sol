@@ -634,22 +634,22 @@ abstract contract OspTestSetUp is OspTestConstant {
         );
         ospRouter.addRouter(
             IRouter.Router({
-                functionSelector: hex'81a591c9',
-                functionSignature: 'emitJoinNFTAccountBlockedEvent(uint256,address,bool)',
+                functionSelector: hex'a5c93ef9',
+                functionSignature: 'emitJoinNFTAccountBlockedEvent(uint256,address,address,bool)',
                 routerAddress: address(relationLogic)
             })
         );
         ospRouter.addRouter(
             IRouter.Router({
-                functionSelector: hex'869d2d70',
-                functionSignature: 'emitJoinNFTAccountLevelChangedEvent(uint256,address,uint256)',
+                functionSelector: hex'27450d9e',
+                functionSignature: 'emitJoinNFTAccountLevelChangedEvent(uint256,address,address,uint256)',
                 routerAddress: address(relationLogic)
             })
         );
         ospRouter.addRouter(
             IRouter.Router({
-                functionSelector: hex'a6b6199d',
-                functionSignature: 'emitJoinNFTRoleChangedEvent(uint256,address,uint256,bool)',
+                functionSelector: hex'd10a8f6d',
+                functionSignature: 'emitJoinNFTRoleChangedEvent(uint256,address,address,uint256,bool)',
                 routerAddress: address(relationLogic)
             })
         );
@@ -664,6 +664,13 @@ abstract contract OspTestSetUp is OspTestConstant {
             IRouter.Router({
                 functionSelector: hex'fec93e49',
                 functionSignature: 'follow((uint256,bytes,bytes))',
+                routerAddress: address(relationLogic)
+            })
+        );
+        ospRouter.addRouter(
+            IRouter.Router({
+                functionSelector: hex'abb7a556',
+                functionSignature: 'getCommunityMemberLevel(uint256,address)',
                 routerAddress: address(relationLogic)
             })
         );
@@ -692,6 +699,13 @@ abstract contract OspTestSetUp is OspTestConstant {
             IRouter.Router({
                 functionSelector: hex'd2d0c246',
                 functionSignature: 'hasOneCommunityRole(uint256,uint256,address)',
+                routerAddress: address(relationLogic)
+            })
+        );
+        ospRouter.addRouter(
+            IRouter.Router({
+                functionSelector: hex'5c8bdb98',
+                functionSignature: 'isCommunityBlock(uint256,address)',
                 routerAddress: address(relationLogic)
             })
         );
