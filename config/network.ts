@@ -29,6 +29,10 @@ export const anvil: Network = {
   chainId: 84532,
   url: 'http://127.0.0.1:8545',
 };
+export const base: Network = {
+  chainId: 8453,
+  url: 'https://mainnet.base.org',
+};
 
 export interface Network {
   chainId: number;

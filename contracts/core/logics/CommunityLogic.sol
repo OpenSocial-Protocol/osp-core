@@ -188,11 +188,9 @@ contract CommunityLogic is OspLogicBase, ICommunityLogic {
      * @return address The address of the deployed Collect NFT contract.
      */
     function _deployJoinNFT(uint256 communityId, string memory handle) internal returns (address) {
-        bytes4 firstBytes = bytes4(bytes(handle));
-        string memory name = string(abi.encodePacked(handle, Constants.JOIN_NFT_NAME_INFIX));
-        string memory symbol = string(
-            abi.encodePacked(firstBytes, Constants.JOIN_NFT_SYMBOL_INFIX)
-        );
+        string memory idStr = communityId.toString();
+        string memory name = string(abi.encodePacked(idStr, Constants.JOIN_NFT_NAME_SUFFIX));
+        string memory symbol = string(abi.encodePacked(idStr, Constants.JOIN_NFT_SYMBOL_SUFFIX));
 
         bytes memory functionData = abi.encodeWithSelector(
             IJoinNFT.initialize.selector,

@@ -14,6 +14,7 @@ import { deployContract, getAddresses, getMulticall3, waitForTx } from './helper
 import { getDeployer } from './helpers/kms';
 import { getUpdateCallDatas } from './update-all-router';
 import fs from 'fs';
+import { APP_ADMIN, GOVERNANCE, OPERATION, ospRoles, STATE_ADMIN } from '../config/osp';
 
 task('6551-update')
   .addParam('env')
@@ -78,6 +79,64 @@ task('set-treasure-address')
     const addresses = getAddresses(hre, env);
     const ospClient = OspClient__factory.connect(addresses.routerProxy, await getDeployer(hre));
     await waitForTx(ospClient.setTreasureAddress(address));
+  });
+task('update-osp-role')
+  .addParam('env')
+  .setAction(async ({ env }, hre) => {
+    const addresses = getAddresses(hre, env);
+    const deployer = await getDeployer(hre);
+    const ospClient = OspClient__factory.connect(addresses?.routerProxy, deployer);
+    const callDatas: string[] = [];
+    const ospRoleConfig = ospRoles[hre.network.config.chainId as number];
+    console.log(await ospClient.hasRole(APP_ADMIN, await deployer.getAddress()));
+    console.log(await ospClient.hasRole(GOVERNANCE, await deployer.getAddress()));
+    console.log(await ospClient.hasRole(OPERATION, await deployer.getAddress()));
+    console.log(await ospClient.hasRole(STATE_ADMIN, await deployer.getAddress()));
+    callDatas.push(
+      ospClient.interface.encodeFunctionData('setTreasureAddress', [ospRoleConfig.treasureAddress])
+    );
+    ospRoleConfig.stateAdmin.forEach((address) => {
+      callDatas.push(ospClient.interface.encodeFunctionData('grantRole', [STATE_ADMIN, address]));
+    });
+    ospRoleConfig.appAdmin.forEach((address) => {
+      callDatas.push(ospClient.interface.encodeFunctionData('grantRole', [APP_ADMIN, address]));
+    });
+    ospRoleConfig.governance.forEach((address) => {
+      callDatas.push(ospClient.interface.encodeFunctionData('grantRole', [GOVERNANCE, address]));
+    });
+    ospRoleConfig.operation.forEach((address) => {
+      callDatas.push(ospClient.interface.encodeFunctionData('grantRole', [OPERATION, address]));
+    });
+    callDatas.push(
+      ospClient.interface.encodeFunctionData('revokeRole', [APP_ADMIN, await deployer.getAddress()])
+    );
+    callDatas.push(
+      ospClient.interface.encodeFunctionData('revokeRole', [
+        GOVERNANCE,
+        await deployer.getAddress(),
+      ])
+    );
+    callDatas.push(
+      ospClient.interface.encodeFunctionData('revokeRole', [OPERATION, await deployer.getAddress()])
+    );
+    callDatas.push(
+      ospClient.interface.encodeFunctionData('revokeRole', [
+        STATE_ADMIN,
+        await deployer.getAddress(),
+      ])
+    );
+    await waitForTx(
+      OspRouterImmutable__factory.connect(addresses?.routerProxy, deployer).multicall(callDatas)
+    );
+    console.log(!(await ospClient.hasRole(APP_ADMIN, await deployer.getAddress())));
+    console.log(!(await ospClient.hasRole(GOVERNANCE, await deployer.getAddress())));
+    console.log(!(await ospClient.hasRole(OPERATION, await deployer.getAddress())));
+    console.log(!(await ospClient.hasRole(STATE_ADMIN, await deployer.getAddress())));
+    console.log(await ospClient.hasRole(STATE_ADMIN, ospRoleConfig.stateAdmin[0]));
+    console.log(await ospClient.hasRole(APP_ADMIN, ospRoleConfig.appAdmin[0]));
+    console.log(await ospClient.hasRole(GOVERNANCE, ospRoleConfig.governance[0]));
+    console.log(await ospClient.hasRole(OPERATION, ospRoleConfig.operation[0]));
+    console.log((await ospClient.getTreasureAddress()) == ospRoleConfig.treasureAddress);
   });
 
 task('update-20240521')

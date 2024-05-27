@@ -13,6 +13,7 @@ import { HARDHAT_CHAIN_ID } from './config/hardhat';
 import { hardhatAccounts } from './config/hardhat-accounts';
 import {
   anvil,
+  base,
   baseSepolia,
   beraTestnet,
   getRpcNetwork,
@@ -76,6 +77,7 @@ const config: HardhatUserConfig = {
     anvil: getRpcNetwork(anvil),
     beraTestnet: getRpcNetwork(beraTestnet),
     xLayerTestnet: getRpcNetwork(xLayerTestnet),
+    base: getRpcNetwork(base),
   },
   paths: {
     cache: './target/cache',
