@@ -62,6 +62,13 @@ contract FixedFeeCommunityCond is CommunityCondBase {
         emit FixFeeCondDataSet(data, block.timestamp);
     }
 
+    /**
+     * @dev Get the handle price based on the length of the handle.
+     */
+    function getHandlePrice(string calldata handle) external view returns (uint256) {
+        return CondHelpers.getHandleETHPrice(handle, fixedFeeCondData);
+    }
+
     function _charge(uint256 price, address to) internal virtual {
         if (msg.value < price) {
             revert CondErrors.InsufficientPayment();

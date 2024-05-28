@@ -112,6 +112,14 @@ contract PresaleSigCommunityCond is CommunityCondBase {
     }
 
     /**
+     * @dev Get the handle price based on the length of the handle.
+     */
+    function getHandlePrice(string calldata handle) external view returns (uint256) {
+        CondDataTypes.FixedFeeCondData memory fixedFeeCondData = _getFixedFeeCondData();
+        return CondHelpers.getHandleETHPrice(handle, fixedFeeCondData);
+    }
+
+    /**
      * @dev Get the fixed fee condition data from fixFeeCommunityCond contract.
      */
     function _getFixedFeeCondData() internal view returns (CondDataTypes.FixedFeeCondData memory) {
