@@ -2,7 +2,7 @@ import '@nomiclabs/hardhat-ethers';
 import fs from 'fs';
 import { task } from 'hardhat/config';
 import { OspRouterImmutable__factory } from '../target/typechain-types';
-import { getAddresses, waitForTx } from './helpers/utils';
+import { deployContract, getAddresses, waitForTx } from './helpers/utils';
 import { getDeployer } from './helpers/kms';
 
 function getFunSig(logicName: string) {
@@ -75,17 +75,16 @@ export async function getUpdateCallDatas(logic, hre, env) {
     console.log(updateFun);
     console.log('add functions:');
     console.log(addFun);
-
-    const logicContract = await hre.ethers.deployContract(
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      `${logicName.at(0).toUpperCase() + logicName.slice(1)}Logic`,
-      deployer
+    const logicContract = await deployContract(
+      hre.ethers.deployContract(
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        `${logicName.at(0).toUpperCase() + logicName.slice(1)}Logic`,
+        deployer
+      )
     );
-    console.log(`deploy logic contract: ${logicContract.address}`);
-
     const contractAddress = logicContract.address;
-
+    console.log(`deploy logic contract: ${logicContract.address}`);
     removeFun.forEach((selector) => {
       calldata.push(
         router.interface.encodeFunctionData('removeRouter', [

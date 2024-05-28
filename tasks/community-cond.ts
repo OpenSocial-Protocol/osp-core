@@ -44,7 +44,7 @@ task('deploy-fixed-fee-cond-create2')
         price5Letter: ethers.utils.parseEther('0.004'),
         price6Letter: ethers.utils.parseEther('0.002'),
         price7ToMoreLetter: ethers.utils.parseEther('0.001'),
-        createStartTime: 1718812800, // 2024-06-20 00:00:00
+        createStartTime: 1716134400, // 2024-05-20 00:00:00
         treasure: deployer.getAddress(),
       })
     );
