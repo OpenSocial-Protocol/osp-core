@@ -19,6 +19,7 @@ import {
   getRpcNetwork,
   polygonAmoy,
   sepolia,
+  xLayer,
   xLayerTestnet,
 } from './config/network';
 
@@ -78,6 +79,7 @@ const config: HardhatUserConfig = {
     beraTestnet: getRpcNetwork(beraTestnet),
     xLayerTestnet: getRpcNetwork(xLayerTestnet),
     base: getRpcNetwork(base),
+    xLayer: getRpcNetwork(xLayer),
   },
   paths: {
     cache: './target/cache',
