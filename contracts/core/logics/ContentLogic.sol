@@ -193,7 +193,7 @@ contract ContentLogic is IContentLogic, OspLogicBase {
 
         address extension;
         if (vars.extensionInitCode.length != 0) {
-            extension = _initActilvityExtension(
+            extension = _initActivityExtension(
                 profileId,
                 contentId,
                 vars.extensionInitCode,
