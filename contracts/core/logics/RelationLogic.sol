@@ -234,6 +234,7 @@ contract RelationLogic is IRelationLogic, OspLogicBase {
             profileId,
             targetProfileId,
             followConditionData,
+            tokenId,
             ctx,
             block.timestamp
         );
@@ -275,6 +276,7 @@ contract RelationLogic is IRelationLogic, OspLogicBase {
             profileId,
             targetProfileIds,
             followConditionDatas,
+            tokenIds,
             ctx,
             block.timestamp
         );
@@ -352,6 +354,7 @@ contract RelationLogic is IRelationLogic, OspLogicBase {
             profileId,
             communityId,
             joinConditionData,
+            tokenId,
             ctx,
             block.timestamp
         );
@@ -378,22 +381,25 @@ contract RelationLogic is IRelationLogic, OspLogicBase {
         if (length != joinConditionDatas.length || length != values.length)
             revert OspErrors.ArrayMismatch();
         uint256[] memory tokenIds = new uint256[](length);
-        uint256 batchValue;
-        for (uint256 i; i < length; ) {
-            batchValue += values[i];
-            tokenIds[i] = _executeJoin(communityIds[i], joinConditionDatas[i], values[i]);
-            unchecked {
-                ++i;
+        {
+            uint256 batchValue;
+            for (uint256 i; i < length; ) {
+                batchValue += values[i];
+                tokenIds[i] = _executeJoin(communityIds[i], joinConditionDatas[i], values[i]);
+                unchecked {
+                    ++i;
+                }
             }
-        }
-        if (batchValue > msg.value) {
-            revert OspErrors.InvalidValue();
+            if (batchValue > msg.value) {
+                revert OspErrors.InvalidValue();
+            }
         }
         emit OspEvents.BatchJoined(
             msg.sender,
             profileId,
             communityIds,
             joinConditionDatas,
+            tokenIds,
             ctx,
             block.timestamp
         );

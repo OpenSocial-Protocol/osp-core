@@ -59,6 +59,7 @@ contract JoinTest is CreateCommunityTestSetUp {
             user2_profile_id,
             communit1_id,
             CORRECT_BYTES,
+            2,
             EMPTY_BYTES,
             block.timestamp
         );
@@ -95,11 +96,16 @@ contract JoinTest is CreateCommunityTestSetUp {
 
         uint256[] memory values = new uint256[](2);
 
+        uint256[] memory expectTokenIds = new uint256[](2);
+        expectTokenIds[0] = 2;
+        expectTokenIds[1] = 2;
+
         emit OspEvents.BatchJoined(
             user2,
             user2_profile_id,
             communityIds,
             conditions,
+            expectTokenIds,
             EMPTY_BYTES,
             block.timestamp
         );

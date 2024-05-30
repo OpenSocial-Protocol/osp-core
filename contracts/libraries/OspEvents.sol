@@ -115,6 +115,7 @@ library OspEvents {
      * @param followerProfileId The token ID of the profile updating the profile.
      * @param profileId The token ID of the profile being updated.
      * @param followConditionData The data passed to the follow condition.
+     * @param tokenId The TokenNFT ID.
      * @param timestamp The current block timestamp.
      */
     event Followed(
@@ -122,6 +123,7 @@ library OspEvents {
         uint256 indexed followerProfileId,
         uint256 profileId,
         bytes followConditionData,
+        uint256 tokenId,
         bytes ctx,
         uint256 timestamp
     );
@@ -134,6 +136,7 @@ library OspEvents {
         uint256 followerProfileId,
         uint256[] profileIds,
         bytes[] followConditionDatas,
+        uint256[] tokenIds,
         bytes ctx,
         uint256 timestamp
     );
@@ -247,6 +250,7 @@ library OspEvents {
         uint256 joinerProfileId,
         uint256 communityId,
         bytes joinConditionData,
+        uint256 tokenId,
         bytes ctx,
         uint256 timestamp
     );
@@ -259,6 +263,7 @@ library OspEvents {
         uint256 joinerProfileId,
         uint256[] communityIds,
         bytes[] joinConditionDatas,
+        uint256[] tokenIds,
         bytes ctx,
         uint256 timestamp
     );

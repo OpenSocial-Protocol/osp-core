@@ -50,6 +50,7 @@ contract FollowTest is OspTestSetUp {
             user2_profile_id,
             user1_profile_id,
             CORRECT_BYTES,
+            1,
             EMPTY_BYTES,
             block.timestamp
         );
@@ -103,11 +104,16 @@ contract FollowTest is OspTestSetUp {
 
         vm.expectEmit(address(ospClient));
 
+        uint256[] memory expectTokenIds = new uint256[](2);
+        expectTokenIds[0] = 1;
+        expectTokenIds[1] = 1;
+
         emit OspEvents.BatchFollowed(
             user3,
             profile3_id,
             profileIds,
             conditionDatas,
+            expectTokenIds,
             EMPTY_BYTES,
             block.timestamp
         );
