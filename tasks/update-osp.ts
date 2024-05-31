@@ -233,3 +233,25 @@ task('update-20240521')
     console.log(updateCommunityIdCallDatas);
     await waitForTx(multicall3.aggregate3(updateCommunityIdCallDatas));
   });
+
+task('update-joinNFT')
+  .addParam('env')
+  .setAction(async ({ env }, hre) => {
+    const addresses = getAddresses(hre, env);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const deployer = await getDeployer(hre);
+    const joinNFTImpl = await deployContract(
+      new JoinNFT__factory(deployer).deploy(addresses.routerProxy)
+    );
+    await waitForTx(
+      OspClient__factory.connect(addresses.routerProxy, deployer).setJoinNFTImpl(
+        joinNFTImpl.address
+      )
+    );
+    addresses.joinNFTImpl = joinNFTImpl.address;
+    fs.writeFileSync(
+      `addresses-${env}-${hre.network.name}.json`,
+      JSON.stringify(addresses, null, 2)
+    );
+  });

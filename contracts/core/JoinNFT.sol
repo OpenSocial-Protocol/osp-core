@@ -193,7 +193,7 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
             revert OspErrors.JoinNFTBlocked();
         }
         super._afterTokenTransfer(from, to, tokenId);
-        if (balanceOf(to) > 1) revert OspErrors.JoinNFTDuplicated();
+        if (to != address(0) && balanceOf(to) > 1) revert OspErrors.JoinNFTDuplicated();
         if (from != address(0)) {
             _revokeRole(type(uint256).max, from);
         }
