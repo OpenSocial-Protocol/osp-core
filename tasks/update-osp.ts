@@ -14,7 +14,14 @@ import { deployContract, getAddresses, getMulticall3, waitForTx } from './helper
 import { getDeployer } from './helpers/kms';
 import { getUpdateCallDatas } from './update-all-router';
 import fs from 'fs';
-import { APP_ADMIN, GOVERNANCE, OPERATION, ospRoles, STATE_ADMIN } from '../config/osp';
+import {
+  APP_ADMIN,
+  GOVERNANCE,
+  nftMetaBaseUrl,
+  OPERATION,
+  ospRoles,
+  STATE_ADMIN,
+} from '../config/osp';
 
 task('6551-update')
   .addParam('env')
@@ -37,13 +44,8 @@ task('uri-update')
   .setAction(async ({ env }, hre) => {
     const ospAddressConfig = getAddresses(hre, env);
     const ospAddress = ospAddressConfig.routerProxy;
-
-    const ethers = hre.ethers;
-    const deployer = new Wallet(<string>process.env.DEPLOYER_PRIVATE_KEY, ethers.provider);
-
-    const osp = OspClient__factory.connect(ospAddress, deployer);
-
-    await waitForTx(osp.setBaseURI('https://dev.opensocial.trex.xyz/v2/meta/'));
+    const osp = OspClient__factory.connect(ospAddress, await getDeployer(hre));
+    await waitForTx(osp.setBaseURI(`${nftMetaBaseUrl[env]}/${hre.network.config.chainId}/`));
   });
 
 task('add-whitelist-community-creator')

@@ -119,6 +119,10 @@ contract PresaleSigCommunityCond is CommunityCondBase {
         return CondHelpers.getHandleETHPrice(handle, fixedFeeCondData);
     }
 
+    function passUsed(uint256 uid) external view returns (bool) {
+        return _used[uid];
+    }
+
     /**
      * @dev Get the fixed fee condition data from fixFeeCommunityCond contract.
      */
