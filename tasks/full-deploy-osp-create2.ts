@@ -47,6 +47,7 @@ import {
 import { Contract, Signer } from 'ethers';
 import { deployCreate2, getDeployData } from './helpers/create2';
 import { getDeployer } from './helpers/kms';
+import { HttpNetworkConfig } from 'hardhat/types';
 
 const create2_directory = `create2-osp`;
 
@@ -396,9 +397,11 @@ task(DEPLOY_TASK_NAME.DEPLOY_OSP_CREATE2, 'deploys the entire OpenSocial Protoco
         openSocial.interface.encodeFunctionData('whitelistApp', [voteReaction.address, true])
       );
 
-      whitelistTokenList[hre.ethers.provider.network.chainId]?.forEach((token) => {
-        initData.push(openSocial.interface.encodeFunctionData('whitelistToken', [token, true]));
-      });
+      whitelistTokenList[(hre.network.config as HttpNetworkConfig).chainId as number]?.forEach(
+        (token) => {
+          initData.push(openSocial.interface.encodeFunctionData('whitelistToken', [token, true]));
+        }
+      );
 
       const baseUrl = nftMetaBaseUrl[env];
       if (baseUrl) {
