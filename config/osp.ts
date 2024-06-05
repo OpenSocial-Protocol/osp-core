@@ -104,6 +104,13 @@ export const ospRoles: { [chainIdAndEnv: string]: OspRole } = {
     operation: ['0x00091fB7CF3E2fC93FE2792ea51086037F2EE8AC'],
     treasureAddress: '0xA81cbAf4CA84361a7ffF509538d7b682a2AcDb77',
   },
+  '196-pre': {
+    stateAdmin: ['0x93727498f170f1a585093b4b6c3dbe0db056a7c4'],
+    appAdmin: ['0x88E976462588e9D9fbE2d19Eaf28719C8ACaD788'],
+    governance: ['0x88E976462588e9D9fbE2d19Eaf28719C8ACaD788'],
+    operation: ['0x88E976462588e9D9fbE2d19Eaf28719C8ACaD788'],
+    treasureAddress: '0x88E976462588e9D9fbE2d19Eaf28719C8ACaD788',
+  },
 };
 
 export const STATE_ADMIN = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('STATE_ADMIN'));
