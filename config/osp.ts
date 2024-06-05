@@ -92,10 +92,10 @@ export const ospRoles: { [chainIdAndEnv: string]: OspRole } = {
   },
   '8453-pre': {
     stateAdmin: ['0xe84ec627c902B8dfDd6e97278066de1FA0a83fAd'],
-    appAdmin: ['0x0B45cA958E9f655C154e70Da909795baC1B4aD83'],
-    governance: ['0x0B45cA958E9f655C154e70Da909795baC1B4aD83'],
-    operation: ['0x00091fB7CF3E2fC93FE2792ea51086037F2EE8AC'],
-    treasureAddress: '0xA81cbAf4CA84361a7ffF509538d7b682a2AcDb77',
+    appAdmin: ['0x88E976462588e9D9fbE2d19Eaf28719C8ACaD788'],
+    governance: ['0x88E976462588e9D9fbE2d19Eaf28719C8ACaD788'],
+    operation: ['0x88E976462588e9D9fbE2d19Eaf28719C8ACaD788'],
+    treasureAddress: '0x88E976462588e9D9fbE2d19Eaf28719C8ACaD788',
   },
   '196-prod': {
     stateAdmin: ['0xe84ec627c902B8dfDd6e97278066de1FA0a83fAd'],

@@ -163,7 +163,7 @@ task('update-osp-role')
     const deployer = await getDeployer(hre);
     const ospClient = OspClient__factory.connect(addresses?.routerProxy, deployer);
     const callDatas: string[] = [];
-    const ospRoleConfig = ospRoles[hre.network.config.chainId as number];
+    const ospRoleConfig = ospRoles[`${hre.network.config.chainId as number}-${env}`];
     console.log(await ospClient.hasRole(APP_ADMIN, await deployer.getAddress()));
     console.log(await ospClient.hasRole(GOVERNANCE, await deployer.getAddress()));
     console.log(await ospClient.hasRole(OPERATION, await deployer.getAddress()));
