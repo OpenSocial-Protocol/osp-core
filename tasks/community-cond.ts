@@ -91,18 +91,18 @@ task('redeploy-whitelist-cond-create2')
     await waitForTx(router.connect(deployer).multicall(initData));
   });
 
+//dev PresaleSigCommunityCond deployed at 0x4519a02901d0881daC65C54C8CAD619d0C0ED97d
 task('deploy-presale-sig-cond')
   .addParam('env')
   .setAction(async ({ env }, hre) => {
     const signer: Record<string, string> = {
       dev: '0x511436a5199827dd1aa37462a680921a410d0947',
       beta: '0x511436a5199827dd1aa37462a680921a410d0947',
-      pre: '0xca2771d61e2bde5c005cc44f6fab3845b2c180e3',
+      pre: '0xee59c698401c9f7a949b8c1d3012c57349acb82d',
       prod: '0xca2771d61e2bde5c005cc44f6fab3845b2c180e3',
     };
     const address: OspAddress = getAddresses(hre, env);
     const deployer = await getDeployer(hre);
-    const ospClient = OspClient__factory.connect(address.routerProxy, deployer);
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const fixedFeeCommunityCond = address.fixedFeeCommunityCond!;
     console.log(`fixedFeeCommunityCond is ${fixedFeeCommunityCond}, ${address.routerProxy}`);
@@ -114,7 +114,7 @@ task('deploy-presale-sig-cond')
         Math.floor(Date.now() / 1000)
       )
     );
-    console.log(presaleSigCond);
-    await waitForTx(ospClient.whitelistApp(presaleSigCond.address, true));
     console.log('PresaleSigCommunityCond deployed at', presaleSigCond.address);
+    const ospClient = OspClient__factory.connect(address.routerProxy, deployer);
+    await waitForTx(ospClient.whitelistApp(presaleSigCond.address, true));
   });
