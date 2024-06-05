@@ -1,10 +1,35 @@
 //config
 import { ethers } from 'ethers';
 
-export const OPENSOCIAL_SBT_NAME = 'OpenSocial Protocol Profile';
-export const OPENSOCIAL_SBT_SYMBOL = 'OSPP';
-export const OPENSOCIAL_COMMUNITY_NAME = 'OpenSocial Protocol Community';
-export const OPENSOCIAL_COMMUNITY_SYMBOL = 'OSPC';
+const OPENSOCIAL_SBT_NAME = 'OpenSocial Protocol Profile';
+const OPENSOCIAL_SBT_SYMBOL = 'OSPP';
+const OPENSOCIAL_COMMUNITY_NAME = 'OpenSocial Protocol Community';
+const OPENSOCIAL_COMMUNITY_SYMBOL = 'OSPC';
+
+export function getProfileNFTName(env: string): string {
+  if (env == 'pre') {
+    return 'Trex Protocol Profile';
+  }
+  return OPENSOCIAL_SBT_NAME;
+}
+export function getProfileNFTSymbol(env: string): string {
+  if (env == 'pre') {
+    return 'TPP';
+  }
+  return OPENSOCIAL_SBT_SYMBOL;
+}
+export function getCommunityNFTName(env: string): string {
+  if (env == 'pre') {
+    return 'Trex Protocol Community';
+  }
+  return OPENSOCIAL_COMMUNITY_NAME;
+}
+export function getCommunityNFTSymbol(env: string): string {
+  if (env == 'pre') {
+    return 'TPC';
+  }
+  return OPENSOCIAL_COMMUNITY_SYMBOL;
+}
 //const
 export enum ProtocolState {
   Unpaused,
@@ -49,15 +74,22 @@ export type OspRole = {
   treasureAddress: string;
 };
 
-export const ospRoles: { [chainId: number]: OspRole } = {
-  8453: {
+export const ospRoles: { [chainIdAndEnv: string]: OspRole } = {
+  '8453-prod': {
     stateAdmin: ['0xe84ec627c902B8dfDd6e97278066de1FA0a83fAd'],
     appAdmin: ['0x0B45cA958E9f655C154e70Da909795baC1B4aD83'],
     governance: ['0x0B45cA958E9f655C154e70Da909795baC1B4aD83'],
     operation: ['0x00091fB7CF3E2fC93FE2792ea51086037F2EE8AC'],
     treasureAddress: '0xA81cbAf4CA84361a7ffF509538d7b682a2AcDb77',
   },
-  196: {
+  '8453-pre': {
+    stateAdmin: ['0xe84ec627c902B8dfDd6e97278066de1FA0a83fAd'],
+    appAdmin: ['0x0B45cA958E9f655C154e70Da909795baC1B4aD83'],
+    governance: ['0x0B45cA958E9f655C154e70Da909795baC1B4aD83'],
+    operation: ['0x00091fB7CF3E2fC93FE2792ea51086037F2EE8AC'],
+    treasureAddress: '0xA81cbAf4CA84361a7ffF509538d7b682a2AcDb77',
+  },
+  '196-prod': {
     stateAdmin: ['0xe84ec627c902B8dfDd6e97278066de1FA0a83fAd'],
     appAdmin: ['0x0B45cA958E9f655C154e70Da909795baC1B4aD83'],
     governance: ['0x0B45cA958E9f655C154e70Da909795baC1B4aD83'],
@@ -70,3 +102,4 @@ export const STATE_ADMIN = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('STAT
 export const APP_ADMIN = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('APP_ADMIN'));
 export const GOVERNANCE = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('GOVERNANCE'));
 export const OPERATION = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('OPERATION'));
+console.log(OPERATION);

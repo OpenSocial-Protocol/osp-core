@@ -3,12 +3,12 @@ import fs from 'fs';
 import { task } from 'hardhat/config';
 import {
   APP_ADMIN,
+  getCommunityNFTName,
+  getCommunityNFTSymbol,
+  getProfileNFTName,
+  getProfileNFTSymbol,
   GOVERNANCE,
   nftMetaBaseUrl,
-  OPENSOCIAL_COMMUNITY_NAME,
-  OPENSOCIAL_COMMUNITY_SYMBOL,
-  OPENSOCIAL_SBT_NAME,
-  OPENSOCIAL_SBT_SYMBOL,
   OPERATION,
   STATE_ADMIN,
   whitelistTokenList,
@@ -21,7 +21,6 @@ import {
   ContentLogic__factory,
   ERC20FeeJoinCond__factory,
   FollowSBT__factory,
-  GovernanceLogic,
   GovernanceLogic__factory,
   HoldTokenJoinCond__factory,
   JoinNFT__factory,
@@ -92,8 +91,8 @@ task(DEPLOY_TASK_NAME.DEPLOY_OSP_CREATE2, 'deploys the entire OpenSocial Protoco
             ospRouterImmutableDeployData.address,
             communityNFTProxyData.address,
             CommunityNFT__factory.createInterface().encodeFunctionData('initialize', [
-              OPENSOCIAL_COMMUNITY_NAME,
-              OPENSOCIAL_COMMUNITY_SYMBOL,
+              getCommunityNFTName(env),
+              getCommunityNFTSymbol(env),
             ])
           )
         ),
@@ -328,8 +327,8 @@ task(DEPLOY_TASK_NAME.DEPLOY_OSP_CREATE2, 'deploys the entire OpenSocial Protoco
       const openSocial = OspClient__factory.connect(router.address, deployer);
       initData.push(
         openSocial.interface.encodeFunctionData('initialize', [
-          OPENSOCIAL_SBT_NAME,
-          OPENSOCIAL_SBT_SYMBOL,
+          getProfileNFTName(env),
+          getProfileNFTSymbol(env),
           followSBTImpl.address,
           joinNFTImpl.address,
           communityNFTProxy.address,
