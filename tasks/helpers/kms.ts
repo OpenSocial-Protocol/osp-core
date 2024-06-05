@@ -5,21 +5,24 @@ import '@nomiclabs/hardhat-ethers/internal/type-extensions';
 
 export class Provider extends ethers.providers.JsonRpcProvider {
   async getFeeData() {
-    const [fee, block] = await Promise.all([
-      this.send('eth_maxPriorityFeePerGas', []),
-      this.getBlock('latest'),
-    ]);
-
-    const lastBaseFeePerGas = block.baseFeePerGas as ethers.BigNumber;
-    let maxPriorityFeePerGas = ethers.BigNumber.from(fee);
-    if (this._network.chainId == 8453) {
-      maxPriorityFeePerGas = maxPriorityFeePerGas.div(50);
+    try {
+      const [fee, block] = await Promise.all([
+        this.send('eth_maxPriorityFeePerGas', []),
+        this.getBlock('latest'),
+      ]);
+      const lastBaseFeePerGas = block.baseFeePerGas as ethers.BigNumber;
+      let maxPriorityFeePerGas = ethers.BigNumber.from(fee);
+      if (this._network.chainId == 8453) {
+        maxPriorityFeePerGas = maxPriorityFeePerGas.div(50);
+      }
+      const maxFeePerGas = block.baseFeePerGas
+        ? block.baseFeePerGas.mul(2).add(maxPriorityFeePerGas)
+        : maxPriorityFeePerGas;
+      const gasPrice = maxFeePerGas;
+      return { lastBaseFeePerGas, maxFeePerGas, maxPriorityFeePerGas, gasPrice };
+    } catch (e) {
+      return super.getFeeData();
     }
-    const maxFeePerGas = block.baseFeePerGas
-      ? block.baseFeePerGas.mul(2).add(maxPriorityFeePerGas)
-      : maxPriorityFeePerGas;
-    const gasPrice = maxFeePerGas;
-    return { lastBaseFeePerGas, maxFeePerGas, maxPriorityFeePerGas, gasPrice };
   }
 }
 
