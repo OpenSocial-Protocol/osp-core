@@ -7,28 +7,36 @@ const OPENSOCIAL_COMMUNITY_NAME = 'OpenSocial Protocol Community';
 const OPENSOCIAL_COMMUNITY_SYMBOL = 'OSPC';
 
 export function getProfileNFTName(env: string): string {
+  let name = OPENSOCIAL_SBT_NAME;
   if (env == 'pre') {
-    return 'Trex Protocol Profile';
+    name = 'Trex Protocol Profile';
   }
-  return OPENSOCIAL_SBT_NAME;
+  console.log(`Profile NFT Name: ${name}`);
+  return name;
 }
 export function getProfileNFTSymbol(env: string): string {
+  let symbol = OPENSOCIAL_SBT_SYMBOL;
   if (env == 'pre') {
-    return 'TPP';
+    symbol = 'TPP';
   }
-  return OPENSOCIAL_SBT_SYMBOL;
+  console.log(`Profile NFT Symbol: ${symbol}`);
+  return symbol;
 }
 export function getCommunityNFTName(env: string): string {
+  let name = OPENSOCIAL_COMMUNITY_NAME;
   if (env == 'pre') {
-    return 'Trex Protocol Community';
+    name = 'Trex Protocol Community';
   }
-  return OPENSOCIAL_COMMUNITY_NAME;
+  console.log(`Community NFT Name: ${name}`);
+  return name;
 }
 export function getCommunityNFTSymbol(env: string): string {
+  let symbol = OPENSOCIAL_COMMUNITY_SYMBOL;
   if (env == 'pre') {
-    return 'TPC';
+    symbol = 'TPC';
   }
-  return OPENSOCIAL_COMMUNITY_SYMBOL;
+  console.log(`Community NFT Symbol: ${symbol}`);
+  return symbol;
 }
 //const
 export enum ProtocolState {
