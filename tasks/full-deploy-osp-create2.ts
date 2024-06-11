@@ -3,12 +3,12 @@ import fs from 'fs';
 import { task } from 'hardhat/config';
 import {
   APP_ADMIN,
+  getCommunityNFTName,
+  getCommunityNFTSymbol,
+  getProfileNFTName,
+  getProfileNFTSymbol,
   GOVERNANCE,
   nftMetaBaseUrl,
-  OPENSOCIAL_COMMUNITY_NAME,
-  OPENSOCIAL_COMMUNITY_SYMBOL,
-  OPENSOCIAL_SBT_NAME,
-  OPENSOCIAL_SBT_SYMBOL,
   OPERATION,
   STATE_ADMIN,
   whitelistTokenList,
@@ -48,6 +48,7 @@ import {
 import { Contract, Signer } from 'ethers';
 import { create2_directory, deployCreate2, getDeployData } from './helpers/create2';
 import { getDeployer } from './helpers/kms';
+import { HttpNetworkConfig } from 'hardhat/types';
 
 task('deploy_factory').setAction(async (_, hre) => {
   // https://eips.ethereum.org/EIPS/eip-2470
@@ -89,8 +90,8 @@ task(DEPLOY_TASK_NAME.DEPLOY_OSP_CREATE2, 'deploys the entire OpenSocial Protoco
             ospRouterImmutableDeployData.address,
             communityNFTProxyData.address,
             CommunityNFT__factory.createInterface().encodeFunctionData('initialize', [
-              OPENSOCIAL_COMMUNITY_NAME,
-              OPENSOCIAL_COMMUNITY_SYMBOL,
+              getCommunityNFTName(env),
+              getCommunityNFTSymbol(env),
             ])
           )
         ),
@@ -335,8 +336,8 @@ task(DEPLOY_TASK_NAME.DEPLOY_OSP_CREATE2, 'deploys the entire OpenSocial Protoco
       const openSocial = OspClient__factory.connect(router.address, deployer);
       initData.push(
         openSocial.interface.encodeFunctionData('initialize', [
-          OPENSOCIAL_SBT_NAME,
-          OPENSOCIAL_SBT_SYMBOL,
+          getProfileNFTName(env),
+          getProfileNFTSymbol(env),
           followSBTImpl.address,
           joinNFTImpl.address,
           communityNFTProxy.address,
@@ -410,9 +411,11 @@ task(DEPLOY_TASK_NAME.DEPLOY_OSP_CREATE2, 'deploys the entire OpenSocial Protoco
         openSocial.interface.encodeFunctionData('whitelistApp', [voteReaction.address, true])
       );
 
-      whitelistTokenList[hre.ethers.provider.network.chainId]?.forEach((token) => {
-        initData.push(openSocial.interface.encodeFunctionData('whitelistToken', [token, true]));
-      });
+      whitelistTokenList[(hre.network.config as HttpNetworkConfig).chainId as number]?.forEach(
+        (token) => {
+          initData.push(openSocial.interface.encodeFunctionData('whitelistToken', [token, true]));
+        }
+      );
 
       const baseUrl = nftMetaBaseUrl[env];
       if (baseUrl) {
