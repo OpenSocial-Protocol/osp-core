@@ -173,17 +173,9 @@ contract RelationLogic is IRelationLogic, OspLogicBase {
         uint256 communityId,
         address sender,
         address account,
-        uint256 role,
-        bool enable
+        uint256 role
     ) external override onlyJoinNFT(communityId) {
-        emit OspEvents.JoinNFTRoleChanged(
-            communityId,
-            sender,
-            account,
-            role,
-            enable,
-            block.timestamp
-        );
+        emit OspEvents.JoinNFTRoleChanged(communityId, sender, account, role, block.timestamp);
     }
 
     /// @inheritdoc IRelationLogic

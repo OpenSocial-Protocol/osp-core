@@ -165,6 +165,13 @@ abstract contract OspTestSetUp is OspTestConstant {
         );
         ospRouter.addRouter(
             IRouter.Router({
+                functionSelector: hex'a7c81a01',
+                functionSignature: 'updateTags(uint256,string[])',
+                routerAddress: address(communityLogic)
+            })
+        );
+        ospRouter.addRouter(
+            IRouter.Router({
                 functionSelector: hex'7e16bdcf',
                 functionSignature: 'createActivity((uint256,uint256,string,bytes,bytes,bytes))',
                 routerAddress: address(contentLogic)
@@ -648,8 +655,8 @@ abstract contract OspTestSetUp is OspTestConstant {
         );
         ospRouter.addRouter(
             IRouter.Router({
-                functionSelector: hex'd10a8f6d',
-                functionSignature: 'emitJoinNFTRoleChangedEvent(uint256,address,address,uint256,bool)',
+                functionSelector: hex'2749717e',
+                functionSignature: 'emitJoinNFTRoleChangedEvent(uint256,address,address,uint256)',
                 routerAddress: address(relationLogic)
             })
         );

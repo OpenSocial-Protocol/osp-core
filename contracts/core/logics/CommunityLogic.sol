@@ -59,6 +59,15 @@ contract CommunityLogic is OspLogicBase, ICommunityLogic {
         _setJoinCondition(communityId, joinConditionInitCode);
     }
 
+    /// @inheritdoc ICommunityLogic
+    function updateTags(
+        uint256 communityId,
+        string[] calldata tags
+    ) external override whenNotPaused {
+        _validateCallerIsCommunityOwner(communityId);
+        emit OspEvents.CommunityTagsUpdated(communityId, tags, block.timestamp);
+    }
+
     /*///////////////////////////////////////////////////////////////
                        Public read functions
     /////////////////////////////////////////////////////////////*/
