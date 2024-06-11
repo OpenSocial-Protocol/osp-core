@@ -73,17 +73,16 @@ contract FixFeeCondTest is OspTestSetUp {
     }
 
     function testCreateCommunity_WithPresaleCond() public {
-        console2.log('user2:', user2);
         vm.deal(user1, 8 ether);
         bytes32 hash = keccak256(
             abi.encodePacked(
                 '\x19Ethereum Signed Message:\n32',
-                keccak256(abi.encodePacked(uint256(1), user1))
+                keccak256(abi.encodePacked(address(ospClient), uint256(1), user1, user1))
             )
         );
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(user2PK, hash);
         bytes memory signature = abi.encodePacked(r, s, v);
-        bytes memory data = abi.encode(uint256(1), user1, signature);
+        bytes memory data = abi.encode(address(ospClient), uint256(1), user1, user1, signature);
         vm.startPrank(user1);
         ospClient.createCommunity{value: 8 ether}(
             OspDataTypes.CreateCommunityData({

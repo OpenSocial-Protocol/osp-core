@@ -9,6 +9,7 @@ import {CondErrors} from '../libraries/CondErrors.sol';
 import {CondDataTypes} from '../libraries/CondDataTypes.sol';
 import {CondHelpers} from '../libraries/CondHelpers.sol';
 import {MessageHashUtils} from '@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol';
+import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 
 /**
  * @title PresaleSigCommunityCond
@@ -17,14 +18,17 @@ import {MessageHashUtils} from '@openzeppelin/contracts/utils/cryptography/Messa
  * @dev This contract specifies that pay the specified amount of ETH to create the community on presale time.
  * The amount of ETH paid is related to the handle length of the community.
  * The community creation must be signed by the specified signer.
+ * The signer must sign the ticket and tokenId(ticket is ERC721), target addr must hold the token.
  * If the official sale time is reached, the contract will automatically expire.
  */
 contract PresaleSigCommunityCond is CommunityCondBase {
     event PresaleTimeSet(uint256 indexed presaleStartTime, uint256 timestamp);
     event SignerSet(address indexed signer, uint256 timestamp);
+
     event PresaleSigPaid(
-        address to,
-        uint256 indexed uid,
+        address indexed to,
+        address indexed ticket,
+        uint256 indexed tokenId,
         uint256 price,
         string handle,
         uint256 timestamp
@@ -36,7 +40,7 @@ contract PresaleSigCommunityCond is CommunityCondBase {
     uint256 public presaleStartTime;
     address immutable fixedFeeCommunityCond;
     address signer;
-    mapping(uint256 => bool) private _used;
+    mapping(address => mapping(uint256 => bool)) _ticketUsed;
 
     constructor(
         address osp,
@@ -65,34 +69,10 @@ contract PresaleSigCommunityCond is CommunityCondBase {
         ) {
             revert CondErrors.NotPresaleTime();
         }
-        (uint256 uid, address target, bytes memory signature) = abi.decode(
-            data,
-            (uint256, address, bytes)
-        );
-        if (_used[uid]) {
-            revert CondErrors.DuplicateSigUsed();
-        }
-        _used[uid] = true;
-        bytes32 hash = keccak256(abi.encodePacked(uid, target));
-        if (hash.toEthSignedMessageHash().recover(signature) != signer || target != to) {
-            revert CondErrors.SignatureInvalid();
-        }
+        (address ticket, uint256 tokenId) = _validateTicketAndSig(to, data);
         uint256 price = CondHelpers.getHandleETHPrice(handle, fixedFeeCondData);
-        if (price == 0 || fixedFeeCondData.treasure == address(0)) {
-            revert CondErrors.NotPresaleTime();
-        }
-        if (msg.value < price) {
-            revert CondErrors.InsufficientPayment();
-        }
-        uint256 overpayment;
-        unchecked {
-            overpayment = msg.value - price;
-        }
-        if (overpayment > 0) {
-            Payment.payNative(to, overpayment);
-        }
-        Payment.payNative(fixedFeeCondData.treasure, price);
-        emit PresaleSigPaid(to, uid, price, handle, block.timestamp);
+        _charge(price, to, fixedFeeCondData.treasure);
+        emit PresaleSigPaid(to, ticket, tokenId, price, handle, block.timestamp);
     }
 
     /**
@@ -119,8 +99,12 @@ contract PresaleSigCommunityCond is CommunityCondBase {
         return CondHelpers.getHandleETHPrice(handle, fixedFeeCondData);
     }
 
-    function passUsed(uint256 uid) external view returns (bool) {
-        return _used[uid];
+    function isTicketUsable(
+        address ticket,
+        uint256 tokenId,
+        address holder
+    ) external view returns (bool) {
+        return !_ticketUsed[ticket][tokenId] && IERC721(ticket).ownerOf(tokenId) == holder;
     }
 
     /**
@@ -138,5 +122,45 @@ contract PresaleSigCommunityCond is CommunityCondBase {
         CondDataTypes.FixedFeeCondData memory fixFeeCondData = _getFixedFeeCondData();
         require(_presaleStartTime < fixFeeCondData.createStartTime, 'Invalid time');
         presaleStartTime = _presaleStartTime;
+    }
+
+    function _charge(uint256 price, address to, address treasure) internal virtual {
+        if (msg.value < price) {
+            revert CondErrors.InsufficientPayment();
+        }
+        uint256 overpayment;
+        unchecked {
+            overpayment = msg.value - price;
+        }
+        if (overpayment > 0) {
+            Payment.payNative(to, overpayment);
+        }
+        Payment.payNative(treasure, price);
+    }
+
+    function _validateTicketAndSig(
+        address to,
+        bytes calldata data
+    ) internal returns (address, uint256) {
+        (
+            address ticket,
+            uint256 tokenId,
+            address holder,
+            address target,
+            bytes memory signature
+        ) = abi.decode(data, (address, uint256, address, address, bytes));
+        // the signer determine the relationship between holder and target
+        if (
+            (!_ticketUsed[ticket][tokenId] && IERC721(ticket).ownerOf(tokenId) != holder) ||
+            target != to
+        ) {
+            revert CondErrors.InvalidTicket();
+        }
+        bytes32 hash = keccak256(abi.encodePacked(ticket, tokenId, holder, target));
+        if (hash.toEthSignedMessageHash().recover(signature) != signer) {
+            revert CondErrors.SignatureInvalid();
+        }
+        _ticketUsed[ticket][tokenId] = true;
+        return (ticket, tokenId);
     }
 }

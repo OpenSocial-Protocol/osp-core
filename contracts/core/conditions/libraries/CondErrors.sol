@@ -15,7 +15,7 @@ library CondErrors {
 
     error NotCreateTime();
     error NotPresaleTime();
-    error DuplicateSigUsed();
+    error InvalidTicket();
     error InsufficientPayment();
     error SignatureInvalid();
 
