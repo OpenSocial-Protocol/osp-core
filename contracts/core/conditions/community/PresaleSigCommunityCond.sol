@@ -151,7 +151,7 @@ contract PresaleSigCommunityCond is CommunityCondBase {
         ) = abi.decode(data, (address, uint256, address, address, bytes));
         // the signer determine the relationship between holder and target
         if (
-            (!_ticketUsed[ticket][tokenId] && IERC721(ticket).ownerOf(tokenId) != holder) ||
+            (_ticketUsed[ticket][tokenId] || IERC721(ticket).ownerOf(tokenId) != holder) ||
             target != to
         ) {
             revert CondErrors.InvalidTicket();
