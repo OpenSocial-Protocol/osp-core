@@ -24,10 +24,17 @@ interface ICommunityLogic {
 
     /**
      * @dev Sets a community's join condition, must be called by the community owner.
-     * @param communityId The unique ID of the community to query the join condition for.
+     * @param communityId The ID of the community to set the join condition for.
      * @param joinConditionInitCode The data to be passed to the join condition for initialization.
      */
     function setJoinCondition(uint256 communityId, bytes calldata joinConditionInitCode) external;
+
+    /**
+     * @dev Updates a community's tags, must be called by the community owner.
+     * @param communityId The ID of the community to set the tags for.
+     * @param tags The new tags for the community.
+     */
+    function updateTags(uint256 communityId, string[] calldata tags) external;
 
     /**
      * @dev emits a CommunityNFTTransfer event to facilitate the monitoring of events.

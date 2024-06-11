@@ -68,8 +68,8 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
         if (_isCommunityOwner(_msgSender())) {
             return
                 enable
-                    ? _grantRole(Constants.COMMUNITY_ADMIN_ACCESS, account)
-                    : _revokeRole(Constants.COMMUNITY_ADMIN_ACCESS, account);
+                    ? _setRole(Constants.COMMUNITY_ADMIN_ACCESS, account)
+                    : _setRole(Constants.COMMUNITY_MEMBER_ACCESS, account);
         }
         revert OspErrors.NotCommunityOwner();
     }
@@ -85,8 +85,8 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
         ) {
             return
                 enable
-                    ? _grantRole(Constants.COMMUNITY_MODERATOR_ACCESS, account)
-                    : _revokeRole(Constants.COMMUNITY_MODERATOR_ACCESS, account);
+                    ? _setRole(Constants.COMMUNITY_MODERATOR_ACCESS, account)
+                    : _setRole(Constants.COMMUNITY_MEMBER_ACCESS, account);
         }
         revert OspErrors.JoinNFTUnauthorizedAccount();
     }
@@ -195,7 +195,7 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
         super._afterTokenTransfer(from, to, tokenId);
         if (to != address(0) && balanceOf(to) > 1) revert OspErrors.JoinNFTDuplicated();
         if (from != address(0)) {
-            _revokeRole(type(uint256).max, from);
+            _setRole(Constants.COMMUNITY_MEMBER_ACCESS, from);
         }
         OspClient(OSP).emitJoinNFTTransferEvent(_communityId, tokenId, from, to);
     }
@@ -207,39 +207,15 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
     /**
      * @dev Grant a role to an account.
      */
-    function _grantRole(uint256 role, address account) internal returns (bool) {
-        if (balanceOf(account) == 0) revert OspErrors.NotJoinCommunity();
+    function _setRole(uint256 role, address account) internal returns (bool) {
+        if (role != Constants.COMMUNITY_MEMBER_ACCESS && balanceOf(account) == 0)
+            revert OspErrors.NotJoinCommunity();
         uint256 oldRole = _role[account];
-        if (role != 0 && oldRole & role == 0) {
-            _role[account] = oldRole | role;
-            OspClient(OSP).emitJoinNFTRoleChangedEvent(
-                _communityId,
-                _msgSender(),
-                account,
-                ~oldRole & role,
-                true
-            );
+        if (oldRole != role) {
+            _role[account] = role;
+            OspClient(OSP).emitJoinNFTRoleChangedEvent(_communityId, _msgSender(), account, role);
             return true;
         }
         return false;
-    }
-
-    /**
-     * @dev Revoke a role from an account.
-     */
-    function _revokeRole(uint256 role, address account) internal returns (bool) {
-        uint256 oldRole = _role[account];
-        if (role == 0 || oldRole & role == 0) {
-            return false;
-        }
-        _role[account] = oldRole & ~role;
-        OspClient(OSP).emitJoinNFTRoleChangedEvent(
-            _communityId,
-            _msgSender(),
-            account,
-            oldRole & role,
-            false
-        );
-        return true;
     }
 }

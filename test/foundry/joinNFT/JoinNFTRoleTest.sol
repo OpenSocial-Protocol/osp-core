@@ -28,7 +28,6 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
             owner,
             member,
             Constants.COMMUNITY_ADMIN_ACCESS,
-            true,
             block.timestamp
         );
         vm.prank(owner);
@@ -85,8 +84,7 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
             TEST_COMMUNITY_ID,
             owner,
             admin,
-            Constants.COMMUNITY_ADMIN_ACCESS,
-            false,
+            Constants.COMMUNITY_MEMBER_ACCESS,
             block.timestamp
         );
         vm.prank(owner);
@@ -153,7 +151,6 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
             sender,
             member,
             Constants.COMMUNITY_MODERATOR_ACCESS,
-            true,
             block.timestamp
         );
         vm.prank(sender);
@@ -215,8 +212,7 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
             TEST_COMMUNITY_ID,
             sender,
             mod,
-            Constants.COMMUNITY_MODERATOR_ACCESS,
-            false,
+            Constants.COMMUNITY_MEMBER_ACCESS,
             block.timestamp
         );
         vm.prank(sender);
@@ -415,8 +411,7 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
             TEST_COMMUNITY_ID,
             admin,
             admin,
-            Constants.COMMUNITY_ADMIN_ACCESS,
-            false,
+            Constants.COMMUNITY_MEMBER_ACCESS,
             block.timestamp
         );
         vm.expectEmit(address(ospClient));

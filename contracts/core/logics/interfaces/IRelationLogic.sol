@@ -162,8 +162,7 @@ interface IRelationLogic {
         uint256 communityId,
         address sender,
         address account,
-        uint256 role,
-        bool enable
+        uint256 role
     ) external;
 
     function emitJoinNFTAccountBlockedEvent(

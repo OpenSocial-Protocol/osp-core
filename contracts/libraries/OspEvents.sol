@@ -237,6 +237,14 @@ library OspEvents {
     );
 
     /**
+     * @dev Emitted when communityTag is updated.
+     *
+     * @param communityId The token ID of the community being updated.
+     * @param tags The new tags for the community.
+     */
+    event CommunityTagsUpdated(uint256 indexed communityId, string[] tags, uint256 timestamp);
+
+    /**
      * @dev Emitted when you join a community.
      *
      * @param joiner The address joining the community.
@@ -334,7 +342,6 @@ library OspEvents {
         address indexed sender,
         address indexed account,
         uint256 role,
-        bool enable,
         uint256 timestamp
     );
 
