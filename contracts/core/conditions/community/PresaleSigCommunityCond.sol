@@ -51,7 +51,7 @@ contract PresaleSigCommunityCond is CommunityCondBase {
         fixedFeeCommunityCond = _fixedFeeCommunityCond;
         signer = _signer;
         emit SignerSet(signer, block.timestamp);
-        _setPresaleTime(_presaleStartTime);
+        _setPresaleStartTime(_presaleStartTime);
         emit PresaleTimeSet(presaleStartTime, block.timestamp);
     }
 
@@ -65,7 +65,8 @@ contract PresaleSigCommunityCond is CommunityCondBase {
     ) internal override {
         CondDataTypes.FixedFeeCondData memory fixedFeeCondData = _getFixedFeeCondData();
         if (
-            block.timestamp < presaleStartTime || block.timestamp > fixedFeeCondData.createStartTime
+            block.timestamp < presaleStartTime ||
+            block.timestamp >= fixedFeeCondData.createStartTime
         ) {
             revert CondErrors.NotPresaleTime();
         }
@@ -78,8 +79,8 @@ contract PresaleSigCommunityCond is CommunityCondBase {
     /**
      * @dev Set the presale start time, must be less than the official sale time
      */
-    function setPresaleTime(uint256 _presaleStartTime) external onlyOperation {
-        _setPresaleTime(_presaleStartTime);
+    function setPresaleStartTime(uint256 _presaleStartTime) external onlyOperation {
+        _setPresaleStartTime(_presaleStartTime);
         emit PresaleTimeSet(presaleStartTime, block.timestamp);
     }
 
@@ -107,6 +108,17 @@ contract PresaleSigCommunityCond is CommunityCondBase {
         return !_ticketUsed[ticket][tokenId] && IERC721(ticket).ownerOf(tokenId) == holder;
     }
 
+    function isPresaleTime() external view returns (bool) {
+        return
+            block.timestamp >= presaleStartTime &&
+            block.timestamp < _getFixedFeeCondData().createStartTime;
+    }
+
+    function getPresaleTime() external view returns (uint256 start, uint256 end) {
+        start = presaleStartTime;
+        end = _getFixedFeeCondData().createStartTime;
+    }
+
     /**
      * @dev Get the fixed fee condition data from fixFeeCommunityCond contract.
      */
@@ -118,7 +130,7 @@ contract PresaleSigCommunityCond is CommunityCondBase {
         return abi.decode(returnData, (CondDataTypes.FixedFeeCondData));
     }
 
-    function _setPresaleTime(uint256 _presaleStartTime) internal {
+    function _setPresaleStartTime(uint256 _presaleStartTime) internal {
         CondDataTypes.FixedFeeCondData memory fixFeeCondData = _getFixedFeeCondData();
         require(_presaleStartTime < fixFeeCondData.createStartTime, 'Invalid time');
         presaleStartTime = _presaleStartTime;
