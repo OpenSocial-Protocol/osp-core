@@ -64,10 +64,7 @@ contract PresaleSigCommunityCond is CommunityCondBase {
         bytes calldata data
     ) internal override {
         CondDataTypes.FixedFeeCondData memory fixedFeeCondData = _getFixedFeeCondData();
-        if (
-            block.timestamp < presaleStartTime ||
-            block.timestamp >= fixedFeeCondData.createStartTime
-        ) {
+        if (!isPresaleTime()) {
             revert CondErrors.NotPresaleTime();
         }
         (address ticket, uint256 tokenId) = _validateTicketAndSig(to, data);
@@ -108,13 +105,13 @@ contract PresaleSigCommunityCond is CommunityCondBase {
         return !_ticketUsed[ticket][tokenId] && IERC721(ticket).ownerOf(tokenId) == holder;
     }
 
-    function isPresaleTime() external view returns (bool) {
+    function isPresaleTime() public view returns (bool) {
         return
             block.timestamp >= presaleStartTime &&
             block.timestamp < _getFixedFeeCondData().createStartTime;
     }
 
-    function getPresaleTime() external view returns (uint256 start, uint256 end) {
+    function getPresaleTime() public view returns (uint256 start, uint256 end) {
         start = presaleStartTime;
         end = _getFixedFeeCondData().createStartTime;
     }
