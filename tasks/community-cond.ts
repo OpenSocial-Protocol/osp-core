@@ -61,14 +61,16 @@ task('redeploy-whitelist-cond-create2')
   .addParam('env')
   .setAction(async ({ env }, hre) => {
     const deployer = await getDeployer(hre);
-    const address: OspAddress = getAddresses(hre, env);
-    const ospClient = OspClient__factory.connect(address.routerProxy, deployer);
-    const oldAddr = address.whitelistAddressCommunityCond;
+    const addresses: OspAddress = getAddresses(hre, env);
+    const ospClient = OspClient__factory.connect(addresses.routerProxy, deployer);
+    const oldAddr = addresses.whitelistAddressCommunityCond;
     console.log(`old whitelist is ${oldAddr}`);
     const create2AccountFileName = `${create2_directory}/osp-${env}.json`;
     const create2 = JSON.parse(fs.readFileSync(create2AccountFileName).toString());
     const whitelistAddressCommunityCond = getDeployData(
-      new WhitelistAddressCommunityCond__factory(deployer).getDeployTransaction(address.routerProxy)
+      new WhitelistAddressCommunityCond__factory(deployer).getDeployTransaction(
+        addresses.routerProxy
+      )
     );
     if (create2.whitelistAddressCommunityCond.initCode == whitelistAddressCommunityCond.initCode) {
       throw new Error('same initCode');
@@ -76,6 +78,11 @@ task('redeploy-whitelist-cond-create2')
     create2.whitelistAddressCommunityCond = whitelistAddressCommunityCond;
     const json = JSON.stringify(create2, null, 2);
     fs.writeFileSync(create2AccountFileName, json, 'utf-8');
+    addresses.whitelistAddressCommunityCond = whitelistAddressCommunityCond.address;
+    fs.writeFileSync(
+      `addresses-${env}-${hre.network.name}.json`,
+      JSON.stringify(addresses, null, 2)
+    );
     await deployCreate2(whitelistAddressCommunityCond, deployer);
     const initData = [
       ospClient.interface.encodeFunctionData('whitelistApp', [oldAddr, false]),
