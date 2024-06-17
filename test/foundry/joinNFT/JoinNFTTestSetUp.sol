@@ -81,8 +81,8 @@ contract JoinNFTTestSetUp is CreateCommunityTestSetUp {
         vm.stopPrank();
 
         vm.startPrank(owner);
-        joinNFT.setAdmin(admin, true);
-        joinNFT.setModerator(mod, true);
+        joinNFT.setAdmin(admin);
+        joinNFT.setModerator(mod);
         vm.stopPrank();
     }
 }

@@ -27,6 +27,6 @@ library Constants {
     uint256 internal constant MAX_TAGS_NUMBER = 10;
     // community join nft roles
     uint256 internal constant COMMUNITY_MEMBER_ACCESS = 0x00000000;
-    uint256 internal constant COMMUNITY_ADMIN_ACCESS = 0x55555555;
-    uint256 internal constant COMMUNITY_MODERATOR_ACCESS = 0xaaaaaaaa;
+    uint256 internal constant COMMUNITY_MODERATOR_ACCESS = 0x55555555;
+    uint256 internal constant COMMUNITY_ADMIN_ACCESS = 0xaaaaaaaa;
 }

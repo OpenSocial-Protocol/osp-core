@@ -6,21 +6,9 @@ import './JoinNFTTestSetUp.sol';
 contract JoinNFTRoleTest is JoinNFTTestSetUp {
     // admin test
     function test_GrantAdminRole_Owner() public {
-        assertFalse(joinNFT.hasOneRole(Constants.COMMUNITY_ADMIN_ACCESS, member));
-        assertFalse(joinNFT.hasAllRole(Constants.COMMUNITY_ADMIN_ACCESS, member));
+        assertFalse(joinNFT.hasRole(Constants.COMMUNITY_ADMIN_ACCESS, member));
         assertFalse(
-            ospClient.hasOneCommunityRole(
-                TEST_COMMUNITY_ID,
-                Constants.COMMUNITY_ADMIN_ACCESS,
-                member
-            )
-        );
-        assertFalse(
-            ospClient.hasAllCommunityRole(
-                TEST_COMMUNITY_ID,
-                Constants.COMMUNITY_ADMIN_ACCESS,
-                member
-            )
+            ospClient.hasCommunityRole(TEST_COMMUNITY_ID, Constants.COMMUNITY_ADMIN_ACCESS, member)
         );
         vm.expectEmit(address(ospClient));
         emit OspEvents.JoinNFTRoleChanged(
@@ -31,53 +19,29 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
             block.timestamp
         );
         vm.prank(owner);
-        assert(joinNFT.setAdmin(member, true));
-        assert(joinNFT.hasOneRole(Constants.COMMUNITY_ADMIN_ACCESS, member));
-        assert(joinNFT.hasAllRole(Constants.COMMUNITY_ADMIN_ACCESS, member));
+        assert(joinNFT.setAdmin(member));
+        assert(joinNFT.hasRole(Constants.COMMUNITY_ADMIN_ACCESS, member));
         assert(
-            ospClient.hasOneCommunityRole(
-                TEST_COMMUNITY_ID,
-                Constants.COMMUNITY_ADMIN_ACCESS,
-                member
-            )
-        );
-        assert(
-            ospClient.hasAllCommunityRole(
-                TEST_COMMUNITY_ID,
-                Constants.COMMUNITY_ADMIN_ACCESS,
-                member
-            )
+            ospClient.hasCommunityRole(TEST_COMMUNITY_ID, Constants.COMMUNITY_ADMIN_ACCESS, member)
         );
     }
 
     function testRevert_GrantAdminRole_NotOwner() public {
-        vm.expectRevert(OspErrors.NotCommunityOwner.selector);
+        vm.expectRevert(OspErrors.JoinNFTUnauthorizedAccount.selector);
         vm.prank(admin);
-        joinNFT.setAdmin(member, true);
-        vm.expectRevert(OspErrors.NotCommunityOwner.selector);
+        joinNFT.setAdmin(member);
+        vm.expectRevert(OspErrors.JoinNFTUnauthorizedAccount.selector);
         vm.prank(mod);
-        joinNFT.setAdmin(member, true);
-        vm.expectRevert(OspErrors.NotCommunityOwner.selector);
+        joinNFT.setAdmin(member);
+        vm.expectRevert(OspErrors.JoinNFTUnauthorizedAccount.selector);
         vm.prank(member);
-        joinNFT.setAdmin(member, true);
+        joinNFT.setAdmin(member);
     }
 
     function test_RevokeAdminRole_Owner() public {
-        assert(joinNFT.hasOneRole(Constants.COMMUNITY_ADMIN_ACCESS, admin));
-        assert(joinNFT.hasAllRole(Constants.COMMUNITY_ADMIN_ACCESS, admin));
+        assert(joinNFT.hasRole(Constants.COMMUNITY_ADMIN_ACCESS, admin));
         assert(
-            ospClient.hasOneCommunityRole(
-                TEST_COMMUNITY_ID,
-                Constants.COMMUNITY_ADMIN_ACCESS,
-                admin
-            )
-        );
-        assert(
-            ospClient.hasAllCommunityRole(
-                TEST_COMMUNITY_ID,
-                Constants.COMMUNITY_ADMIN_ACCESS,
-                admin
-            )
+            ospClient.hasCommunityRole(TEST_COMMUNITY_ID, Constants.COMMUNITY_ADMIN_ACCESS, admin)
         );
         vm.expectEmit(address(ospClient));
         emit OspEvents.JoinNFTRoleChanged(
@@ -88,35 +52,23 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
             block.timestamp
         );
         vm.prank(owner);
-        assert(joinNFT.setAdmin(admin, false));
-        assertFalse(joinNFT.hasOneRole(Constants.COMMUNITY_ADMIN_ACCESS, admin));
-        assertFalse(joinNFT.hasAllRole(Constants.COMMUNITY_ADMIN_ACCESS, admin));
+        assert(joinNFT.removeRole(admin));
+        assertFalse(joinNFT.hasRole(Constants.COMMUNITY_ADMIN_ACCESS, admin));
         assertFalse(
-            ospClient.hasOneCommunityRole(
-                TEST_COMMUNITY_ID,
-                Constants.COMMUNITY_ADMIN_ACCESS,
-                admin
-            )
-        );
-        assertFalse(
-            ospClient.hasAllCommunityRole(
-                TEST_COMMUNITY_ID,
-                Constants.COMMUNITY_ADMIN_ACCESS,
-                admin
-            )
+            ospClient.hasCommunityRole(TEST_COMMUNITY_ID, Constants.COMMUNITY_ADMIN_ACCESS, admin)
         );
     }
 
     function testRevert_RevokeAdminRole_NotOwner() public {
-        vm.expectRevert(OspErrors.NotCommunityOwner.selector);
+        vm.expectRevert(OspErrors.JoinNFTUnauthorizedAccount.selector);
         vm.prank(admin);
-        joinNFT.setAdmin(admin, false);
-        vm.expectRevert(OspErrors.NotCommunityOwner.selector);
+        joinNFT.removeRole(admin);
+        vm.expectRevert(OspErrors.JoinNFTUnauthorizedAccount.selector);
         vm.prank(mod);
-        joinNFT.setAdmin(admin, false);
-        vm.expectRevert(OspErrors.NotCommunityOwner.selector);
+        joinNFT.removeRole(admin);
+        vm.expectRevert(OspErrors.JoinNFTUnauthorizedAccount.selector);
         vm.prank(member);
-        joinNFT.setAdmin(admin, false);
+        joinNFT.removeRole(admin);
     }
 
     // mod test
@@ -129,17 +81,9 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
     }
 
     function _grantModRole(address sender) internal {
-        assertFalse(joinNFT.hasOneRole(Constants.COMMUNITY_MODERATOR_ACCESS, member));
-        assertFalse(joinNFT.hasAllRole(Constants.COMMUNITY_MODERATOR_ACCESS, member));
+        assertFalse(joinNFT.hasRole(Constants.COMMUNITY_MODERATOR_ACCESS, member));
         assertFalse(
-            ospClient.hasOneCommunityRole(
-                TEST_COMMUNITY_ID,
-                Constants.COMMUNITY_MODERATOR_ACCESS,
-                member
-            )
-        );
-        assertFalse(
-            ospClient.hasAllCommunityRole(
+            ospClient.hasCommunityRole(
                 TEST_COMMUNITY_ID,
                 Constants.COMMUNITY_MODERATOR_ACCESS,
                 member
@@ -154,18 +98,10 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
             block.timestamp
         );
         vm.prank(sender);
-        assert(joinNFT.setModerator(member, true));
-        assert(joinNFT.hasOneRole(Constants.COMMUNITY_MODERATOR_ACCESS, member));
-        assert(joinNFT.hasAllRole(Constants.COMMUNITY_MODERATOR_ACCESS, member));
+        assert(joinNFT.setModerator(member));
+        assert(joinNFT.hasRole(Constants.COMMUNITY_MODERATOR_ACCESS, member));
         assert(
-            ospClient.hasOneCommunityRole(
-                TEST_COMMUNITY_ID,
-                Constants.COMMUNITY_MODERATOR_ACCESS,
-                member
-            )
-        );
-        assert(
-            ospClient.hasAllCommunityRole(
+            ospClient.hasCommunityRole(
                 TEST_COMMUNITY_ID,
                 Constants.COMMUNITY_MODERATOR_ACCESS,
                 member
@@ -176,10 +112,10 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
     function testRevert_GrantModRole_NotOwnerOrAdmin() public {
         vm.expectRevert(OspErrors.JoinNFTUnauthorizedAccount.selector);
         vm.prank(mod);
-        joinNFT.setModerator(member, true);
+        joinNFT.setModerator(member);
         vm.expectRevert(OspErrors.JoinNFTUnauthorizedAccount.selector);
         vm.prank(member);
-        joinNFT.setModerator(member, true);
+        joinNFT.setModerator(member);
     }
 
     function test_RevokeModRole_Owner() public {
@@ -191,21 +127,9 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
     }
 
     function _revokeModRole(address sender) internal {
-        assert(joinNFT.hasOneRole(Constants.COMMUNITY_MODERATOR_ACCESS, mod));
-        assert(joinNFT.hasAllRole(Constants.COMMUNITY_MODERATOR_ACCESS, mod));
+        assert(joinNFT.hasRole(Constants.COMMUNITY_MODERATOR_ACCESS, mod));
         assert(
-            ospClient.hasOneCommunityRole(
-                TEST_COMMUNITY_ID,
-                Constants.COMMUNITY_MODERATOR_ACCESS,
-                mod
-            )
-        );
-        assert(
-            ospClient.hasAllCommunityRole(
-                TEST_COMMUNITY_ID,
-                Constants.COMMUNITY_MODERATOR_ACCESS,
-                mod
-            )
+            ospClient.hasCommunityRole(TEST_COMMUNITY_ID, Constants.COMMUNITY_MODERATOR_ACCESS, mod)
         );
         vm.expectEmit(address(ospClient));
         emit OspEvents.JoinNFTRoleChanged(
@@ -216,32 +140,20 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
             block.timestamp
         );
         vm.prank(sender);
-        assert(joinNFT.setModerator(mod, false));
-        assertFalse(joinNFT.hasOneRole(Constants.COMMUNITY_MODERATOR_ACCESS, mod));
-        assertFalse(joinNFT.hasAllRole(Constants.COMMUNITY_MODERATOR_ACCESS, mod));
+        assert(joinNFT.removeRole(mod));
+        assertFalse(joinNFT.hasRole(Constants.COMMUNITY_MODERATOR_ACCESS, mod));
         assertFalse(
-            ospClient.hasOneCommunityRole(
-                TEST_COMMUNITY_ID,
-                Constants.COMMUNITY_MODERATOR_ACCESS,
-                mod
-            )
-        );
-        assertFalse(
-            ospClient.hasAllCommunityRole(
-                TEST_COMMUNITY_ID,
-                Constants.COMMUNITY_MODERATOR_ACCESS,
-                mod
-            )
+            ospClient.hasCommunityRole(TEST_COMMUNITY_ID, Constants.COMMUNITY_MODERATOR_ACCESS, mod)
         );
     }
 
     function testRevert_RevokeModRole_NotOwnerOrAdmin() public {
         vm.expectRevert(OspErrors.JoinNFTUnauthorizedAccount.selector);
         vm.prank(mod);
-        joinNFT.setModerator(mod, false);
+        joinNFT.removeRole(mod);
         vm.expectRevert(OspErrors.JoinNFTUnauthorizedAccount.selector);
         vm.prank(member);
-        joinNFT.setModerator(mod, false);
+        joinNFT.removeRole(mod);
     }
 
     // member level test

@@ -48,6 +48,15 @@ interface IJoinNFT {
     function setModerator(address account) external returns (bool);
 
     /**
+     * @dev Removes the specified role from the specified account.
+     *
+     * @param account The account to remove the role.
+     *
+     * @return bool A boolean indicating whether the operation was successful.
+     */
+    function removeRole(address account) external returns (bool);
+
+    /**
      * @dev Sets the member level for the specified account.
      *
      * @param account The account to set the member level for.

@@ -62,18 +62,17 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
 
     /// @inheritdoc IJoinNFT
     function setAdmin(address account) public override notBlock(account) returns (bool) {
-        if (_isCommunityOwner(_msgSender())) {
-            return _setRole(Constants.COMMUNITY_ADMIN_ACCESS, account);
-        }
-        revert OspErrors.NotCommunityOwner();
+        return _setRole(Constants.COMMUNITY_ADMIN_ACCESS, account);
     }
 
     /// @inheritdoc IJoinNFT
     function setModerator(address account) public override notBlock(account) returns (bool) {
-        if (hasRole(Constants.COMMUNITY_ADMIN_ACCESS, _msgSender())) {
-            return _setRole(Constants.COMMUNITY_MODERATOR_ACCESS, account);
-        }
-        revert OspErrors.JoinNFTUnauthorizedAccount();
+        return _setRole(Constants.COMMUNITY_MODERATOR_ACCESS, account);
+    }
+
+    /// @inheritdoc IJoinNFT
+    function removeRole(address account) public override returns (bool) {
+        return _setRole(Constants.COMMUNITY_MEMBER_ACCESS, account);
     }
 
     /// @inheritdoc IJoinNFT
@@ -183,15 +182,16 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
      * @dev Grant a role to an account.
      */
     function _setRole(uint256 role, address account) internal returns (bool) {
-        if (role != Constants.COMMUNITY_MEMBER_ACCESS && balanceOf(account) == 0)
-            revert OspErrors.NotJoinCommunity();
-
         address sender = _msgSender();
         uint256 senderRole = _role[sender];
         uint256 oldRole = _role[account];
 
-        if ((!_isCommunityOwner(_msgSender()) && senderRole <= oldRole) || role >= senderRole) {
-            revert OspErrors.JoinNFTUnauthorizedAccount();
+        if (balanceOf(account) == 0) {
+            if (role != Constants.COMMUNITY_MEMBER_ACCESS) revert OspErrors.NotJoinCommunity();
+        } else {
+            if (!_isCommunityOwner(_msgSender()) && (senderRole <= oldRole || role >= senderRole)) {
+                revert OspErrors.JoinNFTUnauthorizedAccount();
+            }
         }
 
         if (oldRole != role) {
