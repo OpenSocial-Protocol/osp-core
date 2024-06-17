@@ -59,12 +59,12 @@ interface IJoinNFT {
     /**
      * @dev Sets the member level for the specified account.
      *
-     * @param account The account to set the member level for.
+     * @param tokenId The tokenId to set the member level for.
      * @param level The level to set for the account.
      *
      * @return bool A boolean indicating whether the operation was successful.
      */
-    function setMemberLevel(address account, uint256 level) external returns (bool);
+    function setMemberLevel(uint256 tokenId, uint256 level) external returns (bool);
 
     /**
      * @dev Adds or removes the specified account from the block list.
@@ -97,6 +97,11 @@ interface IJoinNFT {
      * @dev Returns the member level of the account.
      */
     function getMemberLevel(address account) external view returns (uint256);
+
+    /**
+     * @dev Returns the member level of the tokenId.
+     */
+    function getMemberLevel(uint256 tokenId) external view returns (uint256);
 
     /**
      * @dev Returns the block status of the account.

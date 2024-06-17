@@ -176,13 +176,15 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
         vm.expectEmit(address(ospClient));
         emit OspEvents.JoinNFTAccountLevelChanged(
             TEST_COMMUNITY_ID,
+            memberJoinNFTTokenId,
             sender,
             member,
+            address(joinNFT),
             newLevel,
             block.timestamp
         );
         vm.prank(sender);
-        assert(joinNFT.setMemberLevel(member, newLevel));
+        assert(joinNFT.setMemberLevel(memberJoinNFTTokenId, newLevel));
         assertEq(joinNFT.getMemberLevel(member), newLevel);
         assertEq(ospClient.getCommunityMemberLevel(TEST_COMMUNITY_ID, member), newLevel);
     }
@@ -190,7 +192,7 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
     function testRevert_SetMemberLevel_NotOwnerOrAdminOrMod() public {
         vm.expectRevert(OspErrors.JoinNFTUnauthorizedAccount.selector);
         vm.prank(member);
-        joinNFT.setMemberLevel(member, 10);
+        joinNFT.setMemberLevel(memberJoinNFTTokenId, 10);
     }
 
     // block list test

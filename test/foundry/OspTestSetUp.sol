@@ -648,8 +648,8 @@ abstract contract OspTestSetUp is OspTestConstant {
         );
         ospRouter.addRouter(
             IRouter.Router({
-                functionSelector: hex'27450d9e',
-                functionSignature: 'emitJoinNFTAccountLevelChangedEvent(uint256,address,address,uint256)',
+                functionSelector: hex'f663861a',
+                functionSignature: 'emitJoinNFTAccountLevelChangedEvent(uint256,address,uint256,address,uint256)',
                 routerAddress: address(relationLogic)
             })
         );

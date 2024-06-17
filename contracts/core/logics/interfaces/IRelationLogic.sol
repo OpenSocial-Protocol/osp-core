@@ -170,6 +170,7 @@ interface IRelationLogic {
     function emitJoinNFTAccountLevelChangedEvent(
         uint256 communityId,
         address sender,
+        uint256 tokenId,
         address account,
         uint256 level
     ) external;

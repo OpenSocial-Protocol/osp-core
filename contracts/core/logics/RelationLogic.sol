@@ -197,13 +197,17 @@ contract RelationLogic is IRelationLogic, OspLogicBase {
     function emitJoinNFTAccountLevelChangedEvent(
         uint256 communityId,
         address sender,
+        uint256 tokenId,
         address account,
         uint256 level
     ) external override onlyJoinNFT(communityId) {
+        address joinNFT = _getCommunityStorage()._communityById[communityId].joinNFT;
         emit OspEvents.JoinNFTAccountLevelChanged(
             communityId,
+            tokenId,
             sender,
             account,
+            joinNFT,
             level,
             block.timestamp
         );

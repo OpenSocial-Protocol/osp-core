@@ -355,8 +355,10 @@ library OspEvents {
 
     event JoinNFTAccountLevelChanged(
         uint256 indexed communityId,
+        uint256 indexed tokenId,
         address indexed sender,
-        address indexed account,
+        address account,
+        address communityJoinNFT,
         uint256 level,
         uint256 timestamp
     );

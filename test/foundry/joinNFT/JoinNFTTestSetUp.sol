@@ -10,6 +10,7 @@ contract JoinNFTTestSetUp is CreateCommunityTestSetUp {
     address mod;
     uint256 modProfileId;
     address member;
+    uint256 memberJoinNFTTokenId;
     uint256 memberProfileId;
 
     JoinNFT joinNFT;
@@ -71,7 +72,7 @@ contract JoinNFTTestSetUp is CreateCommunityTestSetUp {
         memberProfileId = ospClient.createProfile(
             OspDataTypes.CreateProfileData('handle_member', EMPTY_BYTES, 0, EMPTY_BYTES)
         );
-        ospClient.join(
+        memberJoinNFTTokenId = ospClient.join(
             OspDataTypes.JoinData({
                 communityId: TEST_COMMUNITY_ID,
                 data: EMPTY_BYTES,

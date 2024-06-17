@@ -24,7 +24,7 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
     uint256 internal _tokenIdCounter;
     mapping(address => bool) internal _blockList;
     mapping(address => uint256) internal _role;
-    mapping(address => uint256) internal _level;
+    mapping(uint256 => uint256) internal _level;
 
     modifier notBlock(address account) {
         if (_blockList[account]) revert OspErrors.JoinNFTBlocked();
@@ -76,17 +76,15 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
     }
 
     /// @inheritdoc IJoinNFT
-    function setMemberLevel(
-        address account,
-        uint256 level
-    ) public override notBlock(account) returns (bool) {
+    function setMemberLevel(uint256 tokenId, uint256 level) public override returns (bool) {
         if (hasRole(Constants.COMMUNITY_MODERATOR_ACCESS, _msgSender())) {
-            if (_level[account] != level) {
-                _level[account] = level;
+            if (_level[tokenId] != level) {
+                _level[tokenId] = level;
                 OspClient(OSP).emitJoinNFTAccountLevelChangedEvent(
                     _communityId,
                     _msgSender(),
-                    account,
+                    tokenId,
+                    ownerOf(tokenId),
                     level
                 );
                 return true;
@@ -151,7 +149,12 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
 
     /// @inheritdoc IJoinNFT
     function getMemberLevel(address account) external view override returns (uint256) {
-        return _level[account];
+        return _level[tokenOfOwnerByIndex(account, 0)];
+    }
+
+    /// @inheritdoc IJoinNFT
+    function getMemberLevel(uint256 tokenId) external view override returns (uint256) {
+        return _level[tokenId];
     }
 
     /// @inheritdoc IJoinNFT
