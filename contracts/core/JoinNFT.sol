@@ -61,32 +61,17 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
     }
 
     /// @inheritdoc IJoinNFT
-    function setAdmin(
-        address account,
-        bool enable
-    ) public override notBlock(account) returns (bool) {
+    function setAdmin(address account) public override notBlock(account) returns (bool) {
         if (_isCommunityOwner(_msgSender())) {
-            return
-                enable
-                    ? _setRole(Constants.COMMUNITY_ADMIN_ACCESS, account)
-                    : _setRole(Constants.COMMUNITY_MEMBER_ACCESS, account);
+            return _setRole(Constants.COMMUNITY_ADMIN_ACCESS, account);
         }
         revert OspErrors.NotCommunityOwner();
     }
 
     /// @inheritdoc IJoinNFT
-    function setModerator(
-        address account,
-        bool enable
-    ) public override notBlock(account) returns (bool) {
-        if (
-            hasOneRole(Constants.COMMUNITY_ADMIN_ACCESS, _msgSender()) ||
-            _isCommunityOwner(_msgSender())
-        ) {
-            return
-                enable
-                    ? _setRole(Constants.COMMUNITY_MODERATOR_ACCESS, account)
-                    : _setRole(Constants.COMMUNITY_MEMBER_ACCESS, account);
+    function setModerator(address account) public override notBlock(account) returns (bool) {
+        if (hasRole(Constants.COMMUNITY_ADMIN_ACCESS, _msgSender())) {
+            return _setRole(Constants.COMMUNITY_MODERATOR_ACCESS, account);
         }
         revert OspErrors.JoinNFTUnauthorizedAccount();
     }
@@ -96,12 +81,7 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
         address account,
         uint256 level
     ) public override notBlock(account) returns (bool) {
-        if (
-            hasOneRole(
-                Constants.COMMUNITY_ADMIN_ACCESS | Constants.COMMUNITY_MODERATOR_ACCESS,
-                _msgSender()
-            ) || _isCommunityOwner(_msgSender())
-        ) {
+        if (hasRole(Constants.COMMUNITY_MODERATOR_ACCESS, _msgSender())) {
             if (_level[account] != level) {
                 _level[account] = level;
                 OspClient(OSP).emitJoinNFTAccountLevelChangedEvent(
@@ -119,12 +99,7 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
 
     /// @inheritdoc IJoinNFT
     function setBlockList(address account, bool enable) public override returns (bool) {
-        if (
-            hasOneRole(
-                Constants.COMMUNITY_ADMIN_ACCESS | Constants.COMMUNITY_MODERATOR_ACCESS,
-                _msgSender()
-            ) || _isCommunityOwner(_msgSender())
-        ) {
+        if (hasRole(Constants.COMMUNITY_MODERATOR_ACCESS, _msgSender())) {
             if (_blockList[account] != enable) {
                 _blockList[account] = enable;
                 OspClient(OSP).emitJoinNFTAccountBlockedEvent(
@@ -166,13 +141,13 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
     }
 
     /// @inheritdoc IJoinNFT
-    function hasOneRole(uint256 roles, address account) public view override returns (bool) {
-        return _role[account] & roles != 0;
+    function hasRole(uint256 roles, address account) public view override returns (bool) {
+        return _role[account] >= roles || _isCommunityOwner(_msgSender());
     }
 
     /// @inheritdoc IJoinNFT
-    function hasAllRole(uint256 roles, address account) public view override returns (bool) {
-        return _role[account] & roles == roles;
+    function getRole(address account) public view override returns (uint256) {
+        return _role[account];
     }
 
     /// @inheritdoc IJoinNFT
@@ -200,7 +175,7 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
         OspClient(OSP).emitJoinNFTTransferEvent(_communityId, tokenId, from, to);
     }
 
-    function _isCommunityOwner(address account) internal returns (bool) {
+    function _isCommunityOwner(address account) internal view returns (bool) {
         return IERC721(OspClient(OSP).getCommunityNFT()).ownerOf(_communityId) == account;
     }
 
@@ -210,10 +185,18 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
     function _setRole(uint256 role, address account) internal returns (bool) {
         if (role != Constants.COMMUNITY_MEMBER_ACCESS && balanceOf(account) == 0)
             revert OspErrors.NotJoinCommunity();
+
+        address sender = _msgSender();
+        uint256 senderRole = _role[sender];
         uint256 oldRole = _role[account];
+
+        if ((!_isCommunityOwner(_msgSender()) && senderRole <= oldRole) || role >= senderRole) {
+            revert OspErrors.JoinNFTUnauthorizedAccount();
+        }
+
         if (oldRole != role) {
             _role[account] = role;
-            OspClient(OSP).emitJoinNFTRoleChangedEvent(_communityId, _msgSender(), account, role);
+            OspClient(OSP).emitJoinNFTRoleChangedEvent(_communityId, sender, account, role);
             return true;
         }
         return false;

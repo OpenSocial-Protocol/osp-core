@@ -104,23 +104,22 @@ contract RelationLogic is IRelationLogic, OspLogicBase {
     }
 
     /// @inheritdoc IRelationLogic
-    function hasOneCommunityRole(
+    function hasCommunityRole(
         uint256 communityId,
         uint256 role,
         address account
     ) external view override returns (bool) {
         address joinNFT = _getCommunityStorage()._communityById[communityId].joinNFT;
-        return IJoinNFT(joinNFT).hasOneRole(role, account);
+        return IJoinNFT(joinNFT).hasRole(role, account);
     }
 
     /// @inheritdoc IRelationLogic
-    function hasAllCommunityRole(
+    function getCommunityRole(
         uint256 communityId,
-        uint256 role,
         address account
-    ) external view override returns (bool) {
+    ) external view returns (uint256) {
         address joinNFT = _getCommunityStorage()._communityById[communityId].joinNFT;
-        return IJoinNFT(joinNFT).hasAllRole(role, account);
+        return IJoinNFT(joinNFT).getRole(account);
     }
 
     /// @inheritdoc IRelationLogic

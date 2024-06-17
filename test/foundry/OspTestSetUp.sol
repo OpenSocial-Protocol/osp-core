@@ -683,6 +683,13 @@ abstract contract OspTestSetUp is OspTestConstant {
         );
         ospRouter.addRouter(
             IRouter.Router({
+                functionSelector: hex'274a5bca',
+                functionSignature: 'getCommunityRole(uint256,address)',
+                routerAddress: address(relationLogic)
+            })
+        );
+        ospRouter.addRouter(
+            IRouter.Router({
                 functionSelector: hex'54579157',
                 functionSignature: 'getFollowSBTURI(uint256,uint256)',
                 routerAddress: address(relationLogic)
@@ -697,15 +704,8 @@ abstract contract OspTestSetUp is OspTestConstant {
         );
         ospRouter.addRouter(
             IRouter.Router({
-                functionSelector: hex'cebd5a59',
-                functionSignature: 'hasAllCommunityRole(uint256,uint256,address)',
-                routerAddress: address(relationLogic)
-            })
-        );
-        ospRouter.addRouter(
-            IRouter.Router({
-                functionSelector: hex'd2d0c246',
-                functionSignature: 'hasOneCommunityRole(uint256,uint256,address)',
+                functionSelector: hex'bf642163',
+                functionSignature: 'hasCommunityRole(uint256,uint256,address)',
                 routerAddress: address(relationLogic)
             })
         );

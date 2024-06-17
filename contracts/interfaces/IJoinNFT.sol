@@ -33,21 +33,19 @@ interface IJoinNFT {
      * @dev Sets the admin role for the specified account.
      *
      * @param account The account to set the admin role for.
-     * @param enable A boolean indicating whether to enable or disable the admin role.
      *
      * @return bool A boolean indicating whether the operation was successful.
      */
-    function setAdmin(address account, bool enable) external returns (bool);
+    function setAdmin(address account) external returns (bool);
 
     /**
      * @dev Sets the mods role for the specified account.
      *
      * @param account The account to set the mods role for.
-     * @param enable A boolean indicating whether to enable or disable the mods role.
      *
      * @return bool A boolean indicating whether the operation was successful.
      */
-    function setModerator(address account, bool enable) external returns (bool);
+    function setModerator(address account) external returns (bool);
 
     /**
      * @dev Sets the member level for the specified account.
@@ -79,12 +77,12 @@ interface IJoinNFT {
     /**
      * @dev Returns `true` if `account` has been granted the `role`.
      */
-    function hasOneRole(uint256 roles, address account) external view returns (bool);
+    function hasRole(uint256 roles, address account) external view returns (bool);
 
     /**
-     * @dev Returns `true` if `account` has been granted all `role`.
+     * @dev Returns the role of the account.
      */
-    function hasAllRole(uint256 roles, address account) external view returns (bool);
+    function getRole(address account) external view returns (uint256);
 
     /**
      * @dev Returns the member level of the account.

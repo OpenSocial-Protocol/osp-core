@@ -79,24 +79,19 @@ interface IRelationLogic {
      * @param role The role to check for.
      * @param account The account to check the role for.
      */
-    function hasOneCommunityRole(
+    function hasCommunityRole(
         uint256 communityId,
         uint256 role,
         address account
     ) external view returns (bool);
 
     /**
-     * @dev Returns `true` if the account has all the specified roles in the community.
+     * @dev Returns the role of the account in the community.
      *
-     * @param communityId The community ID to check the roles for.
-     * @param role The roles to check for.
-     * @param account The account to check the roles for.
+     * @param communityId The community ID to get the role.
+     * @param account The account to get role for.
      */
-    function hasAllCommunityRole(
-        uint256 communityId,
-        uint256 role,
-        address account
-    ) external view returns (bool);
+    function getCommunityRole(uint256 communityId, address account) external view returns (uint256);
 
     /**
      * @dev Returns the level of the account in the community.
