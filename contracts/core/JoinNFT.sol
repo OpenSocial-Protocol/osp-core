@@ -183,12 +183,12 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
      */
     function _setRole(uint256 role, address account) internal returns (bool) {
         address sender = _msgSender();
-        uint256 senderRole = _role[sender];
         uint256 oldRole = _role[account];
 
         if (balanceOf(account) == 0) {
             if (role != Constants.COMMUNITY_MEMBER_ACCESS) revert OspErrors.NotJoinCommunity();
         } else {
+            uint256 senderRole = _role[sender];
             if (!_isCommunityOwner(_msgSender()) && (senderRole <= oldRole || role >= senderRole)) {
                 revert OspErrors.JoinNFTUnauthorizedAccount();
             }
