@@ -73,6 +73,7 @@ contract FixFeeCondTest is OspTestSetUp {
     }
 
     function testCreateCommunity_WithPresaleCond() public {
+        vm.warp(99);
         vm.deal(user1, 8 ether);
         bytes32 hash = keccak256(
             abi.encodePacked(
