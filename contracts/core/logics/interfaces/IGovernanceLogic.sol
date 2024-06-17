@@ -155,4 +155,14 @@ interface IGovernanceLogic is IERC4906, IERC5267, IAccessControl, IContractMetad
      * @dev Get The treasure address.
      */
     function getTreasureAddress() external view returns (address);
+
+    /**
+     * @dev Set the royalty fee for the join NFT.
+     */
+    function setJoinNFTRoyalty(address receiver, uint96 feeNumerator) external;
+
+    function joinNFTRoyaltyInfo(
+        uint256 tokenId,
+        uint256 salePrice
+    ) external view returns (address receiver, uint256 royaltyAmount);
 }

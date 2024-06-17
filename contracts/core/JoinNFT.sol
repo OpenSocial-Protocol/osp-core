@@ -11,13 +11,14 @@ import {OspNFTBase, ERC721Upgradeable} from './base/OspNFTBase.sol';
 import {OspClient} from './logics/interfaces/OspClient.sol';
 
 import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
+import {IERC2981} from '@openzeppelin/contracts/interfaces/IERC2981.sol';
 
 /**
  * @title JoinNFT
  * @author OpenSocial Protocol
  * @dev This is the NFT contract that is minted upon joining a community. It is cloned upon first community is created.
  */
-contract JoinNFT is OspNFTBase, IJoinNFT {
+contract JoinNFT is OspNFTBase, IJoinNFT, IERC2981 {
     address public immutable OSP;
 
     uint256 internal _communityId;
@@ -160,6 +161,14 @@ contract JoinNFT is OspNFTBase, IJoinNFT {
     /// @inheritdoc IJoinNFT
     function isBlock(address account) external view override returns (bool) {
         return _blockList[account];
+    }
+
+    /// @inheritdoc IERC2981
+    function royaltyInfo(
+        uint256 tokenId,
+        uint256 salePrice
+    ) external view returns (address receiver, uint256 royaltyAmount) {
+        return OspClient(OSP).joinNFTRoyaltyInfo(tokenId, salePrice);
     }
 
     /**

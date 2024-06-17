@@ -75,6 +75,7 @@ abstract contract OspStorage {
         mapping(address => bool) _tokenWhitelisted;
         mapping(address => bool) _superCommunityCreatorWhitelisted;
         address _treasure;
+        OspDataTypes.RoyaltyInfo _joinNFTRoyaltyInfo;
     }
 
     function _getGovernanceStorage()

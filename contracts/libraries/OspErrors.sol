@@ -54,6 +54,7 @@ library OspErrors {
     error InitParamsInvalid();
     error ERC6551AccountImplNotDeployed();
     error DataMismatch();
+    error InvalidAddress();
 
     //Plugin Errors
     error PluginNotEnable();

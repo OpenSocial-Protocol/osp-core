@@ -8,13 +8,14 @@ import '../libraries/OspErrors.sol';
 import './base/OspNFTBase.sol';
 import './base/IERC4906.sol';
 import '@thirdweb-dev/contracts/extension/upgradeable/ContractMetadata.sol';
+import '@openzeppelin/contracts-upgradeable/token/common/ERC2981Upgradeable.sol';
 
 /**
  * @title CommunityNFT
  * @author OpenSocial Protocol
  * @dev This NFT contract is minted upon community is created.
  */
-contract CommunityNFT is OspNFTBase, ContractMetadata, ICommunityNFT, IERC4906 {
+contract CommunityNFT is OspNFTBase, ContractMetadata, ICommunityNFT, IERC4906, ERC2981Upgradeable {
     address public immutable OSP;
     uint256 internal _tokenIdCounter;
 
@@ -48,6 +49,13 @@ contract CommunityNFT is OspNFTBase, ContractMetadata, ICommunityNFT, IERC4906 {
         super._afterTokenTransfer(from, to, tokenId);
     }
 
+    function setTokenRoyalty(address receiver, uint96 feeNumerator) external {
+        if (!OspClient(OSP).hasRole(Constants.GOVERNANCE, _msgSender())) {
+            revert OspErrors.NotGovernance();
+        }
+        _setDefaultRoyalty(receiver, feeNumerator);
+    }
+
     function updateMetadata() external override {
         emit BatchMetadataUpdate(1, type(uint256).max);
     }
@@ -58,5 +66,13 @@ contract CommunityNFT is OspNFTBase, ContractMetadata, ICommunityNFT, IERC4906 {
 
     function _canSetContractURI() internal view override returns (bool) {
         return OspClient(OSP).hasRole(Constants.GOVERNANCE, _msgSender());
+    }
+
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override(OspNFTBase, ERC2981Upgradeable) returns (bool) {
+        return
+            ERC2981Upgradeable.supportsInterface(interfaceId) ||
+            OspNFTBase.supportsInterface(interfaceId);
     }
 }

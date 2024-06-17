@@ -283,4 +283,9 @@ library OspDataTypes {
         uint256[] values;
         bytes ctx;
     }
+
+    struct RoyaltyInfo {
+        address receiver;
+        uint96 royaltyFraction;
+    }
 }
