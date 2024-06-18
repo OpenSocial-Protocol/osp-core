@@ -140,7 +140,7 @@ contract JoinNFT is OspNFTBase, IJoinNFT, IERC2981 {
 
     /// @inheritdoc IJoinNFT
     function hasRole(uint256 roles, address account) public view override returns (bool) {
-        return _role[account] >= roles || _isCommunityOwner(_msgSender());
+        return _role[account] >= roles || _isCommunityOwner(account);
     }
 
     /// @inheritdoc IJoinNFT
@@ -201,7 +201,7 @@ contract JoinNFT is OspNFTBase, IJoinNFT, IERC2981 {
             if (role != Constants.COMMUNITY_MEMBER_ACCESS) revert OspErrors.NotJoinCommunity();
         } else {
             uint256 senderRole = _role[sender];
-            if (!_isCommunityOwner(_msgSender()) && (senderRole <= oldRole || role >= senderRole)) {
+            if (!_isCommunityOwner(sender) && (senderRole <= oldRole || role >= senderRole)) {
                 revert OspErrors.JoinNFTUnauthorizedAccount();
             }
         }
