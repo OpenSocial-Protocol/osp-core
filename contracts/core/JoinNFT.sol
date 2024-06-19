@@ -73,7 +73,7 @@ contract JoinNFT is OspNFTBase, IJoinNFT, IERC2981 {
 
     /// @inheritdoc IJoinNFT
     function removeRole(address account) public override returns (bool) {
-        return _setRole(Constants.COMMUNITY_MEMBER_ACCESS, account);
+        return _setRole(Constants.COMMUNITY_NULL_ACCESS, account);
     }
 
     /// @inheritdoc IJoinNFT
@@ -181,7 +181,7 @@ contract JoinNFT is OspNFTBase, IJoinNFT, IERC2981 {
         super._afterTokenTransfer(from, to, tokenId);
         if (to != address(0) && balanceOf(to) > 1) revert OspErrors.JoinNFTDuplicated();
         if (from != address(0)) {
-            _setRole(Constants.COMMUNITY_MEMBER_ACCESS, from);
+            _setRole(Constants.COMMUNITY_NULL_ACCESS, from);
         }
         OspClient(OSP).emitJoinNFTTransferEvent(_communityId, tokenId, from, to);
     }
@@ -198,7 +198,7 @@ contract JoinNFT is OspNFTBase, IJoinNFT, IERC2981 {
         uint256 oldRole = _role[account];
 
         if (balanceOf(account) == 0) {
-            if (role != Constants.COMMUNITY_MEMBER_ACCESS) revert OspErrors.NotJoinCommunity();
+            if (role != Constants.COMMUNITY_NULL_ACCESS) revert OspErrors.NotJoinCommunity();
         } else {
             uint256 senderRole = _role[sender];
             if (!_isCommunityOwner(sender) && (senderRole <= oldRole || role >= senderRole)) {
