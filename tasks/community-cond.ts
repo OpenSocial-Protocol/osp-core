@@ -44,7 +44,7 @@ task('deploy-fixed-fee-cond-create2')
         price5Letter: ethers.utils.parseEther('0.004'),
         price6Letter: ethers.utils.parseEther('0.002'),
         price7ToMoreLetter: ethers.utils.parseEther('0.001'),
-        createStartTime: 1716134400, // 2024-05-20 00:00:00
+        createStartTime: 1721404800, // 2024-07-20 00:00:00
         treasure: deployer.getAddress(),
       })
     );
@@ -99,6 +99,7 @@ task('redeploy-whitelist-cond-create2')
   });
 
 //dev PresaleSigCommunityCond deployed at 0x4519a02901d0881daC65C54C8CAD619d0C0ED97d
+//beta PresaleSigCommunityCond deployed at 0x2210BA143E2c6144F11F23C4267E0830224F2dAF
 task('deploy-presale-sig-cond')
   .addParam('env')
   .setAction(async ({ env }, hre) => {
