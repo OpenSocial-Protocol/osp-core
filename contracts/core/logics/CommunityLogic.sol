@@ -262,8 +262,7 @@ contract CommunityLogic is OspLogicBase, ICommunityLogic {
             if (
                 (byteHandle[i] < '0' ||
                     byteHandle[i] > 'z' ||
-                    (byteHandle[i] > '9' && byteHandle[i] < 'A') ||
-                    (byteHandle[i] > 'Z' && byteHandle[i] < 'a')) && byteHandle[i] != '_'
+                    (byteHandle[i] > '9' && byteHandle[i] < 'a')) && byteHandle[i] != '_'
             ) revert OspErrors.HandleContainsInvalidCharacters();
             unchecked {
                 ++i;
