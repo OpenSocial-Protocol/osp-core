@@ -67,11 +67,8 @@ task('add-whitelist-app')
   .addParam('whitelist')
   .setAction(async ({ env, address, whitelist }, hre) => {
     const addresses = getAddresses(hre, env);
-    const whitelistAddressCommunityCond = OspClient__factory.connect(
-      addresses.routerProxy,
-      await getDeployer(hre)
-    );
-    await waitForTx(whitelistAddressCommunityCond.whitelistApp(address, whitelist == 'true'));
+    const ospClient = OspClient__factory.connect(addresses.routerProxy, await getDeployer(hre));
+    await waitForTx(ospClient.whitelistApp(address, whitelist == 'true'));
   });
 
 task('set-treasure-address')
@@ -256,4 +253,14 @@ task('update-joinNFT')
       `addresses-${env}-${hre.network.name}.json`,
       JSON.stringify(addresses, null, 2)
     );
+  });
+
+task('add-whitelist-token')
+  .addParam('env')
+  .addParam('address')
+  .addParam('whitelist')
+  .setAction(async ({ env, address, whitelist }, hre) => {
+    const addresses = getAddresses(hre, env);
+    const ospClient = OspClient__factory.connect(addresses.routerProxy, await getDeployer(hre));
+    await waitForTx(ospClient.whitelistToken(address, whitelist == 'true'));
   });
