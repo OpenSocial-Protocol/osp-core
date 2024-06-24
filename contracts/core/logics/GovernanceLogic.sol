@@ -121,13 +121,18 @@ contract GovernanceLogic is
     }
 
     function setJoinNFTRoyalty(
-        address receiver,
-        uint96 feeNumerator
+        uint128 royaltyFraction,
+        uint128 ospTreasureFraction
     ) external onlyRole(Constants.GOVERNANCE) {
-        if (receiver == address(0)) revert OspErrors.InvalidAddress();
+        if (
+            royaltyFraction > Constants.ROYALTY_DENOMINATOR ||
+            ospTreasureFraction > Constants.ROYALTY_DENOMINATOR
+        ) {
+            revert OspErrors.InvalidParam();
+        }
         _getGovernanceStorage()._joinNFTRoyaltyInfo = OspDataTypes.RoyaltyInfo({
-            receiver: receiver,
-            royaltyFraction: feeNumerator
+            royaltyFraction: royaltyFraction,
+            ospTreasureFraction: ospTreasureFraction
         });
     }
 
@@ -212,13 +217,14 @@ contract GovernanceLogic is
         return _getGovernanceStorage()._treasure;
     }
 
-    function joinNFTRoyaltyInfo(
-        uint256 tokenId,
-        uint256 salePrice
-    ) external view returns (address receiver, uint256 royaltyAmount) {
+    function joinNFTRoyaltyInfo()
+        external
+        view
+        returns (uint128 royaltyFraction, uint128 ospTreasureFraction)
+    {
         OspDataTypes.RoyaltyInfo memory joinNFTRoyalty = _getGovernanceStorage()
             ._joinNFTRoyaltyInfo;
-        return (joinNFTRoyalty.receiver, (salePrice * joinNFTRoyalty.royaltyFraction) / 10000);
+        return (joinNFTRoyalty.royaltyFraction, joinNFTRoyalty.ospTreasureFraction);
     }
 
     function _canSetContractURI() internal view override returns (bool) {

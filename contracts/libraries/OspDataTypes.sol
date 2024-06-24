@@ -285,7 +285,7 @@ library OspDataTypes {
     }
 
     struct RoyaltyInfo {
-        address receiver;
-        uint96 royaltyFraction;
+        uint128 royaltyFraction;
+        uint128 ospTreasureFraction;
     }
 }

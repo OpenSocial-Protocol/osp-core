@@ -7,11 +7,13 @@ import {OspErrors} from '../libraries/OspErrors.sol';
 import {OspEvents} from '../libraries/OspEvents.sol';
 import {Constants} from '../libraries/Constants.sol';
 import {OspDataTypes} from '../libraries/OspDataTypes.sol';
+import {Payment} from '../libraries/Payment.sol';
 import {OspNFTBase, ERC721Upgradeable} from './base/OspNFTBase.sol';
 import {OspClient} from './logics/interfaces/OspClient.sol';
 
 import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import {IERC2981} from '@openzeppelin/contracts/interfaces/IERC2981.sol';
+import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 /**
  * @title JoinNFT
@@ -19,6 +21,8 @@ import {IERC2981} from '@openzeppelin/contracts/interfaces/IERC2981.sol';
  * @dev This is the NFT contract that is minted upon joining a community. It is cloned upon first community is created.
  */
 contract JoinNFT is OspNFTBase, IJoinNFT, IERC2981 {
+    using Payment for address;
+
     address public immutable OSP;
 
     uint256 internal _communityId;
@@ -113,6 +117,26 @@ contract JoinNFT is OspNFTBase, IJoinNFT, IERC2981 {
         revert OspErrors.JoinNFTUnauthorizedAccount();
     }
 
+    function withdraw(address token) external {
+        OspClient ospClient = OspClient(OSP);
+        (uint128 __, uint128 ospTreasureFraction) = ospClient.joinNFTRoyaltyInfo();
+        address treasureAddress = ospClient.getTreasureAddress();
+        address communityAccount = ospClient.getCommunityAccount(_communityId);
+
+        uint256 value;
+        if (address(0) == token) {
+            value = address(this).balance;
+            uint256 serviceFee = (value * ospTreasureFraction) / Constants.ROYALTY_DENOMINATOR;
+            Payment.payNative(treasureAddress, serviceFee);
+            Payment.payNative(communityAccount, value - serviceFee);
+        } else {
+            value = IERC20(token).balanceOf(address(this));
+            uint256 serviceFee = (value * ospTreasureFraction) / Constants.ROYALTY_DENOMINATOR;
+            token.payERC20(treasureAddress, serviceFee);
+            token.payERC20(communityAccount, value - serviceFee);
+        }
+    }
+
     /// @inheritdoc IJoinNFT
     function getSourceCommunityPointer() external view override returns (uint256) {
         return _communityId;
@@ -168,7 +192,8 @@ contract JoinNFT is OspNFTBase, IJoinNFT, IERC2981 {
         uint256 tokenId,
         uint256 salePrice
     ) external view returns (address receiver, uint256 royaltyAmount) {
-        return OspClient(OSP).joinNFTRoyaltyInfo(tokenId, salePrice);
+        (uint128 royaltyFraction, uint128 __) = OspClient(OSP).joinNFTRoyaltyInfo();
+        return (address(this), (salePrice * royaltyFraction) / Constants.ROYALTY_DENOMINATOR);
     }
 
     /**

@@ -39,22 +39,23 @@ library OspErrors {
     error NotCommunityOwner();
     error NotJoinCommunity();
     error NotFollowProfile();
-    error InvalidProfileId();
-    error InvalidCommunityId();
-    error InvalidValue();
     error NotJoinNFT();
     error NotFollowSBT();
     error NotCommunityNFT();
     error ContentNotPublic();
-    error InvalidToken();
-    error InvalidContentURI();
     error TagDoesNotExist();
     error TooManyTags();
-    error InvalidTreasure();
     error InitParamsInvalid();
     error ERC6551AccountImplNotDeployed();
     error DataMismatch();
+    error InvalidToken();
+    error InvalidContentURI();
+    error InvalidProfileId();
+    error InvalidCommunityId();
+    error InvalidValue();
+    error InvalidTreasure();
     error InvalidAddress();
+    error InvalidParam();
 
     //Plugin Errors
     error PluginNotEnable();

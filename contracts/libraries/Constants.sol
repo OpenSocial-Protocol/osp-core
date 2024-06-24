@@ -29,4 +29,5 @@ library Constants {
     uint256 internal constant COMMUNITY_NULL_ACCESS = 0x00000000;
     uint256 internal constant COMMUNITY_MODERATOR_ACCESS = 0x55555555;
     uint256 internal constant COMMUNITY_ADMIN_ACCESS = 0xaaaaaaaa;
+    uint256 internal constant ROYALTY_DENOMINATOR = 10000;
 }

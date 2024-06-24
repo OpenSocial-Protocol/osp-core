@@ -354,8 +354,8 @@ abstract contract OspTestSetUp is OspTestConstant {
         );
         ospRouter.addRouter(
             IRouter.Router({
-                functionSelector: hex'ec27822d',
-                functionSignature: 'joinNFTRoyaltyInfo(uint256,uint256)',
+                functionSelector: hex'57e22224',
+                functionSignature: 'joinNFTRoyaltyInfo()',
                 routerAddress: address(governanceLogic)
             })
         );
@@ -410,8 +410,8 @@ abstract contract OspTestSetUp is OspTestConstant {
         );
         ospRouter.addRouter(
             IRouter.Router({
-                functionSelector: hex'3c71a5fa',
-                functionSignature: 'setJoinNFTRoyalty(address,uint96)',
+                functionSelector: hex'872b6ec7',
+                functionSignature: 'setJoinNFTRoyalty(uint128,uint128)',
                 routerAddress: address(governanceLogic)
             })
         );
