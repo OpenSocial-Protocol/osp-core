@@ -223,7 +223,7 @@ contract CommunityLogic is OspLogicBase, ICommunityLogic {
             _communityNFT(),
             communityId
         );
-        ERC6551Account(tbaAccount).initialize(communityId);
+        ERC6551Account(payable(tbaAccount)).initialize(communityId);
         return tbaAccount;
     }
 

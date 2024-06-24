@@ -133,5 +133,6 @@ contract ERC6551Account is IERC721Receiver, IERC1155Receiver {
             revert OspErrors.NotCommunityOwner();
     }
 
-    fallback() external {}
+    // solhint-disable-next-line no-empty-blocks
+    receive() external payable {}
 }
