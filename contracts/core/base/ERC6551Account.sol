@@ -132,4 +132,6 @@ contract ERC6551Account is IERC721Receiver, IERC1155Receiver {
         if (account != IERC721(OspClient(OSP).getCommunityNFT()).ownerOf(tokenId))
             revert OspErrors.NotCommunityOwner();
     }
+
+    fallback() external {}
 }
