@@ -71,6 +71,7 @@ task('update-router', 'update-router')
       logicName.at(0).toUpperCase() + logicName.slice(1) + 'Logic',
       deployer
     );
+    await logicContract.deployed();
     console.log(`deploy logic contract: ${logicContract.address}`);
 
     const contractAddress = logicContract.address;
