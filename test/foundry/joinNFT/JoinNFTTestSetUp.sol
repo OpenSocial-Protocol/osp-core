@@ -6,8 +6,10 @@ import '../community/CreateCommunityTestSetUp.sol';
 contract JoinNFTTestSetUp is CreateCommunityTestSetUp {
     address owner;
     address admin;
+    uint256 adminJoinNFTTokenId;
     uint256 adminProfileId;
     address mod;
+    uint256 modJoinNFTTokenId;
     uint256 modProfileId;
     address member;
     uint256 memberJoinNFTTokenId;
@@ -46,7 +48,7 @@ contract JoinNFTTestSetUp is CreateCommunityTestSetUp {
         adminProfileId = ospClient.createProfile(
             OspDataTypes.CreateProfileData('handle_admin', EMPTY_BYTES, 0, EMPTY_BYTES)
         );
-        ospClient.join(
+        adminJoinNFTTokenId = ospClient.join(
             OspDataTypes.JoinData({
                 communityId: TEST_COMMUNITY_ID,
                 data: EMPTY_BYTES,
@@ -59,7 +61,7 @@ contract JoinNFTTestSetUp is CreateCommunityTestSetUp {
         modProfileId = ospClient.createProfile(
             OspDataTypes.CreateProfileData('handle_mod', EMPTY_BYTES, 0, EMPTY_BYTES)
         );
-        ospClient.join(
+        modJoinNFTTokenId = ospClient.join(
             OspDataTypes.JoinData({
                 communityId: TEST_COMMUNITY_ID,
                 data: EMPTY_BYTES,
@@ -85,5 +87,33 @@ contract JoinNFTTestSetUp is CreateCommunityTestSetUp {
         joinNFT.setAdmin(admin);
         joinNFT.setModerator(mod);
         vm.stopPrank();
+    }
+
+    function test_setUp() public {
+        assertTrue(joinNFT.hasRole(Constants.COMMUNITY_ADMIN_ACCESS, owner));
+        assertTrue(joinNFT.hasRole(Constants.COMMUNITY_MODERATOR_ACCESS, owner));
+        assertTrue(joinNFT.hasRole(Constants.COMMUNITY_NULL_ACCESS, owner));
+
+        assertTrue(joinNFT.hasRole(Constants.COMMUNITY_ADMIN_ACCESS, admin));
+        assertTrue(joinNFT.hasRole(Constants.COMMUNITY_MODERATOR_ACCESS, admin));
+        assertTrue(joinNFT.hasRole(Constants.COMMUNITY_NULL_ACCESS, admin));
+
+        assertFalse(joinNFT.hasRole(Constants.COMMUNITY_ADMIN_ACCESS, mod));
+        assertTrue(joinNFT.hasRole(Constants.COMMUNITY_MODERATOR_ACCESS, mod));
+        assertTrue(joinNFT.hasRole(Constants.COMMUNITY_NULL_ACCESS, mod));
+
+        assertFalse(joinNFT.hasRole(Constants.COMMUNITY_ADMIN_ACCESS, member));
+        assertFalse(joinNFT.hasRole(Constants.COMMUNITY_MODERATOR_ACCESS, member));
+        assertTrue(joinNFT.hasRole(Constants.COMMUNITY_NULL_ACCESS, member));
+
+        assertFalse(joinNFT.isBlock(owner));
+        assertFalse(joinNFT.isBlock(admin));
+        assertFalse(joinNFT.isBlock(mod));
+        assertFalse(joinNFT.isBlock(member));
+
+        assertEq(joinNFT.getMemberLevel(owner), 0);
+        assertEq(joinNFT.getMemberLevel(admin), 0);
+        assertEq(joinNFT.getMemberLevel(mod), 0);
+        assertEq(joinNFT.getMemberLevel(member), 0);
     }
 }

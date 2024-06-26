@@ -26,7 +26,7 @@ contract ERC6551AccountTestSetUp is CreateCommunityTestSetUp {
             })
         );
         vm.stopPrank();
-        erc6551Account = ERC6551Account(ospClient.getCommunityAccount(TEST_COMMUNITY_ID));
+        erc6551Account = ERC6551Account(payable(ospClient.getCommunityAccount(TEST_COMMUNITY_ID)));
         JoinNFT joinNFT = JoinNFT(ospClient.getJoinNFT(TEST_COMMUNITY_ID));
         assertEq(address(joinNFT), expectJoinNFTAddress, 'joinNFT not eq');
         OspDataTypes.CommunityStruct memory community = ospClient.getCommunity(TEST_COMMUNITY_ID);

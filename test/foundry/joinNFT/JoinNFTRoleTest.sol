@@ -337,4 +337,55 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
         assertFalse(ospClient.isJoin(TEST_COMMUNITY_ID, admin));
         assertEq(joinNFT.tokenOfOwnerByIndex(to, 0), tokenId);
     }
+
+    function test_burn() public {
+        vm.prank(member);
+        joinNFT.burn(memberJoinNFTTokenId);
+        vm.prank(admin);
+        joinNFT.burn(adminJoinNFTTokenId);
+        vm.prank(mod);
+        joinNFT.burn(modJoinNFTTokenId);
+        vm.prank(owner);
+        joinNFT.burn(1);
+
+        assertTrue(joinNFT.hasRole(Constants.COMMUNITY_ADMIN_ACCESS, owner));
+        assertTrue(joinNFT.hasRole(Constants.COMMUNITY_MODERATOR_ACCESS, owner));
+        assertTrue(joinNFT.hasRole(Constants.COMMUNITY_NULL_ACCESS, owner));
+
+        assertFalse(joinNFT.hasRole(Constants.COMMUNITY_ADMIN_ACCESS, admin));
+        assertFalse(joinNFT.hasRole(Constants.COMMUNITY_MODERATOR_ACCESS, admin));
+        assertTrue(joinNFT.hasRole(Constants.COMMUNITY_NULL_ACCESS, admin));
+
+        assertFalse(joinNFT.hasRole(Constants.COMMUNITY_ADMIN_ACCESS, mod));
+        assertFalse(joinNFT.hasRole(Constants.COMMUNITY_MODERATOR_ACCESS, mod));
+        assertTrue(joinNFT.hasRole(Constants.COMMUNITY_NULL_ACCESS, mod));
+
+        assertFalse(joinNFT.hasRole(Constants.COMMUNITY_ADMIN_ACCESS, member));
+        assertFalse(joinNFT.hasRole(Constants.COMMUNITY_MODERATOR_ACCESS, member));
+        assertTrue(joinNFT.hasRole(Constants.COMMUNITY_NULL_ACCESS, member));
+    }
+
+    function test_transfer() public {
+        uint256 level = 12423;
+        address newAccount = makeAddr('newAccount');
+
+        vm.prank(owner);
+        joinNFT.setMemberLevel(adminJoinNFTTokenId, level);
+
+        assertEq(joinNFT.getMemberLevel(admin), level);
+        assertEq(joinNFT.getMemberLevel(adminJoinNFTTokenId), level);
+
+        vm.prank(admin);
+        joinNFT.safeTransferFrom(admin, newAccount, adminJoinNFTTokenId);
+
+        assertEq(joinNFT.getMemberLevel(newAccount), level);
+        assertEq(joinNFT.getMemberLevel(adminJoinNFTTokenId), level);
+
+        vm.expectRevert(
+            abi.encodeWithSignature('ERC721OutOfBoundsIndex(address,uint256)', admin, 0)
+        );
+        joinNFT.getMemberLevel(admin);
+
+        assertFalse(joinNFT.hasRole(Constants.COMMUNITY_ADMIN_ACCESS, admin));
+    }
 }
