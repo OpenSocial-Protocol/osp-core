@@ -87,7 +87,7 @@ interface IProfileLogic is IERC721Burnable, IERC721Metadata, IERC721Enumerable {
     ) external view returns (OspDataTypes.ProfileStruct memory);
 
     /**
-     * @dev Returns the profile id according to a given address.
+     * @dev Returns the profile id according to a given address. if not found returns 0.
      *
      * @param addr The address to query.
      *
