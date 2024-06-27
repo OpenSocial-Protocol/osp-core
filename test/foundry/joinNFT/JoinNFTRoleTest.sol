@@ -197,15 +197,15 @@ contract JoinNFTRoleTest is JoinNFTTestSetUp {
 
     // block list test
     function test_BlockAccount_Owner() public {
-        _setMemberLevel(owner);
+        _blockAccount(owner);
     }
 
     function test_BlockAccount_Admin() public {
-        _setMemberLevel(admin);
+        _blockAccount(admin);
     }
 
     function test_BlockAccount_Mod() public {
-        _setMemberLevel(mod);
+        _blockAccount(mod);
     }
 
     function _blockAccount(address sender) internal {
