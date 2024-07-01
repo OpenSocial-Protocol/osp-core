@@ -79,6 +79,8 @@ contract FixedFeeCommunityCond is CommunityCondBase {
         if (overpayment > 0) {
             Payment.payNative(to, overpayment);
         }
-        Payment.payNative(OSP.getTreasureAddress(), price);
+        address treasure = OSP.getTreasureAddress();
+        require(treasure != address(0), "Invalid treasure");
+        Payment.payNative(treasure, price);
     }
 }
