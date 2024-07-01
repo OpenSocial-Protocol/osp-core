@@ -45,7 +45,6 @@ task('deploy-fixed-fee-cond-create2')
         price6Letter: ethers.utils.parseEther('0.002'),
         price7ToMoreLetter: ethers.utils.parseEther('0.001'),
         createStartTime: 1721404800, // 2024-07-20 00:00:00
-        treasure: deployer.getAddress(),
       })
     );
     address.fixedFeeCommunityCond = create2.fixedFeeCommunityCond.address;

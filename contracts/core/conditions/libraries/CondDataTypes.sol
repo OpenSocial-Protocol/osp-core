@@ -23,6 +23,5 @@ library CondDataTypes {
         uint256 price6Letter;
         uint256 price7ToMoreLetter;
         uint256 createStartTime;
-        address treasure;
     }
 }

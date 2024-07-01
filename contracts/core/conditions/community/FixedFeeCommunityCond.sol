@@ -56,8 +56,7 @@ contract FixedFeeCommunityCond is CommunityCondBase {
             price5Letter: data.price5Letter,
             price6Letter: data.price6Letter,
             price7ToMoreLetter: data.price7ToMoreLetter,
-            createStartTime: data.createStartTime,
-            treasure: data.treasure
+            createStartTime: data.createStartTime
         });
         emit FixFeeCondDataSet(data, block.timestamp);
     }
@@ -80,6 +79,6 @@ contract FixedFeeCommunityCond is CommunityCondBase {
         if (overpayment > 0) {
             Payment.payNative(to, overpayment);
         }
-        Payment.payNative(fixedFeeCondData.treasure, price);
+        Payment.payNative(OSP.getTreasureAddress(), price);
     }
 }

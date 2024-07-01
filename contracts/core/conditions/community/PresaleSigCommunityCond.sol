@@ -69,7 +69,7 @@ contract PresaleSigCommunityCond is CommunityCondBase {
         }
         (address ticket, uint256 tokenId) = _validateTicketAndSig(to, data);
         uint256 price = CondHelpers.getHandleETHPrice(handle, fixedFeeCondData);
-        _charge(price, to, fixedFeeCondData.treasure);
+        _charge(price, to);
         emit PresaleSigPaid(to, ticket, tokenId, price, handle, block.timestamp);
     }
 
@@ -133,7 +133,7 @@ contract PresaleSigCommunityCond is CommunityCondBase {
         presaleStartTime = _presaleStartTime;
     }
 
-    function _charge(uint256 price, address to, address treasure) internal virtual {
+    function _charge(uint256 price, address to) internal virtual {
         if (msg.value < price) {
             revert CondErrors.InsufficientPayment();
         }
@@ -144,7 +144,7 @@ contract PresaleSigCommunityCond is CommunityCondBase {
         if (overpayment > 0) {
             Payment.payNative(to, overpayment);
         }
-        Payment.payNative(treasure, price);
+        Payment.payNative(OSP.getTreasureAddress(), price);
     }
 
     function _validateTicketAndSig(
@@ -156,16 +156,18 @@ contract PresaleSigCommunityCond is CommunityCondBase {
             uint256 tokenId,
             address holder,
             address target,
+            uint256 chainid,
             bytes memory signature
-        ) = abi.decode(data, (address, uint256, address, address, bytes));
+        ) = abi.decode(data, (address, uint256, address, address, uint256, bytes));
         // the signer determine the relationship between holder and target
         if (
             (_ticketUsed[ticket][tokenId] || IERC721(ticket).ownerOf(tokenId) != holder) ||
-            target != to
+            target != to ||
+            chainid != block.chainid
         ) {
             revert CondErrors.InvalidTicket();
         }
-        bytes32 hash = keccak256(abi.encodePacked(ticket, tokenId, holder, target));
+        bytes32 hash = keccak256(abi.encodePacked(ticket, tokenId, holder, target, chainid));
         if (hash.toEthSignedMessageHash().recover(signature) != signer) {
             revert CondErrors.SignatureInvalid();
         }
