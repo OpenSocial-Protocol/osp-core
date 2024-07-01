@@ -82,6 +82,7 @@ contract JoinNFT is OspNFTBase, IJoinNFT, IERC2981 {
 
     /// @inheritdoc IJoinNFT
     function setMemberLevel(uint256 tokenId, uint256 level) public override returns (bool) {
+        _requireOwned(tokenId);
         if (hasRole(Constants.COMMUNITY_MODERATOR_ACCESS, _msgSender())) {
             if (_level[tokenId] != level) {
                 _level[tokenId] = level;
@@ -207,6 +208,9 @@ contract JoinNFT is OspNFTBase, IJoinNFT, IERC2981 {
         if (to != address(0) && balanceOf(to) > 1) revert OspErrors.JoinNFTDuplicated();
         if (from != address(0)) {
             _setRole(Constants.COMMUNITY_NULL_ACCESS, from);
+        }
+        if (to == address(0)) {
+            _level[tokenId] = 0;
         }
         OspClient(OSP).emitJoinNFTTransferEvent(_communityId, tokenId, from, to);
     }
