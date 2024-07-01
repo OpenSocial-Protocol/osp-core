@@ -65,6 +65,7 @@ contract CommunityLogic is OspLogicBase, ICommunityLogic {
         string[] calldata tags
     ) external override whenNotPaused {
         _validateCallerIsCommunityOwner(communityId);
+        if (tags.length > Constants.MAX_TAGS_NUMBER) revert OspErrors.TooManyTags();
         emit OspEvents.CommunityTagsUpdated(communityId, tags, block.timestamp);
     }
 

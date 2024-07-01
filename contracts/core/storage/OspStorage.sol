@@ -73,7 +73,7 @@ abstract contract OspStorage {
         mapping(address => bool) _appWhitelisted;
         mapping(bytes32 => bool) _reserveCommunityHandleHash;
         mapping(address => bool) _tokenWhitelisted;
-        mapping(address => bool) _superCommunityCreatorWhitelisted;
+        mapping(address => bool) DEPRECATED_superCommunityCreatorWhitelisted;
         address _treasure;
         OspDataTypes.RoyaltyInfo _joinNFTRoyaltyInfo;
     }

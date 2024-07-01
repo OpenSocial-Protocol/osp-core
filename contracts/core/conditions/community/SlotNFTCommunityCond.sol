@@ -86,7 +86,10 @@ contract SlotNFTCommunityCond is CommunityCondBase {
         address addr,
         uint256 tokenId
     ) external view returns (bool) {
-        return !_slotNFTUsed[slot][tokenId] && IERC721(slot).ownerOf(tokenId) == addr;
+        return
+            _slotNFTCondData[slot].whitelist &&
+            !_slotNFTUsed[slot][tokenId] &&
+            IERC721(slot).ownerOf(tokenId) == addr;
     }
 
     function _validateSlotNFT(address addr, address slot, uint256 tokenId) internal view {
