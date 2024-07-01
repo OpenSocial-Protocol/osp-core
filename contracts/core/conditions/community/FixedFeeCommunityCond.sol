@@ -31,7 +31,7 @@ contract FixedFeeCommunityCond is CommunityCondBase {
     function _processCreateCommunity(
         address to,
         string calldata handle,
-        bytes calldata data
+        bytes calldata /*data*/
     ) internal override {
         /// @dev if createStartTime is not set, indicates no initialization.
         if (
