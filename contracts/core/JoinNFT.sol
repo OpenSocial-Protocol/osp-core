@@ -81,8 +81,8 @@ contract JoinNFT is OspNFTBase, IJoinNFT, IERC2981 {
     }
 
     /// @inheritdoc IJoinNFT
-    function setMemberLevel(uint256 tokenId, uint256 level) public override returns (bool) {
-        _requireOwned(tokenId);
+    function setMemberLevel(address account, uint256 level) public override returns (bool) {
+        uint256 tokenId = tokenOfOwnerByIndex(account, 0);
         if (hasRole(Constants.COMMUNITY_MODERATOR_ACCESS, _msgSender())) {
             if (_level[tokenId] != level) {
                 _level[tokenId] = level;
@@ -120,7 +120,7 @@ contract JoinNFT is OspNFTBase, IJoinNFT, IERC2981 {
 
     function withdraw(address token) external {
         OspClient ospClient = OspClient(OSP);
-        (uint128 __, uint128 ospTreasureFraction) = ospClient.joinNFTRoyaltyInfo();
+        (, uint128 ospTreasureFraction) = ospClient.joinNFTRoyaltyInfo();
         address treasureAddress = ospClient.getTreasureAddress();
         address communityAccount = ospClient.getCommunityAccount(_communityId);
 
@@ -190,10 +190,10 @@ contract JoinNFT is OspNFTBase, IJoinNFT, IERC2981 {
 
     /// @inheritdoc IERC2981
     function royaltyInfo(
-        uint256 tokenId,
+        uint256 /*tokenId*/,
         uint256 salePrice
     ) external view returns (address receiver, uint256 royaltyAmount) {
-        (uint128 royaltyFraction, uint128 __) = OspClient(OSP).joinNFTRoyaltyInfo();
+        (uint128 royaltyFraction, ) = OspClient(OSP).joinNFTRoyaltyInfo();
         return (address(this), (salePrice * royaltyFraction) / Constants.ROYALTY_DENOMINATOR);
     }
 

@@ -16,7 +16,7 @@ contract JoinNFTTest is JoinNFTTestSetUp {
         address newAccount = makeAddr('newAccount');
 
         vm.prank(owner);
-        joinNFT.setMemberLevel(memberJoinNFTTokenId, level);
+        joinNFT.setMemberLevel(member, level);
 
         assertEq(joinNFT.getMemberLevel(member), level);
         assertEq(joinNFT.getMemberLevel(memberJoinNFTTokenId), level);
