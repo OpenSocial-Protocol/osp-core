@@ -24,6 +24,8 @@ contract OspTestConstant is Test {
     address immutable user2;
     uint256 immutable user2PK;
 
+    address immutable treasure = makeAddr('treasure');
+
     modifier forUser1() {
         vm.startPrank(user1);
         _;

@@ -76,6 +76,7 @@ abstract contract OspTestSetUp is OspTestConstant {
         ospClient.grantRole(Constants.APP_ADMIN, deployer);
         ospClient.grantRole(Constants.OPERATION, deployer);
         ospClient.grantRole(Constants.STATE_ADMIN, deployer);
+        ospClient.setTreasureAddress(treasure);
         ERC6551Account erc6551AccountImpl = new ERC6551Account(address(ospClient));
         ospClient.setERC6551AccountImpl(address(erc6551AccountImpl));
         //deploy registry
