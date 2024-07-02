@@ -1,11 +1,19 @@
 import { task } from 'hardhat/config';
-import { deployContract, getAddresses, OspAddress } from './helpers/utils';
+import {
+  deployContract,
+  getAddresses,
+  getMulticall3,
+  OspAddress,
+  waitForTx,
+} from './helpers/utils';
 import { getDeployer } from './helpers/kms';
 import {
   CommunityNFT__factory,
   ERC6551Account__factory,
   FixedFeeCommunityCond__factory,
   JoinNFT__factory,
+  OspClient__factory,
+  OspUniversalProxy__factory,
 } from '../target/typechain-types';
 import fs from 'fs';
 import { Contract, ethers } from 'ethers';
@@ -76,7 +84,47 @@ task('step4-0720-updateRouter')
 task('step6-0720-6551Update')
   .addParam('env')
   .setAction(async ({ env }, hre) => {
-    await hre.run('6551-update', { env });
+    const addresses = getAddresses(hre, env);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const deployer = await getDeployer(hre);
+    //update 6551 account
+    const multicall3 = await getMulticall3(hre);
+    const ospClient = OspClient__factory.connect(addresses.routerProxy, deployer);
+    const communityNFT = CommunityNFT__factory.connect(addresses?.communityNFTProxy, deployer);
+    const totalSupply = await communityNFT.totalSupply();
+    const communityIds: Array<number> = [];
+    for (let i = 1; i <= totalSupply.toNumber(); i++) {
+      communityIds.push(i);
+    }
+    const community6551Account = (
+      (
+        await multicall3.callStatic.aggregate(
+          communityIds.map((communityId) => ({
+            target: addresses.routerProxy,
+            callData: ospClient.interface.encodeFunctionData('getCommunityAccount(uint256)', [
+              communityId,
+            ]),
+          }))
+        )
+      ).returnData as Array<string>
+    ).map((bytes) => ethers.utils.defaultAbiCoder.decode(['address'], bytes)[0] as string);
+    const updateCommunityIdCallDatas: Array<{
+      target: string;
+      callData: string;
+      allowFailure: boolean;
+    }> = [];
+    for (const index in communityIds) {
+      updateCommunityIdCallDatas.push({
+        target: community6551Account[index],
+        callData: ERC6551Account__factory.createInterface().encodeFunctionData('setCommunityId', [
+          communityIds[index],
+        ]),
+        allowFailure: false,
+      });
+    }
+    console.log(updateCommunityIdCallDatas);
+    await waitForTx(multicall3.aggregate3(updateCommunityIdCallDatas));
   });
 
 //step7 safe whitelist WhitelistAddressCommunityCond FixedFeeCommunityCond PresaleSigCommunityCond

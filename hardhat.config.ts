@@ -87,9 +87,28 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      sepolia: 'CN139QDHTFY5S28RCNW6IYXHRXJSUMTSCX',
-      polygonMumbai: '8G5TV9IDZSAZUHD4IZXED4V93XP3C2IGP8',
+      sepolia: process.env.ETHERSCAN_API_KEY!,
+      baseSepolia: process.env.BASE_ETHERSCAN_API_KEY!,
+      base: process.env.BASE_ETHERSCAN_API_KEY!,
     },
+    customChains: [
+      {
+        network: 'baseSepolia',
+        chainId: 84532,
+        urls: {
+          apiURL: 'https://api-sepolia.basescan.org/api',
+          browserURL: 'https://sepolia.basescan.org',
+        },
+      },
+      {
+        network: 'base',
+        chainId: 8453,
+        urls: {
+          apiURL: 'https://api.basescan.org/api',
+          browserURL: 'https://basescan.org',
+        },
+      },
+    ],
   },
   gasReporter: {
     enabled: !!process.env.REPORT_GAS,
