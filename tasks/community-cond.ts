@@ -16,7 +16,8 @@ import { ethers } from 'ethers';
 
 task('deploy-fixed-fee-cond-create2')
   .addParam('env')
-  .setAction(async ({ env }, hre) => {
+  .addParam('whitelist')
+  .setAction(async ({ env, whitelist }, hre) => {
     const address: OspAddress = getAddresses(hre, env);
     const deployer = await getDeployer(hre);
     const ospClient = OspClient__factory.connect(address.routerProxy, deployer);
@@ -31,29 +32,40 @@ task('deploy-fixed-fee-cond-create2')
       console.log(create2.fixedFeeCommunityCond);
     }
     await deployCreate2(create2.fixedFeeCommunityCond, deployer);
-    const fixedFeeCond: FixedFeeCommunityCond = FixedFeeCommunityCond__factory.connect(
-      create2.fixedFeeCommunityCond.address,
-      deployer
-    );
-    await waitForTx(
-      fixedFeeCond.setFixedFeeCondData({
-        price1Letter: ethers.utils.parseEther('2.048'),
-        price2Letter: ethers.utils.parseEther('0.256'),
-        price3Letter: ethers.utils.parseEther('0.064'),
-        price4Letter: ethers.utils.parseEther('0.016'),
-        price5Letter: ethers.utils.parseEther('0.004'),
-        price6Letter: ethers.utils.parseEther('0.002'),
-        price7ToMoreLetter: ethers.utils.parseEther('0.001'),
-        createStartTime: 1721404800, // 2024-07-20 00:00:00
-      })
-    );
     address.fixedFeeCommunityCond = create2.fixedFeeCommunityCond.address;
     fs.writeFileSync(
       `addresses-${env}-${hre.network.name}.json`,
       JSON.stringify(address, null, 2),
       'utf-8'
     );
-    await waitForTx(ospClient.whitelistApp(create2.fixedFeeCommunityCond.address, true));
+    if (whitelist == 'true') {
+      await waitForTx(ospClient.whitelistApp(create2.fixedFeeCommunityCond.address, true));
+    }
+  });
+
+task('init-fixed-fee-cond')
+  .addParam('env')
+  .addParam('start')
+  .setAction(async ({ env, start }, hre) => {
+    const address: OspAddress = getAddresses(hre, env);
+    const deployer = await getDeployer(hre);
+    const fixedFeeCond: FixedFeeCommunityCond = FixedFeeCommunityCond__factory.connect(
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      address.fixedFeeCommunityCond!,
+      deployer
+    );
+    await waitForTx(
+      fixedFeeCond.setFixedFeeCondData({
+        price1Letter: ethers.utils.parseEther('2.049'),
+        price2Letter: ethers.utils.parseEther('0.257'),
+        price3Letter: ethers.utils.parseEther('0.065'),
+        price4Letter: ethers.utils.parseEther('0.017'),
+        price5Letter: ethers.utils.parseEther('0.005'),
+        price6Letter: ethers.utils.parseEther('0.003'),
+        price7ToMoreLetter: ethers.utils.parseEther('0.001'),
+        createStartTime: Number(start),
+      })
+    );
   });
 
 task('redeploy-whitelist-cond-create2')
@@ -97,11 +109,12 @@ task('redeploy-whitelist-cond-create2')
     await waitForTx(router.connect(deployer).multicall(initData));
   });
 
-//dev PresaleSigCommunityCond deployed at 0x4519a02901d0881daC65C54C8CAD619d0C0ED97d
-//beta PresaleSigCommunityCond deployed at 0x2210BA143E2c6144F11F23C4267E0830224F2dAF
 task('deploy-presale-sig-cond')
   .addParam('env')
-  .setAction(async ({ env }, hre) => {
+  .addParam('start')
+  .addParam('whitelist')
+  .setAction(async ({ env, start, whitelist }, hre) => {
+    console.log(`env is ${env}, start is ${start}, whitelist is ${whitelist}`);
     const signer: Record<string, string> = {
       dev: '0x511436a5199827dd1aa37462a680921a410d0947',
       beta: '0x511436a5199827dd1aa37462a680921a410d0947',
@@ -118,10 +131,21 @@ task('deploy-presale-sig-cond')
         address.routerProxy,
         fixedFeeCommunityCond,
         signer[env],
-        Math.floor(Date.now() / 1000)
+        Number(start)
       )
     );
     console.log('PresaleSigCommunityCond deployed at', presaleSigCond.address);
-    const ospClient = OspClient__factory.connect(address.routerProxy, deployer);
-    await waitForTx(ospClient.whitelistApp(presaleSigCond.address, true));
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    address.presaleSigCommunityCond = presaleSigCond.address;
+    fs.writeFileSync(
+      `addresses-${env}-${hre.network.name}.json`,
+      JSON.stringify(address, null, 2),
+      'utf-8'
+    );
+    if (whitelist == 'true') {
+      const ospClient = OspClient__factory.connect(address.routerProxy, deployer);
+      await waitForTx(ospClient.whitelistApp(presaleSigCond.address, true));
+      console.log(`whitelist presaleSigCond success`);
+    }
   });
