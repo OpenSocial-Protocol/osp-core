@@ -145,7 +145,7 @@ contract PresaleSigCommunityCond is CommunityCondBase {
             Payment.payNative(to, overpayment);
         }
         address treasure = OSP.getTreasureAddress();
-        require(treasure != address(0), "Invalid treasure");
+        require(treasure != address(0), 'Invalid treasure');
         Payment.payNative(treasure, price);
     }
 
