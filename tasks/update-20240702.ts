@@ -14,6 +14,7 @@ import {
   JoinNFT__factory,
   OspClient__factory,
   OspRouterImmutable__factory,
+  OspUniversalProxy__factory,
 } from '../target/typechain-types';
 import fs from 'fs';
 import { Contract, ethers } from 'ethers';
@@ -87,6 +88,16 @@ task('step5-0702-setImpl')
     const address: OspAddress = getAddresses(hre, env);
     const initData: string[] = [];
     initData.push(
+      OspClient__factory.createInterface().encodeFunctionData('setJoinNFTImpl', [
+        address.joinNFTImpl!,
+      ])
+    );
+    initData.push(
+      OspClient__factory.createInterface().encodeFunctionData('setERC6551AccountImpl', [
+        address.erc6551AccountImpl!,
+      ])
+    );
+    initData.push(
       OspClient__factory.createInterface().encodeFunctionData('whitelistApp', [
         address.whitelistAddressCommunityCond!,
         false,
@@ -108,6 +119,14 @@ task('step5-0702-setImpl')
       initData,
     ]);
     console.log(`router is ${address.routerProxy}, calldata is ${calldata}`);
+    console.log(
+      `communityNFT router is ${
+        address.routerProxy
+      }, calldata is ${OspUniversalProxy__factory.createInterface().encodeFunctionData(
+        'updateToAndCall',
+        [address.communityNFT, []]
+      )}`
+    );
   });
 
 task('step6-0702-6551Update')
