@@ -13,12 +13,11 @@ import {
   FixedFeeCommunityCond__factory,
   JoinNFT__factory,
   OspClient__factory,
-  OspUniversalProxy__factory,
 } from '../target/typechain-types';
 import fs from 'fs';
 import { Contract, ethers } from 'ethers';
 
-task('step1-0720-deploy')
+task('step1-0702-deploy')
   .addParam('env')
   .setAction(async ({ env }, hre) => {
     const address: OspAddress = getAddresses(hre, env);
@@ -45,7 +44,7 @@ task('step1-0720-deploy')
     );
   });
 
-task('step2-0720-setFixedFeeCondData')
+task('step2-0702-setFixedFeeCondData')
   .addParam('start')
   .setAction(async ({ start }) => {
     const calldata = FixedFeeCommunityCond__factory.createInterface().encodeFunctionData(
@@ -66,14 +65,14 @@ task('step2-0720-setFixedFeeCondData')
     console.log(`fixedFeeCommunityCond calldata is ${calldata}`);
   });
 
-task('step3-0720-deployPresale')
+task('step3-0702-deployPresale')
   .addParam('env')
   .addParam('start')
   .setAction(async ({ env, start }, hre) => {
     await hre.run('deploy-presale-sig-cond', { env, start, whitelist: 'false' });
   });
 
-task('step4-0720-updateRouter')
+task('step4-0702-updateRouter')
   .addParam('env')
   .setAction(async ({ env }, hre) => {
     await hre.run('update-router', { env, logic: 'community,profile,content,governance,relation' });
@@ -81,7 +80,7 @@ task('step4-0720-updateRouter')
 
 //step5 safe setImpl
 
-task('step6-0720-6551Update')
+task('step6-0702-6551Update')
   .addParam('env')
   .setAction(async ({ env }, hre) => {
     const addresses = getAddresses(hre, env);
