@@ -17,13 +17,14 @@ import {
 } from '../target/typechain-types';
 import fs from 'fs';
 import { Contract, ethers } from 'ethers';
+import { APP_ADMIN, GOVERNANCE, OPERATION, STATE_ADMIN } from '../config/osp';
 
 task('step1-0702-deploy')
   .addParam('env')
   .setAction(async ({ env }, hre) => {
-    const address: OspAddress = getAddresses(hre, env);
     const deployer = await getDeployer(hre);
     await hre.run('deploy-fixed-fee-cond-create2', { env, whitelist: 'false' });
+    const address: OspAddress = getAddresses(hre, env);
     const joinNFTImpl: Contract = await deployContract(
       new JoinNFT__factory(deployer).deploy(address.routerProxy)
     );
@@ -80,7 +81,7 @@ task('step4-0702-updateRouter')
   });
 
 //step5 safe setImpl
-task('step5-setImpl')
+task('step5-0702-setImpl')
   .addParam('env')
   .setAction(async ({ env }, hre) => {
     const address: OspAddress = getAddresses(hre, env);
@@ -156,3 +157,18 @@ task('step6-0702-6551Update')
   });
 
 //step7 safe whitelist WhitelistAddressCommunityCond FixedFeeCommunityCond PresaleSigCommunityCond
+task('step00-0702-grantRole')
+  .addParam('env')
+  .addParam('address')
+  .setAction(async ({ env, addr }, hre) => {
+    const address = getAddresses(hre, env);
+    const router = address?.routerProxy;
+    const deployer = await getDeployer(hre);
+    const ospClient = OspClient__factory.connect(address.routerProxy, deployer);
+    const callDatas: string[] = [];
+    callDatas.push(ospClient.interface.encodeFunctionData('grantRole', [GOVERNANCE, addr]));
+    callDatas.push(ospClient.interface.encodeFunctionData('grantRole', [APP_ADMIN, addr]));
+    callDatas.push(ospClient.interface.encodeFunctionData('grantRole', [STATE_ADMIN, addr]));
+    callDatas.push(ospClient.interface.encodeFunctionData('grantRole', [OPERATION, addr]));
+    await waitForTx(OspRouterImmutable__factory.connect(router, deployer).multicall(callDatas));
+  });
