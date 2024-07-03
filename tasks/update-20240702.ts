@@ -121,7 +121,7 @@ task('step5-0702-setImpl')
     console.log(`router is ${address.routerProxy}, calldata is ${calldata}`);
     console.log(
       `communityNFT router is ${
-        address.routerProxy
+        address.communityNFTProxy
       }, calldata is ${OspUniversalProxy__factory.createInterface().encodeFunctionData(
         'updateToAndCall',
         [address.communityNFT, []]
