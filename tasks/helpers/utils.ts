@@ -147,6 +147,7 @@ export type OspAddress = {
   slotNFTCommunityCond?: string;
   fixedFeeCommunityCond?: string;
   whitelistAddressCommunityCond: string;
+  presaleSigCommunityCond?: string;
 };
 
 export function getNullableAddresses(

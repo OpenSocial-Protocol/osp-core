@@ -13,6 +13,7 @@ import {
   FixedFeeCommunityCond__factory,
   JoinNFT__factory,
   OspClient__factory,
+  OspRouterImmutable__factory,
 } from '../target/typechain-types';
 import fs from 'fs';
 import { Contract, ethers } from 'ethers';
@@ -79,6 +80,34 @@ task('step4-0702-updateRouter')
   });
 
 //step5 safe setImpl
+task('step5-setImpl')
+  .addParam('env')
+  .setAction(async ({ env }, hre) => {
+    const address: OspAddress = getAddresses(hre, env);
+    const initData: string[] = [];
+    initData.push(
+      OspClient__factory.createInterface().encodeFunctionData('whitelistApp', [
+        address.whitelistAddressCommunityCond!,
+        false,
+      ])
+    );
+    initData.push(
+      OspClient__factory.createInterface().encodeFunctionData('whitelistApp', [
+        address.fixedFeeCommunityCond!,
+        true,
+      ])
+    );
+    initData.push(
+      OspClient__factory.createInterface().encodeFunctionData('whitelistApp', [
+        address.presaleSigCommunityCond!,
+        true,
+      ])
+    );
+    const calldata = OspRouterImmutable__factory.createInterface().encodeFunctionData('multicall', [
+      initData,
+    ]);
+    console.log(`router is ${address.routerProxy}, calldata is ${calldata}`);
+  });
 
 task('step6-0702-6551Update')
   .addParam('env')
