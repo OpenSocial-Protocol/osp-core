@@ -159,7 +159,7 @@ task('step6-0702-6551Update')
 //step7 safe whitelist WhitelistAddressCommunityCond FixedFeeCommunityCond PresaleSigCommunityCond
 task('step00-0702-grantRole')
   .addParam('env')
-  .addParam('address')
+  .addParam('addr')
   .setAction(async ({ env, addr }, hre) => {
     const address = getAddresses(hre, env);
     const router = address?.routerProxy;
