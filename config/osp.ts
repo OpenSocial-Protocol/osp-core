@@ -117,4 +117,7 @@ export const STATE_ADMIN = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('STAT
 export const APP_ADMIN = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('APP_ADMIN'));
 export const GOVERNANCE = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('GOVERNANCE'));
 export const OPERATION = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('OPERATION'));
+export const SUPER_COMMUNITY_CREATOR = ethers.utils.keccak256(
+  ethers.utils.toUtf8Bytes('SUPER_COMMUNITY_CREATOR')
+);
 console.log(OPERATION);

@@ -1,18 +1,15 @@
 import '@nomiclabs/hardhat-ethers';
-import { ethers, Wallet } from 'ethers';
+import { Wallet } from 'ethers';
 import { task } from 'hardhat/config';
 import {
-  CommunityNFT__factory,
   ERC6551Account__factory,
   JoinNFT__factory,
   OspClient__factory,
   OspRouterImmutable__factory,
-  OspUniversalProxy__factory,
   WhitelistAddressCommunityCond__factory,
 } from '../target/typechain-types';
-import { deployContract, getAddresses, getMulticall3, waitForTx } from './helpers/utils';
+import { deployContract, getAddresses, waitForTx } from './helpers/utils';
 import { getDeployer } from './helpers/kms';
-import { getUpdateCallDatas } from './update-all-router';
 import fs from 'fs';
 import {
   APP_ADMIN,

@@ -82,43 +82,52 @@ task('step4-0702-updateRouter')
   });
 
 //step5 safe setImpl
-task('step5-0702-setImpl')
+task('step5-0702-setImpl-whitelistApp')
   .addParam('env')
   .setAction(async ({ env }, hre) => {
     const address: OspAddress = getAddresses(hre, env);
-    const initData: string[] = [];
-    initData.push(
-      OspClient__factory.createInterface().encodeFunctionData('setJoinNFTImpl', [
-        address.joinNFTImpl!,
-      ])
+    console.log('app admin callData is: \n\n');
+    console.log(
+      `router is ${
+        address.routerProxy
+      }, calldata is ${OspRouterImmutable__factory.createInterface().encodeFunctionData(
+        'multicall',
+        [
+          [
+            OspClient__factory.createInterface().encodeFunctionData('whitelistApp', [
+              address.whitelistAddressCommunityCond!,
+              false,
+            ]),
+            OspClient__factory.createInterface().encodeFunctionData('whitelistApp', [
+              address.fixedFeeCommunityCond!,
+              true,
+            ]),
+            OspClient__factory.createInterface().encodeFunctionData('whitelistApp', [
+              address.presaleSigCommunityCond!,
+              true,
+            ]),
+          ],
+        ]
+      )}`
     );
-    initData.push(
-      OspClient__factory.createInterface().encodeFunctionData('setERC6551AccountImpl', [
-        address.erc6551AccountImpl!,
-      ])
+    console.log('governance callData is :\n\n');
+    console.log(
+      `router is ${
+        address.routerProxy
+      }, calldata is ${OspRouterImmutable__factory.createInterface().encodeFunctionData(
+        'multicall',
+        [
+          [
+            OspClient__factory.createInterface().encodeFunctionData('setJoinNFTImpl', [
+              address.joinNFTImpl!,
+            ]),
+            OspClient__factory.createInterface().encodeFunctionData('setERC6551AccountImpl', [
+              address.erc6551AccountImpl!,
+            ]),
+          ],
+        ]
+      )}`
     );
-    initData.push(
-      OspClient__factory.createInterface().encodeFunctionData('whitelistApp', [
-        address.whitelistAddressCommunityCond!,
-        false,
-      ])
-    );
-    initData.push(
-      OspClient__factory.createInterface().encodeFunctionData('whitelistApp', [
-        address.fixedFeeCommunityCond!,
-        true,
-      ])
-    );
-    initData.push(
-      OspClient__factory.createInterface().encodeFunctionData('whitelistApp', [
-        address.presaleSigCommunityCond!,
-        true,
-      ])
-    );
-    const calldata = OspRouterImmutable__factory.createInterface().encodeFunctionData('multicall', [
-      initData,
-    ]);
-    console.log(`router is ${address.routerProxy}, calldata is ${calldata}`);
     console.log(
       `communityNFT router is ${
         address.communityNFTProxy
@@ -190,4 +199,28 @@ task('step00-0702-grantRole')
     callDatas.push(ospClient.interface.encodeFunctionData('grantRole', [STATE_ADMIN, addr]));
     callDatas.push(ospClient.interface.encodeFunctionData('grantRole', [OPERATION, addr]));
     await waitForTx(OspRouterImmutable__factory.connect(router, deployer).multicall(callDatas));
+  });
+
+task('step00-0702-deploy-join-nft')
+  .addParam('env')
+  .setAction(async ({ env }, hre) => {
+    const deployer = await getDeployer(hre);
+    const address: OspAddress = getAddresses(hre, env);
+    const joinNFTImpl: Contract = await deployContract(
+      new JoinNFT__factory(deployer).deploy(address.routerProxy)
+    );
+    address.joinNFTImpl = joinNFTImpl.address;
+    console.log(`deployed joinNFTImpl at ${joinNFTImpl.address}`);
+    console.log(
+      `router address : ${
+        address.routerProxy
+      } ,callData: ${OspClient__factory.createInterface().encodeFunctionData('setJoinNFTImpl', [
+        joinNFTImpl.address,
+      ])}`
+    );
+    fs.writeFileSync(
+      `addresses-${env}-${hre.network.name}.json`,
+      JSON.stringify(address, null, 2),
+      'utf-8'
+    );
   });
